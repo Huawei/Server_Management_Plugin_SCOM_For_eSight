@@ -1,0 +1,25 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.PartChildGroup"  Base="System!System.LogicalEntity" Accessibility="Public" Abstract="true" Hosted="false" Singleton="false">
+          <Property ID="ID" Key="true" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
+        </ClassType>
+      </ClassTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.PartChildGroup">
+          <Name>Group</Name>
+          <Description>Group</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.PartChildGroup" SubElementID="ID">
+          <Name>ID</Name>
+          <Description>ID</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

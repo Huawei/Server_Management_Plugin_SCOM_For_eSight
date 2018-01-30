@@ -1,0 +1,1 @@
+This is SCOM plugin for Huawei server.

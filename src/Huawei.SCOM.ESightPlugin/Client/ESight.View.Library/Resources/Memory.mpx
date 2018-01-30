@@ -1,0 +1,16 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Categories>
+    <Category ID="ESight.Memory.Diagram.Category" Target="ESight.Memory.Diagram" Value="System!System.Internal.ManagementPack.Images.DiagramIcon" />
+    <Category ID="ESight.Memory.Small.Category" Target="ESight.Memory.Small" Value="System!System.Internal.ManagementPack.Images.u16x16Icon" />
+  </Categories>
+  <!--<Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.Server.Memory" ImageID="EVL!ESight.Memory.Diagram"/>
+      <ImageReference ElementID="ESight.Server.Memory" ImageID="EVL!ESight.Memory.Small"/>
+    </ImageReferences>
+  </Presentation>-->
+  <Resources>
+    <Image ID="ESight.Memory.Diagram" FileName="Memory_80.png" Accessibility="Public" HasNullStream="false" Comment="ESight Memory Image Diagram" />
+    <Image ID="ESight.Memory.Small" FileName="Memory_16.png" Accessibility="Public" HasNullStream="false" Comment="ESight Memory Image Small" />
+  </Resources>
+</ManagementPackFragment>

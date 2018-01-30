@@ -1,0 +1,18 @@
+<TemplateGroup>
+  <Instances>
+    <Instance ID="Instanceaac2f41d1cd940b795894c063f089c83" Type="Microsoft.SystemCenter.Authoring.CodeGeneration.Monitoring.CustomView" Version="1.0.0.0">
+      <CustomViewConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <ViewFolder>EVL!ESight.Diagram.Folder</ViewFolder>
+        <ViewType>SC!Microsoft.SystemCenter.DiagramViewType</ViewType>
+        <ViewConfiguration>&lt;Criteria /&gt;&lt;Presentation&gt;&lt;DiagramViewCriteria&gt;&lt;DiagramViewDisplay ShowVirtualGroup="false"&gt;&lt;NodesPerRow&gt;3&lt;/NodesPerRow&gt;&lt;LevelsToShow&gt;2&lt;/LevelsToShow&gt;&lt;ContainmentLine&gt;&lt;Color /&gt;&lt;SourceArrow IsFilled="false"&gt;&lt;ArrowStyle&gt;NoAnchor&lt;/ArrowStyle&gt;&lt;/SourceArrow&gt;&lt;TargetArrow IsFilled="false"&gt;&lt;ArrowStyle&gt;ArrowAnchor&lt;/ArrowStyle&gt;&lt;/TargetArrow&gt;&lt;/ContainmentLine&gt;&lt;NonContainmentLine&gt;&lt;Color Red="6" Green="134" Blue="253" /&gt;&lt;SourceArrow IsFilled="false"&gt;&lt;ArrowStyle&gt;NoAnchor&lt;/ArrowStyle&gt;&lt;/SourceArrow&gt;&lt;TargetArrow IsFilled="false"&gt;&lt;ArrowStyle&gt;ArrowAnchor&lt;/ArrowStyle&gt;&lt;/TargetArrow&gt;&lt;LineStyle&gt;DashDotDot&lt;/LineStyle&gt;&lt;/NonContainmentLine&gt;&lt;/DiagramViewDisplay&gt;&lt;/DiagramViewCriteria&gt;&lt;/Presentation&gt;</ViewConfiguration>
+        <Visible>true</Visible>
+        <Accessibility>Internal</Accessibility>
+        <Id>KunLunServer.DiagramView</Id>
+        <DisplayName>KunLunServer DiagramView</DisplayName>
+        <Description>KunLunServer DiagramView</Description>
+        <Target>ESight.KunLunServer.KunLunServerGroup</Target>
+        <Category>Operations</Category>
+      </CustomViewConfig>
+    </Instance>
+  </Instances>
+</TemplateGroup>

@@ -1,0 +1,17 @@
+<TemplateGroup>
+  <Instances>
+    <Instance ID="Instanceaac2f41d1cd940b795894c063f089c83" Type="Microsoft.SystemCenter.Authoring.CodeGeneration.Monitoring.CustomView" Version="1.0.0.0">
+      <CustomViewConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <ViewFolder>ESight.Alert.Folder</ViewFolder>
+        <ViewType>SC!Microsoft.SystemCenter.AlertViewType</ViewType>
+        <Visible>true</Visible>
+        <Accessibility>Internal</Accessibility>
+        <Id>HuaweiServer.AlertView</Id>
+        <DisplayName>HuaweiServer AlertView</DisplayName>
+        <Description>HuaweiServer AlertView</Description>
+        <Target>ESight.HuaweiServer</Target>
+        <Category>Operations</Category>
+      </CustomViewConfig>
+    </Instance>
+  </Instances>
+</TemplateGroup>

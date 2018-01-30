@@ -1,0 +1,31 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.RackServer.CPUGroup" Base="EVL!ESight.PartGroup" Accessibility="Internal" Abstract="false" Hosted="true" Singleton="false"> </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.RackServer.CPUGroup.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.RackServer" />
+          <Target ID="Target" Type="ESight.RackServer.CPUGroup" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.RackServer.CPUGroup" ImageID="EVL!ESight.Cpu.Diagram"/>
+      <ImageReference ElementID="ESight.RackServer.CPUGroup" ImageID="EVL!ESight.Cpu.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.RackServer.CPUGroup">
+          <Name>CPUs</Name>
+          <Description></Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

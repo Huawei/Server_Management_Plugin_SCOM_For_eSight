@@ -1,0 +1,67 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.HighdensityServer.Highdensity.Memory" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：presentState-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：manufacture-->
+          <Property ID="Manufacturer" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：capacity-->
+          <Property ID="Size" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：frequency-->
+          <Property ID="Frequency" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：healthState-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.HighdensityServer.Highdensity.Memory.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.HighdensityServer.Highdensity.MemoryGroup" />
+          <Target ID="Target" Type="ESight.HighdensityServer.Highdensity.Memory" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.HighdensityServer.Highdensity.Memory" ImageID="EVL!ESight.Memory.Diagram"/>
+      <ImageReference ElementID="ESight.HighdensityServer.Highdensity.Memory" ImageID="EVL!ESight.Memory.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity.Memory">
+          <Name>Memory</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity.Memory" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity.Memory" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity.Memory" SubElementID="Manufacturer">
+          <Name>Manufacturer</Name>
+          <Description>Manufacturer</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity.Memory" SubElementID="Frequency">
+          <Name>Frequency</Name>
+          <Description>Frequency</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity.Memory" SubElementID="Size">
+          <Name>Size</Name>
+          <Description>Size</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity.Memory" SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

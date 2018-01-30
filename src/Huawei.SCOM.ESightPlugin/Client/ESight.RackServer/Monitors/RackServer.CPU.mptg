@@ -1,0 +1,47 @@
+<TemplateGroup>
+  <Instances>
+    <Instance ID="Instance1cb8bbbf42bb4bd8ba0ce5a2d4aaa2da" Type="Microsoft.SystemCenter.Authoring.CodeGeneration.Monitoring.UnitMonitor" Version="1.0.0.0">
+      <UnitMonitorConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <MonitorType>Windows!Microsoft.Windows.TimedScript.ThreeStateMonitorType</MonitorType>
+        <MonitorConfig>&lt;IntervalSeconds&gt;10&lt;/IntervalSeconds&gt;&lt;SyncTime /&gt;&lt;ScriptName&gt;GetStatus.vbs&lt;/ScriptName&gt;&lt;Arguments&gt;$Target/Property[Type="ESight.RackServer.CPU"]/Status$&lt;/Arguments&gt;&lt;ScriptBody&gt;$IncludeFileContent/Scripts/GetStatus.vbs$&lt;/ScriptBody&gt;&lt;SecureInput&gt;&lt;/SecureInput&gt;&lt;TimeoutSeconds&gt;5&lt;/TimeoutSeconds&gt;&lt;ErrorExpression&gt;&lt;SimpleExpression&gt;&lt;ValueExpression&gt;&lt;XPathQuery&gt;Property[@Name='healthStatus']&lt;/XPathQuery&gt;&lt;/ValueExpression&gt;&lt;Operator&gt;Equal&lt;/Operator&gt;&lt;ValueExpression&gt;&lt;Value Type="String"&gt;-2&lt;/Value&gt;&lt;/ValueExpression&gt;&lt;/SimpleExpression&gt;&lt;/ErrorExpression&gt;&lt;WarningExpression&gt;&lt;SimpleExpression&gt;&lt;ValueExpression&gt;&lt;XPathQuery&gt;Property[@Name='healthStatus']&lt;/XPathQuery&gt;&lt;/ValueExpression&gt;&lt;Operator&gt;Equal&lt;/Operator&gt;&lt;ValueExpression&gt;&lt;Value Type="String"&gt;-1&lt;/Value&gt;&lt;/ValueExpression&gt;&lt;/SimpleExpression&gt;&lt;/WarningExpression&gt;&lt;SuccessExpression&gt;&lt;SimpleExpression&gt;&lt;ValueExpression&gt;&lt;XPathQuery&gt;Property[@Name='healthStatus']&lt;/XPathQuery&gt;&lt;/ValueExpression&gt;&lt;Operator&gt;Equal&lt;/Operator&gt;&lt;ValueExpression&gt;&lt;Value Type="String"&gt;0&lt;/Value&gt;&lt;/ValueExpression&gt;&lt;/SimpleExpression&gt;&lt;/SuccessExpression&gt;</MonitorConfig>
+        <MonitorOperationalStates>
+          <OperationalState>
+            <OperationalStateId>Error</OperationalStateId>
+            <OperationalStateDisplayName>Error</OperationalStateDisplayName>
+            <MonitorTypeStateId>Error</MonitorTypeStateId>
+            <HealthState>Error</HealthState>
+          </OperationalState>
+          <OperationalState>
+            <OperationalStateId>Warning</OperationalStateId>
+            <OperationalStateDisplayName>Warning</OperationalStateDisplayName>
+            <MonitorTypeStateId>Warning</MonitorTypeStateId>
+            <HealthState>Warning</HealthState>
+          </OperationalState>
+          <OperationalState>
+            <OperationalStateId>Success</OperationalStateId>
+            <OperationalStateDisplayName>Success</OperationalStateDisplayName>
+            <MonitorTypeStateId>Success</MonitorTypeStateId>
+            <HealthState>Success</HealthState>
+          </OperationalState>
+        </MonitorOperationalStates>
+        <ParentMonitor>Health!System.Health.AvailabilityState</ParentMonitor>
+        <Accessibility>Internal</Accessibility>
+        <Id>CPU.Monitor</Id>
+        <DisplayName>RackServer.CPU.Monitor</DisplayName>
+        <Description>RackServer.CPU.Monitor</Description>
+        <Target>ESight.RackServer.CPU</Target>
+        <Enabled>true</Enabled>
+        <Category>AvailabilityHealth</Category>
+        <Remotable>true</Remotable>
+        <Priority>Normal</Priority>
+        <AlertAutoResolve>true</AlertAutoResolve>
+        <AlertOnState>None</AlertOnState>
+        <AlertPriority>Normal</AlertPriority>
+        <AlertSeverity>MatchMonitorHealth</AlertSeverity>
+        <AlertName>RackServer.CPU.Alert</AlertName>
+        <AlertDescription>Status of server $Target/Property[Type="ESight.RackServer.CPU"]/UUID$ has turned to status of $Target/Property[Type="ESight.RackServer.CPU"]/Status$</AlertDescription>
+        <ConfirmDelivery>false</ConfirmDelivery>
+      </UnitMonitorConfig>
+    </Instance>
+  </Instances>
+</TemplateGroup>

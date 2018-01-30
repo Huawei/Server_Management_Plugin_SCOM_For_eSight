@@ -1,0 +1,68 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.BladeServer.Blade.Mezz" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：mezzInfo-->
+          <Property ID="MezzInfo" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：presentState-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：Location-->
+          <Property ID="MezzLocation" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：mezzMac-->
+          <Property ID="MezzMac" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：mezzHealthStatus-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+        </ClassType>
+
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.BladeServer.Blade.Mezz.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.BladeServer.Blade.MezzGroup" />
+          <Target ID="Target" Type="ESight.BladeServer.Blade.Mezz" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.BladeServer.Blade.Mezz" ImageID="EVL!ESight.Mezz.Diagram"/>
+      <ImageReference ElementID="ESight.BladeServer.Blade.Mezz" ImageID="EVL!ESight.Mezz.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.BladeServer.Blade.Mezz">
+          <Name>Mezz</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.Mezz" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.Mezz" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.Mezz" SubElementID="MezzInfo">
+          <Name>MezzInfo</Name>
+          <Description>MezzInfo</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.Mezz" SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.Mezz" SubElementID="MezzLocation">
+          <Name>MezzLocation</Name>
+          <Description>MezzLocation</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.Mezz" SubElementID="MezzMac">
+          <Name>MezzMac</Name>
+          <Description>MezzMac</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

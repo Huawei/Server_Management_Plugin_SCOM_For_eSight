@@ -1,0 +1,459 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{ecc99bfb-7e23-4570-a475-21d8a7f1a25f}</ProjectGuid>
+    <RootNamespace>ESight.HighdensityServer</RootNamespace>
+    <Name>eSight.HighdensityServer</Name>
+    <ManagementPackName>eSight.HighdensityServer.Library</ManagementPackName>
+    <Version>1.0.0.0</Version>
+    <MpFrameworkVersion>v7.0.2</MpFrameworkVersion>
+    <MpFrameworkProfile>OM</MpFrameworkProfile>
+    <ProductVersion>1.1.0.0</ProductVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
+    <GenerateSealed>True</GenerateSealed>
+    <Company>广州摩赛网络技术有限公司</Company>
+    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <DelaySigning>False</DelaySigning>
+    <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
+    <DelaySigning>False</DelaySigning>
+    <Company>广州摩赛网络技术有限公司</Company>
+    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
+    <GenerateSealed>True</GenerateSealed>
+  </PropertyGroup>
+  <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Library">
+      <Alias>SC</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.Windows.Library">
+      <Alias>Windows</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Health.Library">
+      <Alias>Health</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Library">
+      <Alias>System</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Visualization.Library">
+      <Alias>Visualization</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Classes\" />
+    <Folder Include="ClassGroup\" />
+    <Folder Include="Discoveries\" />
+    <Folder Include="Monitors\" />
+    <Folder Include="MonitorPartGroup" />
+    <Folder Include="Rules\Highdensity" />
+    <Folder Include="Rules\ChildBoard" />
+    <Folder Include="Views" />
+    <Folder Include="Rules\" />
+    <Folder Include="Scripts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ClassGroup\HighdensityServer.FanGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\HighdensityServer.Highdensity.CPUGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\HighdensityServer.Highdensity.DiskGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\HighdensityServer.Highdensity.MemoryGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\HighdensityServer.HighdensityGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\HighdensityServer.Highdensity.RaidControlGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\HighdensityServer.PowerSupplyGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Discoveries\GroupDiscovery.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Discoveries\GroupDiscovery.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Discoveries\HuaweiGroupDiscovery.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Discoveries\HuaweiGroupDiscovery.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="HighdensityServerGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HighdensityServer.Fan.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HighdensityServer.Highdensity.CPU.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HighdensityServer.Highdensity.Disk.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HighdensityServer.Highdensity.Memory.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HighdensityServer.Highdensity.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HighdensityServer.Highdensity.RaidController.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HighdensityServer.PowerSupply.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HighdensityServer.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MonitorPartGroup\HighdensityServer.FanGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\HighdensityServer.FanGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\HighdensityServer.Highdensity.CPUGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\HighdensityServer.Highdensity.CPUGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\HighdensityServer.Highdensity.DiskGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\HighdensityServer.Highdensity.DiskGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\HighdensityServer.Highdensity.MemoryGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\HighdensityServer.Highdensity.MemoryGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\HighdensityServer.Highdensity.RaidControllerGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\HighdensityServer.Highdensity.RaidControllerGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\HighdensityServer.HighdensityGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\HighdensityServer.HighdensityGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\HighdensityServer.PowerSupplyGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\HighdensityServer.PowerSupplyGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServer.Fan.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServer.Fan.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServer.Highdensity.CPU.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServer.Highdensity.CPU.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServer.Highdensity.Disk.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServer.Highdensity.Disk.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServer.Highdensity.Memory.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServer.Highdensity.Memory.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServer.Highdensity.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServer.Highdensity.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServer.Highdensity.RaidController.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServer.Highdensity.RaidController.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServer.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServer.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServer.PowerSupply.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServer.PowerSupply.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HighdensityServerGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HighdensityServerGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HuaweiGroupMonitor.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HuaweiGroupMonitor.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule105.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule105.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule116.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule116.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule127.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule127.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule138.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule138.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule149.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule149.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule205.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule205.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule216.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule216.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule227.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule227.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule238.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule238.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule249.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule105.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule105.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule116.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule116.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule127.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule127.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule138.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule138.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule149.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule149.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule205.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule205.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule216.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule216.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule227.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule227.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule238.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule238.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule249.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HighdensityServer.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\HighdensityServer.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HighdensityServerDiagramView.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\HighdensityServerDiagramView.mptg</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\eSight.View.Library\ESight.View.Library.mpproj">
+      <Name>ESight.View.Library</Name>
+      <Project>{f09ad7ee-beaf-41c8-b349-5f16784f2a3b}</Project>
+      <Private>True</Private>
+      <Alias>EVL</Alias>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Discoveries\GroupDiscovery.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Discoveries\HuaweiGroupDiscovery.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\HighdensityServer.FanGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\HighdensityServer.Highdensity.CPUGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\HighdensityServer.Highdensity.DiskGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\HighdensityServer.Highdensity.MemoryGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\HighdensityServer.Highdensity.RaidControllerGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\HighdensityServer.HighdensityGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\HighdensityServer.PowerSupplyGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServer.Fan.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServer.Highdensity.CPU.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServer.Highdensity.Disk.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServer.Highdensity.Memory.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServer.Highdensity.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServer.Highdensity.RaidController.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServer.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServer.PowerSupply.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HighdensityServerGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HuaweiGroupMonitor.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule105.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule116.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule127.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule138.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule149.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule205.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule216.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule227.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule238.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule249.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule105.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule116.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule127.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule138.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule149.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule205.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule216.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule227.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule238.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Highdensity\HighdensityServerAlertRule249.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Views\HighdensityServer.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Views\HighdensityServerDiagramView.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\GetStatus.vbs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VSAC\Microsoft.SystemCenter.OperationsManager.targets" />
+</Project>

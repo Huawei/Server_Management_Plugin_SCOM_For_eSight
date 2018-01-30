@@ -1,0 +1,292 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{70EE3594-008A-404B-B5F6-FE6CD233577D}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Huawei.SCOM.ESightPlugin.WebServer</RootNamespace>
+    <AssemblyName>Huawei.SCOM.ESightPlugin.WebServer</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort>44301</IISExpressSSLPort>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonUtil, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\src_bin\CommonUtil.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\third_party\Lib\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Web.Mobile" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AlarmNotification.ashx" />
+    <Content Include="Global.asax" />
+    <None Include="..\..\..\..\third_party\Lib\VisualCpp\msvcp120.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\..\third_party\Lib\VisualCpp\msvcr120.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+	<None Include="..\..\..\..\src_bin\libeay32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="StaticWeb\eSight.html" />
+    <Content Include="StaticWeb\css\dataTables.jqueryui.min.css" />
+    <Content Include="StaticWeb\css\jquery.dataTables.min.css" />
+    <Content Include="StaticWeb\css\style.css" />
+    <Content Include="StaticWeb\i18n\en.js" />
+    <Content Include="StaticWeb\images\favicon.ico" />
+    <Content Include="StaticWeb\images\sort_asc.png" />
+    <Content Include="StaticWeb\images\sort_asc_disabled.png" />
+    <Content Include="StaticWeb\images\sort_both.png" />
+    <Content Include="StaticWeb\images\sort_desc.png" />
+    <Content Include="StaticWeb\images\sort_desc_disabled.png" />
+    <Content Include="StaticWeb\js\dataTables.jqueryui.min.js" />
+    <Content Include="StaticWeb\js\errorCode.js" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\animated-overlay.gif" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_222222_256x240.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_454545_256x240.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_888888_256x240.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.accordion.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.all.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.autocomplete.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.base.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.button.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.core.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.datepicker.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.dialog.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.menu.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.progressbar.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.resizable.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.selectable.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.slider.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.spinner.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.tabs.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.theme.css" />
+    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.tooltip.css" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.autocomplete.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.button.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.core.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.dialog.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.draggable.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.effect.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.mouse.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.position.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.resizable.js" />
+    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.widget.js" />
+    <Content Include="StaticWeb\js\jquery.dataTables.min.js" />
+    <Content Include="StaticWeb\js\loadmask.js" />
+    <Content Include="StaticWeb\js\jquery.min.js" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AlarmNotification.ashx.cs">
+      <DependentUpon>AlarmNotification.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\ESightEngine.cs" />
+    <Compile Include="Helper\NotifyClient.cs" />
+    <Compile Include="Model\ApiResult.cs" />
+    <Compile Include="Model\CommonBLLClass.cs" />
+    <Compile Include="NeDeviceNotification.ashx.cs">
+      <DependentUpon>NeDeviceNotification.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="eSight.ashx.cs">
+      <DependentUpon>eSight.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\ESightHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Controller\Huawei.SCOM.ESightPlugin.RESTeSightLib\Huawei.SCOM.ESightPlugin.RESTeSightLib.csproj">
+      <Project>{5c1c1de2-3507-4557-8b83-1321646fcf9d}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.RESTeSightLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Model\Huawei.SCOM.ESightPlugin.Const\Huawei.SCOM.ESightPlugin.Const.csproj">
+      <Project>{74c9b977-a729-47d0-8e18-5d00b3b6b553}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.Const</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Model\Huawei.SCOM.ESightPlugin.Models\Huawei.SCOM.ESightPlugin.Models.csproj">
+      <Project>{e8b06327-7335-4d9d-93a7-7b95c0d35979}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Util\LogUtil\LogUtil.csproj">
+      <Project>{56bbfa4a-2de0-46c5-87d7-6e6f14d81916}</Project>
+      <Name>LogUtil</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="eSight.ashx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="NeDeviceNotification.ashx" />
+    <Content Include="packages.config" />
+    <None Include="Properties\PublishProfiles\release.pubxml" />
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'prod|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'prod|x86'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'prod|x64'">
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>65187</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:65187/</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://localhost:65187/</IISAppRootUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

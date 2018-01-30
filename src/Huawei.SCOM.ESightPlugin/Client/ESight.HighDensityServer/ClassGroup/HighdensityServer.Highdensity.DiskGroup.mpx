@@ -1,0 +1,31 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.HighdensityServer.Highdensity.DiskGroup" Base="EVL!ESight.PartChildGroup" Accessibility="Internal" Abstract="false" Hosted="true" Singleton="false"> </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.HighdensityServer.Highdensity.DiskGroup.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.HighdensityServer.Highdensity" />
+          <Target ID="Target" Type="ESight.HighdensityServer.Highdensity.DiskGroup" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.HighdensityServer.Highdensity.DiskGroup" ImageID="EVL!ESight.Disk.Diagram"/>
+      <ImageReference ElementID="ESight.HighdensityServer.Highdensity.DiskGroup" ImageID="EVL!ESight.Disk.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity.DiskGroup">
+          <Name>Disks</Name>
+          <Description></Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

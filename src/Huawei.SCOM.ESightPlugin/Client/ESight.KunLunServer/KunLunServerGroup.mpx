@@ -1,0 +1,31 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.KunLunServer.KunLunServerGroup" Accessibility="Public" Base="System!System.Group" Abstract="false" Hosted="false" Singleton="true"></ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.HuaweiServerGroup.Contains.ESight.KunLunServer.KunLunServerGroup" Accessibility="Public" Abstract="false" Base="System!System.Containment">
+          <Source ID="Source" Type="EVL!ESight.HuaweiServerGroup" />
+          <Target ID="Target" Type="ESight.KunLunServer.KunLunServerGroup" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.KunLunServer.KunLunServerGroup" ImageID="EVL!ESight.KunLun.Diagram"/>
+      <ImageReference ElementID="ESight.KunLunServer.KunLunServerGroup" ImageID="EVL!ESight.KunLun.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.KunLunServer.KunLunServerGroup">
+          <Name>KunLunServer Group</Name>
+          <Description></Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

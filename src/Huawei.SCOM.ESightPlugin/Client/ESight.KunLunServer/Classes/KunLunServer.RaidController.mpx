@@ -1,0 +1,73 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.KunLunServer.RaidController" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：raidType-->
+          <Property ID="Type" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：interfaceType-->
+          <Property ID="DeviceInterface" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：bbuType-->
+          <Property ID="BBUType" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：暂无返回-->
+          <Property ID="FirmwareVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：暂无返回-->
+          <Property ID="DirverVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：healthState-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.KunLunServer.RaidController.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.KunLunServer.RaidControllerGroup" />
+          <Target ID="Target" Type="ESight.KunLunServer.RaidController" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.KunLunServer.RaidController" ImageID="EVL!ESight.RaidController.Diagram"/>
+      <ImageReference ElementID="ESight.KunLunServer.RaidController" ImageID="EVL!ESight.RaidController.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.KunLunServer.RaidController">
+          <Name>RaidController</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.RaidController" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.RaidController" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.RaidController" SubElementID="Type">
+          <Name>Type</Name>
+          <Description>Type</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.RaidController" SubElementID="DeviceInterface">
+          <Name>DeviceInterface</Name>
+          <Description>DeviceInterface</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.RaidController" SubElementID="BBUType">
+          <Name>BBUType</Name>
+          <Description>BBUType</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.RaidController" SubElementID="FirmwareVersion">
+          <Name>FirmwareVersion</Name>
+          <Description>FirmwareVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.RaidController" SubElementID="DirverVersion">
+          <Name>DirverVersion</Name>
+          <Description>DirverVersion</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

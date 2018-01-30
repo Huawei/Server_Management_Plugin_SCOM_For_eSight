@@ -1,0 +1,68 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.HighdensityServer.Highdensity" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <!--ESight：dn-->
+          <Property ID="DN" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：ipAddress-->
+          <Property ID="IPAddress" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：uuid-->
+          <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：productSn-->
+          <Property ID="ProductSn" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight： type-->
+          <Property ID="Type" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：status-->
+          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.HighdensityServer.Highdensity.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.HighdensityServer.HighdensityGroup" />
+          <Target ID="Target" Type="ESight.HighdensityServer.Highdensity" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.HighdensityServer.Highdensity" ImageID="EVL!ESight.ChildBoard.Diagram"/>
+      <ImageReference ElementID="ESight.HighdensityServer.Highdensity" ImageID="EVL!ESight.ChildBoard.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity">
+          <Name>Child Boards</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity" SubElementID="DN">
+          <Name>DN</Name>
+          <Description>DN</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity" SubElementID="IPAddress">
+          <Name>IPAddress</Name>
+          <Description>IPAddress</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity" SubElementID="ProductSn">
+          <Name>ProductSn</Name>
+          <Description>ProductSn</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity" SubElementID="Type">
+          <Name>Type</Name>
+          <Description>Type</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

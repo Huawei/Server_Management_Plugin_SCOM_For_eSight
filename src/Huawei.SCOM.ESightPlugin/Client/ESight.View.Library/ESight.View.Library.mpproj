@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{f09ad7ee-beaf-41c8-b349-5f16784f2a3b}</ProjectGuid>
+    <RootNamespace>ESight.View.Library</RootNamespace>
+    <Name>eSight.View.Library</Name>
+    <ManagementPackName>eSight.View.Library</ManagementPackName>
+    <Version>1.0.0.0</Version>
+    <MpFrameworkVersion>v7.0.2</MpFrameworkVersion>
+    <MpFrameworkProfile>OM</MpFrameworkProfile>
+    <ProductVersion>1.1.0.0</ProductVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
+    <GenerateSealed>True</GenerateSealed>
+    <Company>广州摩赛网络技术有限公司</Company>
+    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <DelaySigning>False</DelaySigning>
+    <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
+    <DelaySigning>False</DelaySigning>
+    <Company>广州摩赛网络技术有限公司</Company>
+    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
+    <GenerateSealed>True</GenerateSealed>
+  </PropertyGroup>
+  <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Library">
+      <Alias>SC</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.Windows.Library">
+      <Alias>Windows</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Health.Library">
+      <Alias>Health</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Library">
+      <Alias>System</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Visualization.Library">
+      <Alias>Visualization</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Classes\PartChildGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\PartGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\HuaweiServerBase.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ESightFolder.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HuaweiServerGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Blade.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\ChildBlade.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\ChildBoard.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Cpu.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Disk.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Fan.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Highdensity.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Hmm.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\HuaweiServerGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\KunLun.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Memory.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Mezz.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\PowerSupply.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Rack.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\RaidController.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\Switch.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Resources\StringResources.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Views\HuaweiServerDiagramView.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\HuaweiServerDiagramView.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HuaweiServerEventView.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\HuaweiServerEventView.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HuweiServerAlertView.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\HuweiServerAlertView.mptg</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Icons\Blade_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Blade_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\ChildBlade_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\ChildBlade_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\ChildBoard_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\ChildBoard_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Disk_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Disk_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Fan_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Fan_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Highdensity_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Highdensity_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Hmm_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Hmm_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\HuaweiServerGroup_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\HuaweiServerGroup_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\KunLun_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\KunLun_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Memory_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Memory_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Mezz_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Mezz_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\PowerSupply_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\PowerSupply_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Cpu_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Cpu_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Rack_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Rack_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\RaidController_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\RaidController_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Switch_16.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Icons\Switch_80.png">
+      <SubType>Content</SubType>
+    </EmbeddedResource>
+    <Content Include="Resources\Icons\Processor_16.png">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Views\HuaweiServerDiagramView.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Views\HuaweiServerEventView.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Views\HuweiServerAlertView.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Classes" />
+    <Folder Include="Resources" />
+    <Folder Include="Resources\Icons" />
+    <Folder Include="Resources" />
+    <Folder Include="Views" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VSAC\Microsoft.SystemCenter.OperationsManager.targets" />
+</Project>
