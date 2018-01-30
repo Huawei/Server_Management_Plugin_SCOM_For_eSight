@@ -1,0 +1,122 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.RackServer"  Base="EVL!ESight.HuaweiServer" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：uuid-->
+          <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--默认为"HUAWEI"-->
+          <Property ID="Vendor" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：manufacturer-->
+          <Property ID="Manufacturer" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：ipAddress-->
+          <Property ID="IPAddress" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：version-->
+          <Property ID="iBMCVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂时未返回-->
+          <Property ID="CPLDVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂时未返回-->
+          <Property ID="UbootVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：ProductSN-->
+          <Property ID="ProductSn" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：MemoryCapacity-->
+          <Property ID="MemoryCapacity" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：CPUNums-->
+          <Property ID="CPUNums" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：CPUCores-->
+          <Property ID="CPUCores" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂时未返回-->
+          <Property ID="ServerName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂时未返回-->
+          <Property ID="BMCMacAddr" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：status-->
+          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.RackServer.RackServerGroup.Contains.ESight.RackServer" Accessibility="Public" Abstract="false" Base="System!System.Containment">
+          <Source ID="Source" Type="ESight.RackServer.RackServerGroup" />
+          <Target ID="Target" Type="ESight.RackServer" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.RackServer" ImageID="EVL!ESight.Rack.Diagram"/>
+      <ImageReference ElementID="ESight.RackServer" ImageID="EVL!ESight.Rack.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.RackServer">
+          <Name>Rack Server</Name>
+          <Description></Description>
+        </DisplayString>
+
+        <DisplayString ElementID="ESight.RackServer" SubElementID="eSight">
+          <Name>eSight</Name>
+          <Description>eSight</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="Manufacturer">
+          <Name>Manufacturer</Name>
+          <Description>Manufacturer</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="IPAddress">
+          <Name>IPAddress</Name>
+          <Description>IPAddress</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="iBMCVersion">
+          <Name>iBMCVersion</Name>
+          <Description>iBMCVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="CPLDVersion">
+          <Name>CPLDVersion</Name>
+          <Description>CPLDVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="UbootVersion">
+          <Name>UbootVersion</Name>
+          <Description>UbootVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="ProductSn">
+          <Name>ProductSn</Name>
+          <Description>ProductSn</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="CPUNums">
+          <Name>CPUNums</Name>
+          <Description>CPUNums</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="CPUCores">
+          <Name>CPUCores</Name>
+          <Description>CPUCores</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="MemoryCapacity">
+          <Name>MemoryCapacity</Name>
+          <Description>MemoryCapacity</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="Vendor">
+          <Name>Vendor</Name>
+          <Description>Vendor</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="ServerName">
+          <Name>ServerName</Name>
+          <Description>ServerName</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="BMCMacAddr">
+          <Name>BMCMacAddr</Name>
+          <Description>BMCMacAddr</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{997F9589-52D3-4124-8319-CB47E5BD8F55}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Huawei.SCOM.ESightPlugin.Service</RootNamespace>
+    <AssemblyName>Huawei.SCOM.ESightPlugin.Service</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonUtil, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\src_bin\CommonUtil.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EnterpriseManagement.Core, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.EnterpriseManagement.OperationsManager, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ESightPluginService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ESightPluginService.Designer.cs">
+      <DependentUpon>ESightPluginService.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ESightSyncInstance.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="ProjectInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ProjectInstaller.Designer.cs">
+      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="applicationhost.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Controller\Huawei.SCOM.ESightPlugin.RESTeSightLib\Huawei.SCOM.ESightPlugin.RESTeSightLib.csproj">
+      <Project>{5c1c1de2-3507-4557-8b83-1321646fcf9d}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.RESTeSightLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Model\Huawei.SCOM.ESightPlugin.Const\Huawei.SCOM.ESightPlugin.Const.csproj">
+      <Project>{74c9b977-a729-47d0-8e18-5d00b3b6b553}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.Const</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Model\Huawei.SCOM.ESightPlugin.Models\Huawei.SCOM.ESightPlugin.Models.csproj">
+      <Project>{e8b06327-7335-4d9d-93a7-7b95c0d35979}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Util\LogUtil\LogUtil.csproj">
+      <Project>{56bbfa4a-2de0-46c5-87d7-6e6f14d81916}</Project>
+      <Name>LogUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Huawei.SCOM.ESightPlugin.Core\Huawei.SCOM.ESightPlugin.Core.csproj">
+      <Project>{A7FE7211-8D01-49D4-88E5-16C0A9ABF9B5}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="ESightPluginService.resx">
+      <DependentUpon>ESightPluginService.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProjectInstaller.resx">
+      <DependentUpon>ProjectInstaller.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /e /r /y "$(TargetDir)applicationhost.config" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)Huawei.SCOM.ESightPlugin.Service.exe" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)NLog.config" "$(SolutionDir)..\..\Release\Configuration\"
+
+xcopy /e /r /y "$(TargetDir)CommonUtil.dll" "$(SolutionDir)..\..\Release\Configuration\"      
+xcopy /e /r /y "$(TargetDir)Huawei.SCOM.ESightPlugin.Const.dll" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)Huawei.SCOM.ESightPlugin.Core.dll" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)Huawei.SCOM.ESightPlugin.Models.dll" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)Huawei.SCOM.ESightPlugin.RESTeSightLib.dll" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)libeay32.dll" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)LogUtil.dll" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)Newtonsoft.Json.dll" "$(SolutionDir)..\..\Release\Configuration\"
+xcopy /e /r /y "$(TargetDir)NLog.dll" "$(SolutionDir)..\..\Release\Configuration\"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

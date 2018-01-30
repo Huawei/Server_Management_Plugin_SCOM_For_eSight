@@ -1,0 +1,67 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.KunLunServer.CPU" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：healthState-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：manufacture-->
+          <Property ID="Manufacturer" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：presentState-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：model-->
+          <Property ID="Type" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：frequency-->
+          <Property ID="Frequency" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂无返回-->
+          <Property ID="CoreCount" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.KunLunServer.CPU.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.KunLunServer.CPUGroup" />
+          <Target ID="Target" Type="ESight.KunLunServer.CPU" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.KunLunServer.CPU">
+          <Name>CPU</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.CPU" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.CPU" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.CPU"  SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.CPU"  SubElementID="Manufacturer">
+          <Name>Manufacturer</Name>
+          <Description>Manufacturer</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.CPU"  SubElementID="Type">
+          <Name>Type</Name>
+          <Description>Type</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.CPU"  SubElementID="Frequency">
+          <Name>Frequency</Name>
+          <Description>Frequency</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.CPU"  SubElementID="CoreCount">
+          <Name>CoreCount</Name>
+          <Description>CoreCount</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

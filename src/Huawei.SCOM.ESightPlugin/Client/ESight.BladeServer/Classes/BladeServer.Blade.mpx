@@ -1,0 +1,112 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.BladeServer.Blade" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <!--SCOM自带 MaintenanceMode Path-->
+          <!--DisplayName = ESight：name 继承 System.LogicalEntity -->
+          <!--ESight：dn-->
+          <Property ID="DN" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：uuid-->
+          <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+           <!--ESight：presentState-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：ipAddress-->
+          <Property ID="BmcIP" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+           <!--待确认： 如web有就需要增加北向接口-->
+          <Property ID="BmcMask" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：mode-->
+          <Property ID="ProductName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--需要再确认是否有接口-->
+          <Property ID="BladeVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="2048" MinLength="0" />
+          <!-- web 页面有需要esight北向接口提供字段-->
+          <Property ID="BoardSerialNumber" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- esihgt没有 待确认-->
+          <Property ID="BoardManufacturerDate" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- esihgt没有 待确认-->
+          <Property ID="ProductDescription" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- web 页面有需要esight北向接口提供字段-->
+          <Property ID="ProductSerialNumber" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- web 页面有需要esight北向接口提供字段-->
+          <Property ID="SystemCPUUsage" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：status-->
+          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
+         </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.BladeServer.Blade.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.BladeServer.BladeGroup" />
+          <Target ID="Target" Type="ESight.BladeServer.Blade" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.BladeServer.Blade" ImageID="EVL!ESight.ChildBlade.Diagram"/>
+      <ImageReference ElementID="ESight.BladeServer.Blade" ImageID="EVL!ESight.ChildBlade.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.BladeServer.Blade">
+          <Name>Child Blade</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="DN">
+          <Name>DN</Name>
+          <Description>DN</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="BmcIP">
+          <Name>BmcIP</Name>
+          <Description>BmcIP</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="BmcMask">
+          <Name>BmcMask</Name>
+          <Description>BmcMask</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="ProductName">
+          <Name>ProductName</Name>
+          <Description>ProductName</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="BladeVersion">
+          <Name>BladeVersion</Name>
+          <Description>BladeVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="BoardSerialNumber">
+          <Name>BoardSerialNumber</Name>
+          <Description>BoardSerialNumber</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="BoardManufacturerDate">
+          <Name>BoardManufacturerDate</Name>
+          <Description>BoardManufacturerDate</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="ProductDescription">
+          <Name>ProductDescription</Name>
+          <Description>ProductDescription</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="ProductSerialNumber">
+          <Name>ProductSerialNumber</Name>
+          <Description>ProductSerialNumber</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="SystemCPUUsage">
+          <Name>SystemCPUUsage</Name>
+          <Description>SystemCPUUsage</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

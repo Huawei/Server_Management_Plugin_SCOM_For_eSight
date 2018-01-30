@@ -1,0 +1,17 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Presentation>
+    <StringResources>
+      <StringResource ID="ESight.HuaweiServer.AlertMessage" />
+    </StringResources>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.HuaweiServer.AlertMessage">
+          <Name>HuaweiServer Alert Message</Name>
+          <Description>The {0}（{3}） occur  a alert at {2} ,it caused by {4} and we suggest the repair actions is {5}</Description>
+        </DisplayString>
+      </DisplayStrings> 
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

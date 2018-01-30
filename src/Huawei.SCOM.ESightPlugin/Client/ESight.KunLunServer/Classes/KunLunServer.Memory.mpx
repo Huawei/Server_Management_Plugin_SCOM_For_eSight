@@ -1,0 +1,64 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+
+        <ClassType ID="ESight.KunLunServer.Memory" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <!--ESight：healthState-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：UUID-->
+          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：presentState-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：manufacturer-->
+          <Property ID="Manufacturer" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：capacity-->
+          <Property ID="Size" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：frequency-->
+          <Property ID="Frequency" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!-- MemoryInfo		删除此接口 -->
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.KunLunServer.Memory.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.KunLunServer.MemoryGroup" />
+          <Target ID="Target" Type="ESight.KunLunServer.Memory" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.KunLunServer.Memory">
+          <Name>Memory</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.Memory" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.Memory" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.Memory" SubElementID="Manufacturer">
+          <Name>Manufacturer</Name>
+          <Description>Manufacturer</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.Memory" SubElementID="Frequency">
+          <Name>Frequency</Name>
+          <Description>Frequency</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.Memory" SubElementID="Size">
+          <Name>Size</Name>
+          <Description>Size</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer.Memory" SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

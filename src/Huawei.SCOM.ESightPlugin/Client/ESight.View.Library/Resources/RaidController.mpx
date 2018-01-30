@@ -1,0 +1,16 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Categories>
+    <Category ID="ESight.RaidController.Diagram.Category" Target="ESight.RaidController.Diagram" Value="System!System.Internal.ManagementPack.Images.DiagramIcon" />
+    <Category ID="ESight.RaidController.Small.Category" Target="ESight.RaidController.Small" Value="System!System.Internal.ManagementPack.Images.u16x16Icon" />
+  </Categories>
+  <!--<Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.Server.RaidController" ImageID="EVL!ESight.RaidController.Diagram"/>
+      <ImageReference ElementID="ESight.Server.RaidController" ImageID="EVL!ESight.RaidController.Small"/>
+    </ImageReferences>
+  </Presentation>-->
+  <Resources>
+    <Image ID="ESight.RaidController.Diagram" FileName="RaidController_80.png" Accessibility="Public" HasNullStream="false" Comment="ESight RaidController Image Diagram" />
+    <Image ID="ESight.RaidController.Small" FileName="RaidController_16.png" Accessibility="Public" HasNullStream="false" Comment="ESight RaidController Image Small" />
+  </Resources>
+</ManagementPackFragment>

@@ -1,0 +1,16 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Categories>
+    <Category ID="ESight.Highdensity.Diagram.Category" Target="ESight.Highdensity.Diagram" Value="System!System.Internal.ManagementPack.Images.DiagramIcon" />
+    <Category ID="ESight.Highdensity.Small.Category" Target="ESight.Highdensity.Small" Value="System!System.Internal.ManagementPack.Images.u16x16Icon" />
+  </Categories>
+  <!--<Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.Server.Highdensity" ImageID="EVL!ESight.Highdensity.Diagram"/>
+      <ImageReference ElementID="ESight.Server.Highdensity" ImageID="EVL!ESight.Highdensity.Small"/>
+    </ImageReferences>
+  </Presentation>-->
+  <Resources>
+    <Image ID="ESight.Highdensity.Diagram" FileName="Highdensity_80.png" Accessibility="Public" HasNullStream="false" Comment="ESight Highdensity Image Diagram" />
+    <Image ID="ESight.Highdensity.Small" FileName="Highdensity_16.png" Accessibility="Public" HasNullStream="false" Comment="ESight Highdensity Image Small" />
+  </Resources>
+</ManagementPackFragment>

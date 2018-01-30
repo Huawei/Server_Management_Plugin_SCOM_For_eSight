@@ -1,0 +1,75 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.BladeServer.Blade.RaidController" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <!-- RaidControllerName ESight：  name-->
+          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：raidType-->
+          <Property ID="Type" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：interfaceType-->
+          <Property ID="DeviceInterface" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!-- FwVersion		esihgt没有 待确认 -->
+          <Property ID="FwVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!-- BBUPresence		可判断出来 -->
+          <Property ID="BBUPresence" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：bbuType-->
+          <Property ID="BBUType" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：healthState-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.BladeServer.Blade.RaidController.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.BladeServer.Blade.RaidControllerGroup" />
+          <Target ID="Target" Type="ESight.BladeServer.Blade.RaidController" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.BladeServer.Blade.RaidController" ImageID="EVL!ESight.RaidController.Diagram"/>
+      <ImageReference ElementID="ESight.BladeServer.Blade.RaidController" ImageID="EVL!ESight.RaidController.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.BladeServer.Blade.RaidController">
+          <Name>RaidController</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.RaidController" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.RaidController" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.RaidController" SubElementID="Type">
+          <Name>Type</Name>
+          <Description>Type</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.RaidController" SubElementID="DeviceInterface">
+          <Name>DeviceInterface</Name>
+          <Description>DeviceInterface</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.RaidController" SubElementID="FwVersion">
+          <Name>FwVersion</Name>
+          <Description>FwVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.RaidController" SubElementID="BBUPresence">
+          <Name>BBUPresence</Name>
+          <Description>BBUPresence</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade.RaidController" SubElementID="BBUType">
+          <Name>BBUType</Name>
+          <Description>BBUType</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

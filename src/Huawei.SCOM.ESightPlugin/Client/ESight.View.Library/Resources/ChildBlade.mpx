@@ -1,0 +1,16 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Categories>
+    <Category ID="ESight.ChildBlade.Diagram.Category" Target="ESight.ChildBlade.Diagram" Value="System!System.Internal.ManagementPack.Images.DiagramIcon" />
+    <Category ID="ESight.ChildBlade.Small.Category" Target="ESight.ChildBlade.Small" Value="System!System.Internal.ManagementPack.Images.u16x16Icon" />
+  </Categories>
+  <!--<Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.Server.ChildBlade" ImageID="EVL!ESight.ChildBlade.Diagram"/>
+      <ImageReference ElementID="ESight.Server.ChildBlade" ImageID="EVL!ESight.ChildBlade.Small"/>
+    </ImageReferences>
+  </Presentation>-->
+  <Resources>
+    <Image ID="ESight.ChildBlade.Diagram" FileName="ChildBlade_80.png" Accessibility="Public" HasNullStream="false" Comment="ESight ChildBlade Image Diagram" />
+    <Image ID="ESight.ChildBlade.Small" FileName="ChildBlade_16.png" Accessibility="Public" HasNullStream="false" Comment="ESight ChildBlade Image Small" />
+  </Resources>
+</ManagementPackFragment>

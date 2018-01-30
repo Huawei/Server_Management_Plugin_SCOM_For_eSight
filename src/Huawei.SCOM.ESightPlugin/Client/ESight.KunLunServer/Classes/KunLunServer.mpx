@@ -1,0 +1,122 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.KunLunServer"  Base="EVL!ESight.HuaweiServer" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：uuid-->
+          <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：manufacturer-->
+          <Property ID="Manufacturer" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：ipAddress-->
+          <Property ID="IPAddress" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：version-->
+          <Property ID="iBMCVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--默认为"HUAWEI"-->
+          <Property ID="Vendor" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂时未返回-->
+          <Property ID="CPLDVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂时未返回-->
+          <Property ID="UbootVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：ProductSN-->
+          <Property ID="ProductSn" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：MemoryCapacity-->
+          <Property ID="MemoryCapacity" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：CPUNums-->
+          <Property ID="CPUNums" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：CPUCores-->
+          <Property ID="CPUCores" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂时未返回-->
+          <Property ID="ServerName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：暂时未返回-->
+          <Property ID="BMCMacAddr" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：status-->
+          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.KunLunServer.KunLunServerGroup.Contains.ESight.KunLunServer" Accessibility="Public" Abstract="false" Base="System!System.Containment">
+          <Source ID="Source" Type="ESight.KunLunServer.KunLunServerGroup" />
+          <Target ID="Target" Type="ESight.KunLunServer" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.KunLunServer" ImageID="EVL!ESight.KunLun.Diagram"/>
+      <ImageReference ElementID="ESight.KunLunServer" ImageID="EVL!ESight.KunLun.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.KunLunServer">
+          <Name>KunLun Server</Name>
+          <Description></Description>
+        </DisplayString>
+
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="eSight">
+          <Name>eSight</Name>
+          <Description>eSight</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="Manufacturer">
+          <Name>Manufacturer</Name>
+          <Description>Manufacturer</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="IPAddress">
+          <Name>IPAddress</Name>
+          <Description>IPAddress</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="iBMCVersion">
+          <Name>iBMCVersion</Name>
+          <Description>iBMCVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="CPLDVersion">
+          <Name>CPLDVersion</Name>
+          <Description>CPLDVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="UbootVersion">
+          <Name>UbootVersion</Name>
+          <Description>UbootVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="ProductSn">
+          <Name>ProductSn</Name>
+          <Description>ProductSn</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="CPUNums">
+          <Name>CPUNums</Name>
+          <Description>CPUNums</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="CPUCores">
+          <Name>CPUCores</Name>
+          <Description>CPUCores</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="MemoryCapacity">
+          <Name>MemoryCapacity</Name>
+          <Description>MemoryCapacity</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="Vendor">
+          <Name>Vendor</Name>
+          <Description>Vendor</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="ServerName">
+          <Name>ServerName</Name>
+          <Description>ServerName</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.KunLunServer" SubElementID="BMCMacAddr">
+          <Name>BMCMacAddr</Name>
+          <Description>BMCMacAddr</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

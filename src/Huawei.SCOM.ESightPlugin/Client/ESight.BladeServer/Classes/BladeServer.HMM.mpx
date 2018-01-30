@@ -1,0 +1,117 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.BladeServer.HMM" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <!--ESight：未给出对应值-->
+          <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：type-->
+          <Property ID="ProductName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：可判断出来-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：productSn-->
+          <Property ID="ProductSerialNumber" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- InletTemp			esihgt需增加  -->
+          <Property ID="InletTemp" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- OutletTemp			esihgt需增加  -->
+          <Property ID="OutletTemp" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- AmbientTemp			esihgt需增加  -->
+          <Property ID="AmbientTemp" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- LSWTemp		        esihgt需增加  -->
+          <Property ID="LSWTemp" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- SoftwareVersion	    esihgt需增加  -->
+          <Property ID="SoftwareVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- BoardSerialNumber	esihgt需增加  -->
+          <Property ID="BoardSerialNumber" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- SmmOtherVersion		esihgt需增加  -->
+          <Property ID="SmmOtherVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- SmmHostname			esihgt需增加  -->
+          <Property ID="SmmHostname" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- SmmRedunancy		esihgt需增加  -->
+          <Property ID="SmmRedunancy" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：status-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+        </ClassType>
+
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.BladeServer.HMM.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.BladeServer.HMMGroup" />
+          <Target ID="Target" Type="ESight.BladeServer.HMM" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.BladeServer.HMM" ImageID="EVL!ESight.Hmm.Diagram"/>
+      <ImageReference ElementID="ESight.BladeServer.HMM" ImageID="EVL!ESight.Hmm.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.BladeServer.HMM">
+          <Name>HMM</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="ProductName">
+          <Name>ProductName</Name>
+          <Description>ProductName</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="ProductSerialNumber">
+          <Name>ProductSerialNumber</Name>
+          <Description>ProductSerialNumber</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="InletTemp">
+          <Name>InletTemp</Name>
+          <Description>InletTemp</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="OutletTemp">
+          <Name>OutletTemp</Name>
+          <Description>OutletTemp</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="AmbientTemp">
+          <Name>AmbientTemp</Name>
+          <Description>AmbientTemp</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="LSWTemp">
+          <Name>LSWTemp</Name>
+          <Description>LSWTemp</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="SoftwareVersion">
+          <Name>SoftwareVersion</Name>
+          <Description>SoftwareVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="BoardSerialNumber">
+          <Name>BoardSerialNumber</Name>
+          <Description>BoardSerialNumber</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="SmmOtherVersion">
+          <Name>SmmOtherVersion</Name>
+          <Description>SmmOtherVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="SmmHostname">
+          <Name>SmmHostname</Name>
+          <Description>SmmHostname</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.HMM" SubElementID="SmmRedunancy">
+          <Name>SmmRedunancy</Name>
+          <Description>SmmRedunancy</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

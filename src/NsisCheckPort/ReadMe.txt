@@ -1,0 +1,1 @@
+Please copy "Ports.nsh" to %NSIS%\Include folder.

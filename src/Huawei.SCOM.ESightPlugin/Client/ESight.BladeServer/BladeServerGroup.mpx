@@ -1,0 +1,31 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.BladeServer.BladeServerGroup" Accessibility="Public" Base="System!System.Group" Abstract="false" Hosted="false" Singleton="true"></ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.HuaweiServerGroup.Contains.ESight.BladeServer.BladeServerGroup" Accessibility="Public" Abstract="false" Base="System!System.Containment">
+          <Source ID="Source" Type="EVL!ESight.HuaweiServerGroup" />
+          <Target ID="Target" Type="ESight.BladeServer.BladeServerGroup" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.BladeServer.BladeServerGroup" ImageID="EVL!ESight.Blade.Diagram"/>
+      <ImageReference ElementID="ESight.BladeServer.BladeServerGroup" ImageID="EVL!ESight.Blade.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.BladeServer.BladeServerGroup">
+          <Name>BladeServer Group</Name>
+          <Description></Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

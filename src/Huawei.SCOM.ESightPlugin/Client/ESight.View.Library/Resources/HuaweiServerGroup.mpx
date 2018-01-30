@@ -1,0 +1,16 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Categories>
+    <Category ID="ESight.HuaweiServerGroup.Diagram.Category" Target="ESight.HuaweiServerGroup.Diagram" Value="System!System.Internal.ManagementPack.Images.DiagramIcon" />
+    <Category ID="ESight.HuaweiServerGroup.Small.Category" Target="ESight.HuaweiServerGroup.Small" Value="System!System.Internal.ManagementPack.Images.u16x16Icon" />
+  </Categories>
+  <!--<Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.Server.HuaweiServerGroup" ImageID="EVL!ESight.HuaweiServerGroup.Diagram"/>
+      <ImageReference ElementID="ESight.Server.HuaweiServerGroup" ImageID="EVL!ESight.HuaweiServerGroup.Small"/>
+    </ImageReferences>
+  </Presentation>-->
+  <Resources>
+    <Image ID="ESight.HuaweiServerGroup.Diagram" FileName="HuaweiServerGroup_80.png" Accessibility="Public" HasNullStream="false" Comment="ESight HuaweiServerGroup Image Diagram" />
+    <Image ID="ESight.HuaweiServerGroup.Small" FileName="HuaweiServerGroup_16.png" Accessibility="Public" HasNullStream="false" Comment="ESight HuaweiServerGroup Image Small" />
+  </Resources>
+</ManagementPackFragment>

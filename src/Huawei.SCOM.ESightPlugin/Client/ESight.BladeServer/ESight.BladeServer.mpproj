@@ -1,0 +1,525 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{82226b60-af9b-432b-aa43-ea4de7628d85}</ProjectGuid>
+    <RootNamespace>ESight.BladeServer</RootNamespace>
+    <Name>eSight.BladeServer</Name>
+    <ManagementPackName>eSight.BladeServer.Library</ManagementPackName>
+    <Version>1.0.0.0</Version>
+    <MpFrameworkVersion>v7.0.2</MpFrameworkVersion>
+    <MpFrameworkProfile>OM</MpFrameworkProfile>
+    <ProductVersion>1.1.0.0</ProductVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
+    <GenerateSealed>True</GenerateSealed>
+    <Company>广州摩赛网络技术有限公司</Company>
+    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <DelaySigning>False</DelaySigning>
+    <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
+    <DelaySigning>False</DelaySigning>
+    <Company>广州摩赛网络技术有限公司</Company>
+    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
+    <GenerateSealed>True</GenerateSealed>
+  </PropertyGroup>
+  <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Library">
+      <Alias>SC</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.Windows.Library">
+      <Alias>Windows</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Health.Library">
+      <Alias>Health</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Library">
+      <Alias>System</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Visualization.Library">
+      <Alias>Visualization</Alias>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Classes" />
+    <Folder Include="ClassGroup\" />
+    <Folder Include="MonitorPartGroup\" />
+    <Folder Include="Monitors" />
+    <Folder Include="Discoveries" />
+    <Folder Include="Rules" />
+    <Folder Include="Rules\Blade" />
+    <Folder Include="Rules\ChildBlade" />
+    <Folder Include="Scripts" />
+    <Folder Include="Views" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BladeServerGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.Blade.CPU.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.Blade.Disk.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.Blade.RaidController.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.Fan.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.HMM.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.Blade.Memory.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.Blade.Mezz.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.Blade.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.PowerSupply.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\BladeServer.Switch.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.Blade.CPUGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.Blade.DiskGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.Blade.MemoryGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.Blade.MezzGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.BladeGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.Blade.RaidControlGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.FanGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.HMMGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.PowerSupplyGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\BladeServer.SwitchGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Discoveries\GroupDiscovery.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Discoveries\GroupDiscovery.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Discoveries\HuaweiGroupDiscovery.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Discoveries\HuaweiGroupDiscovery.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.Blade.CPUGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.Blade.CPUGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.Blade.DiskGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.Blade.DiskGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.Blade.MemoryGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.Blade.MemoryGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.Blade.MezzGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.Blade.MezzGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.Blade.RaidControllerGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.Blade.RaidControllerGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.BladeGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.BladeGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.FanGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.FanGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.HMMGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.HMMGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.PowerSupplyGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.PowerSupplyGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\BladeServer.SwitchGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\BladeServer.SwitchGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.Blade.CPU.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.Blade.CPU.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.Blade.Disk.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.Blade.Disk.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.Blade.Memory.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.Blade.Memory.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.Blade.Mezz.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.Blade.Mezz.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.Blade.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.Blade.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.Blade.RaidController.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.Blade.RaidController.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.Fan.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.Fan.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.HMM.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.HMM.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.PowerSupply.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.PowerSupply.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServer.Switch.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServer.Switch.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServerGroupMonitor.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServerGroupMonitor.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\BladeServerMonitor.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\BladeServerMonitor.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HuaweiGroupMonitor.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HuaweiGroupMonitor.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule105.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule105.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule116.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule116.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule127.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule127.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule138.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule138.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule149.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule149.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule205.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule205.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule216.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule216.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule227.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule227.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule238.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule238.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Blade\BladeServerAlertRule249.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\Blade\BladeServerAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule105.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule105.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule116.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule116.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule127.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule127.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule138.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule138.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule149.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule149.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule205.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule205.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule216.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule216.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule227.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule227.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule238.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule238.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule249.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Views\BladeServerDiagramView.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\BladeServerDiagramView.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Views\BladeServerView.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\BladeServerView.mptg</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\eSight.View.Library\ESight.View.Library.mpproj">
+      <Name>ESight.View.Library</Name>
+      <Project>{f09ad7ee-beaf-41c8-b349-5f16784f2a3b}</Project>
+      <Private>True</Private>
+      <Alias>EVL</Alias>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Discoveries\GroupDiscovery.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Discoveries\HuaweiGroupDiscovery.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.Blade.CPUGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.Blade.DiskGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.Blade.MemoryGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.Blade.MezzGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.Blade.RaidControllerGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.BladeGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.FanGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.HMMGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.PowerSupplyGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\BladeServer.SwitchGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.Blade.CPU.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.Blade.Disk.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.Blade.Memory.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.Blade.Mezz.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.Blade.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.Blade.RaidController.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.Fan.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.HMM.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.PowerSupply.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServer.Switch.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServerGroupMonitor.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\BladeServerMonitor.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HuaweiGroupMonitor.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule105.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule116.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule127.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule138.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule149.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule205.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule216.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule227.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule238.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\Blade\BladeServerAlertRule249.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule105.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule116.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule127.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule138.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule149.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule205.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule216.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule227.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule238.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBlade\ChildBladeAlertRule249.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Views\BladeServerDiagramView.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Views\BladeServerView.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\GetStatus.vbs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VSAC\Microsoft.SystemCenter.OperationsManager.targets" />
+</Project>

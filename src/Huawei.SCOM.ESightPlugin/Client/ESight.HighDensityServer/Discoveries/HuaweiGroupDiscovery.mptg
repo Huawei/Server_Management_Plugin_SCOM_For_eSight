@@ -1,0 +1,37 @@
+<TemplateGroup>
+  <Instances>
+    <Instance ID="Instance3d5876a2e98b4569931758d52012d10f" Type="Microsoft.SystemCenter.Authoring.CodeGeneration.Monitoring.Discovery" Version="1.0.0.0">
+      <DiscoveryConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <Id>HuaweiServerGroupDiscovery</Id>
+        <DisplayName>HuaweiServerGroupDiscovery</DisplayName>
+        <Description>HuaweiServerGroupDiscovery</Description>
+        <DataSourceId>HuaweiServerGroupDataSource</DataSourceId>
+        <DataSourceConfig>&lt;RuleId&gt;$MPElement$&lt;/RuleId&gt;&lt;GroupInstanceId&gt;$Target/Id$&lt;/GroupInstanceId&gt;&lt;MembershipRules&gt;&lt;MembershipRule&gt;&lt;MonitoringClass&gt;$MPElement[Name="ESight.HighdensityServer.HighdensityServerGroup"]$&lt;/MonitoringClass&gt;&lt;RelationshipClass&gt;$MPElement[Name="ESight.HuaweiServerGroup.Contains.ESight.HighdensityServer.HighdensityServerGroup"]$&lt;/RelationshipClass&gt;&lt;/MembershipRule&gt;&lt;/MembershipRules&gt;</DataSourceConfig>
+        <DataSourceType>SC!Microsoft.SystemCenter.GroupPopulator</DataSourceType>
+        <Target>EVL!ESight.HuaweiServerGroup</Target>
+        <Enabled>true</Enabled>
+        <Remotable>true</Remotable>
+        <Priority>Normal</Priority>
+        <ConfirmDelivery>false</ConfirmDelivery>
+        <Category>Discovery</Category>
+        <DiscoveryClasses>
+          <DiscoveryClassItem>
+            <TypeId>EVL!ESight.HuaweiServerGroup</TypeId>
+            <Properties>
+              <DiscoveredTypeProperty>
+                <TypeId>System!System.Entity</TypeId>
+                <Property>DisplayName</Property>
+              </DiscoveredTypeProperty>
+            </Properties>
+          </DiscoveryClassItem>
+        </DiscoveryClasses>
+        <DiscoveryRelationships>
+          <DiscoveryRelationshipItem>
+            <TypeId>ESight.HuaweiServerGroup.Contains.ESight.HighdensityServer.HighdensityServerGroup</TypeId>
+            <Properties />
+          </DiscoveryRelationshipItem>
+        </DiscoveryRelationships>
+      </DiscoveryConfig>
+    </Instance>
+  </Instances>
+</TemplateGroup>

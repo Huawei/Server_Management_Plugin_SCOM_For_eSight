@@ -1,0 +1,80 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.BladeServer.Fan" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <!--ESight：UUID-->
+          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：presentState-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：controlModel-->
+          <Property ID="ControlModel" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：rotatePercent-->
+          <Property ID="RotatePercent" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：rotate-->
+          <Property ID="FanSpeed" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- fanInfo			esihgt需增加  -->
+          <Property ID="FanInfo" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- fanVersion			esihgt需增加  -->
+          <Property ID="FanVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：healthState-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.BladeServer.Fan.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.BladeServer.FanGroup" />
+          <Target ID="Target" Type="ESight.BladeServer.Fan" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.BladeServer.Fan" ImageID="EVL!ESight.Fan.Diagram"/>
+      <ImageReference ElementID="ESight.BladeServer.Fan" ImageID="EVL!ESight.Fan.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.BladeServer.Fan">
+          <Name>Fan</Name>
+          <Description>Fan</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Fan" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Fan" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Fan" SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Fan" SubElementID="ControlModel">
+          <Name>ControlModel</Name>
+          <Description>ControlModel</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Fan" SubElementID="RotatePercent">
+          <Name>RotatePercent</Name>
+          <Description>RotatePercent</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Fan" SubElementID="FanSpeed">
+          <Name>FanSpeed</Name>
+          <Description>FanSpeed</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Fan" SubElementID="FanVersion">
+          <Name>FanVersion</Name>
+          <Description>FanVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Fan" SubElementID="FanInfo">
+          <Name>FanInfo</Name>
+          <Description>FanInfo</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

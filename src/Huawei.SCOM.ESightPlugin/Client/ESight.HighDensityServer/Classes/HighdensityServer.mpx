@@ -1,0 +1,112 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.HighdensityServer" Base="EVL!ESight.HuaweiServer" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：uuid-->
+          <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--默认为"HUAWEI"-->
+          <Property ID="Vendor" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：manufacturer-->
+          <Property ID="Manufacturer" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：ipAddress-->
+          <Property ID="IPAddress" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：version-->
+          <Property ID="iBMCVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+
+          <!--ESight：未返回-->
+          <Property ID="CPLDVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：未返回-->
+          <Property ID="UbootVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+
+          <!--ESight：productSn-->
+          <Property ID="ProductSn" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：MemoryCapacity-->
+          <Property ID="MemoryCapacity" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：ServerName-->
+          <Property ID="ServerName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：bMCMacAddr-->
+          <Property ID="BMCMacAddr" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：status-->
+          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
+
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.HighdensityServer.HighdensityServerGroup.Contains.ESight.HighdensityServer" Accessibility="Public" Abstract="false" Base="System!System.Containment">
+          <Source ID="Source" Type="ESight.HighdensityServer.HighdensityServerGroup" />
+          <Target ID="Target" Type="ESight.HighdensityServer" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.HighdensityServer" ImageID="EVL!ESight.Highdensity.Diagram"/>
+      <ImageReference ElementID="ESight.HighdensityServer" ImageID="EVL!ESight.Highdensity.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.HighdensityServer">
+          <Name>Highdensity Server</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="eSight">
+          <Name>eSight</Name>
+          <Description>eSight</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="Vendor">
+          <Name>Vendor</Name>
+          <Description>Vendor</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="Manufacturer">
+          <Name>Manufacturer</Name>
+          <Description>Manufacturer</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="IPAddress">
+          <Name>IPAddress</Name>
+          <Description>IPAddress</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="iBMCVersion">
+          <Name>iBMCVersion</Name>
+          <Description>iBMCVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="CPLDVersion">
+          <Name>CPLDVersion</Name>
+          <Description>CPLDVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="UbootVersion">
+          <Name>UbootVersion</Name>
+          <Description>UbootVersion</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="ProductSn">
+          <Name>ProductSn</Name>
+          <Description>ProductSn</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="MemoryCapacity">
+          <Name>MemoryCapacity</Name>
+          <Description>MemoryCapacity</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="ServerName">
+          <Name>ServerName</Name>
+          <Description>ServerName</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer" SubElementID="BMCMacAddr">
+          <Name>BMCMacAddr</Name>
+          <Description>BMCMacAddr</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

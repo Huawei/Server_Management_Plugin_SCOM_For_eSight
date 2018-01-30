@@ -1,0 +1,65 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.HighdensityServer.Fan" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+          <!--ESight：UUID-->
+          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：presentState-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：rotatePercent-->
+          <Property ID="RotatePercent" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：rotate-->
+          <Property ID="Speed" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：healthState-->
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!-- fanInfo			esihgt需增加  -->
+          <!-- fanVersion			esihgt需增加  -->
+          <!-- Logical Device Key    esight未返回-->
+        </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.HighdensityServer.Fan.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.HighdensityServer.FanGroup" />
+          <Target ID="Target" Type="ESight.HighdensityServer.Fan" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.HighdensityServer.Fan" ImageID="EVL!ESight.Fan.Diagram"/>
+      <ImageReference ElementID="ESight.HighdensityServer.Fan" ImageID="EVL!ESight.Fan.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.HighdensityServer.Fan">
+          <Name>Fan</Name>
+          <Description></Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Fan" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Fan" SubElementID="UUID">
+          <Name>UUID</Name>
+          <Description>UUID</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Fan" SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Fan" SubElementID="RotatePercent">
+          <Name>RotatePercent</Name>
+          <Description>RotatePercent</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Fan" SubElementID="Speed">
+          <Name>Speed(RPM)</Name>
+          <Description>Speed(RPM)</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

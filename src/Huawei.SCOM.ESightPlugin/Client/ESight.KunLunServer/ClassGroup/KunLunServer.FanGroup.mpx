@@ -1,0 +1,31 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.KunLunServer.FanGroup" Base="EVL!ESight.PartGroup" Accessibility="Internal" Abstract="false" Hosted="true" Singleton="false"> </ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.KunLunServer.FanGroup.Relationship" Accessibility="Public" Base="System!System.Hosting">
+          <Source ID="Source" Type="ESight.KunLunServer" />
+          <Target ID="Target" Type="ESight.KunLunServer.FanGroup" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.KunLunServer.FanGroup" ImageID="EVL!ESight.Fan.Diagram"/>
+      <ImageReference ElementID="ESight.KunLunServer.FanGroup" ImageID="EVL!ESight.Fan.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.KunLunServer.FanGroup">
+          <Name>Fans</Name>
+          <Description></Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

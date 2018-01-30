@@ -1,0 +1,31 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.HighdensityServer.HighdensityServerGroup" Accessibility="Public" Base="System!System.Group" Abstract="false" Hosted="false" Singleton="true"></ClassType>
+      </ClassTypes>
+      <RelationshipTypes>
+        <RelationshipType ID="ESight.HuaweiServerGroup.Contains.ESight.HighdensityServer.HighdensityServerGroup" Accessibility="Public" Abstract="false" Base="System!System.Containment">
+          <Source ID="Source" Type="EVL!ESight.HuaweiServerGroup" />
+          <Target ID="Target" Type="ESight.HighdensityServer.HighdensityServerGroup" />
+        </RelationshipType>
+      </RelationshipTypes>
+    </EntityTypes>
+  </TypeDefinitions>
+  <Presentation>
+    <ImageReferences>
+      <ImageReference ElementID="ESight.HighdensityServer.HighdensityServerGroup" ImageID="EVL!ESight.Highdensity.Diagram"/>
+      <ImageReference ElementID="ESight.HighdensityServer.HighdensityServerGroup" ImageID="EVL!ESight.Highdensity.Small"/>
+    </ImageReferences>
+  </Presentation>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.HighdensityServer.HighdensityServerGroup">
+          <Name>HighdensityServer Group</Name>
+          <Description></Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

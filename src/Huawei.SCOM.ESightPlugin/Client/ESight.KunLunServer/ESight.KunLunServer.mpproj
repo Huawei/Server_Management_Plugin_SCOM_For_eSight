@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{2ed6f522-ea68-4b66-aa84-af6fe44213f1}</ProjectGuid>
+    <RootNamespace>ESight.KunLunServer</RootNamespace>
+    <Name>eSight.KunLunServer</Name>
+    <ManagementPackName>eSight.KunLunServer.Library</ManagementPackName>
+    <Version>1.0.0.0</Version>
+    <MpFrameworkVersion>v7.0.2</MpFrameworkVersion>
+    <MpFrameworkProfile>OM</MpFrameworkProfile>
+    <ProductVersion>1.1.0.0</ProductVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
+    <GenerateSealed>True</GenerateSealed>
+    <Company>广州摩赛网络技术有限公司</Company>
+    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <DelaySigning>False</DelaySigning>
+    <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
+    <DelaySigning>False</DelaySigning>
+    <Company>广州摩赛网络技术有限公司</Company>
+    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
+    <GenerateSealed>True</GenerateSealed>
+  </PropertyGroup>
+  <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Library">
+      <Alias>SC</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.Windows.Library">
+      <Alias>Windows</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Health.Library">
+      <Alias>Health</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="System.Library">
+      <Alias>System</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+    <ManagementPackReference Include="Microsoft.SystemCenter.Visualization.Library">
+      <Alias>Visualization</Alias>
+      <PackageToBundle>false</PackageToBundle>
+    </ManagementPackReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Classes\" />
+    <Folder Include="ClassGroup\" />
+    <Folder Include="Discoveries\" />
+    <Folder Include="MonitorPartGroup\" />
+    <Folder Include="Monitors\" />
+    <Folder Include="Rules" />
+    <Folder Include="Views" />
+    <Folder Include="Scripts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Classes\KunLunServer.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\KunLunServer.Fan.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\KunLunServer.PhysicalDisk.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\KunLunServer.PowerSupply.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Classes\KunLunServer.RaidController.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\KunLunServer.FanGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\KunLunServer.PhysicalDiskGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\KunLunServer.PowerSupplyGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ClassGroup\KunLunServer.RaidControllerGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Discoveries\GroupDiscovery.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Discoveries\GroupDiscovery.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Discoveries\HuaweiGroupDiscovery.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Discoveries\HuaweiGroupDiscovery.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\KunLunServer.FanGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\KunLunServer.FanGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\KunLunServer.PhysicalDiskGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\KunLunServer.PhysicalDiskGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\KunLunServer.PowerSupplyGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\KunLunServer.PowerSupplyGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="MonitorPartGroup\KunLunServer.RaidControllerGroup.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>MonitorPartGroup\KunLunServer.RaidControllerGroup.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\HuaweiGroupMonitor.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\HuaweiGroupMonitor.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\KunLunServer.RaidController.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\KunLunServer.RaidController.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\KunLunServerGroupMonitor.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\KunLunServerGroupMonitor.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="KunLunServerGroup.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Monitors\KunLunServer.Fan.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\KunLunServer.Fan.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\KunLunServer.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\KunLunServer.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\KunLunServer.PhysicalDisk.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\KunLunServer.PhysicalDisk.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Monitors\KunLunServer.PowerSupply.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Monitors\KunLunServer.PowerSupply.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule105.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule105.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule116.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule116.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule127.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule127.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule138.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule138.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule149.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule149.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule205.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule205.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule216.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule216.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule227.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule227.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule238.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule238.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLunServerAlertRule249.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\KunLunServerAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Views\KunLunServer.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\KunLunServer.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Views\KunLunServerDiagramView.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Views\KunLunServerDiagramView.mptg</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\eSight.View.Library\ESight.View.Library.mpproj">
+      <Name>ESight.View.Library</Name>
+      <Project>{f09ad7ee-beaf-41c8-b349-5f16784f2a3b}</Project>
+      <Private>True</Private>
+      <Alias>EVL</Alias>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Discoveries\GroupDiscovery.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Discoveries\HuaweiGroupDiscovery.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\KunLunServer.FanGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\KunLunServer.PhysicalDiskGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\KunLunServer.PowerSupplyGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="MonitorPartGroup\KunLunServer.RaidControllerGroup.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\HuaweiGroupMonitor.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\KunLunServer.Fan.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\KunLunServer.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\KunLunServer.PhysicalDisk.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\KunLunServer.PowerSupply.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\KunLunServer.RaidController.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Monitors\KunLunServerGroupMonitor.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule105.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule116.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule127.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule138.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule149.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule205.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule216.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule227.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule238.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\KunLunServerAlertRule249.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Views\KunLunServer.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Views\KunLunServerDiagramView.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\GetStatus.vbs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VSAC\Microsoft.SystemCenter.OperationsManager.targets" />
+</Project>
