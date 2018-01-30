@@ -83,6 +83,9 @@
     <None Include="..\..\..\..\third_party\Lib\VisualCpp\msvcr120.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+	<None Include="..\..\..\..\src_bin\libeay32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="StaticWeb\eSight.html" />
     <Content Include="StaticWeb\css\dataTables.jqueryui.min.css" />
     <Content Include="StaticWeb\css\jquery.dataTables.min.css" />
