@@ -16,6 +16,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Management.Instrumentation;
     using System.Threading;
     using System.Threading.Tasks;
@@ -232,12 +233,121 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     if (this.IsComplete)
                     {
-                        this.Subscribe();
+                        this.SyncHistoryAlarm();
                         timer.Stop();
                     }
                 };
                 timer.Start();
             }
+        }
+
+        /// <summary>
+        /// Synchronizes the history alarm.
+        /// </summary>
+        public void SyncHistoryAlarm()
+        {
+            this.OnLog($"Start Sync History Alarm");
+            Task.Run(async () =>
+            {
+                await Task.Delay(3 * 1000);
+
+                int totalPage = 1;
+                int startPage = 0;
+                var historyAlarms = new List<AlarmData>();
+                while (startPage < totalPage)
+                {
+                    try
+                    {
+                        startPage++;
+                        var result = this.Session.GetAlarmHistory(startPage);
+                        totalPage = result.TotalPage;
+                        if (result.Code != 0)
+                        {
+                            this.OnNotifyError($"SyncHistoryAlarm faild .pageNo:{startPage}.");
+                            this.OnNotifyError($"{JsonUtil.SerializeObject(result)}");
+                        }
+                        else
+                        {
+                            var deviceEvents = result.Data.Where(x => x.EventType == 2).ToList();
+                            this.OnNotifyLog($"SyncHistoryAlarm Success:[Count:{deviceEvents.Count}]");
+                            deviceEvents.ForEach(x =>
+                            {
+                                historyAlarms.Add(new AlarmData(x));
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.OnError($"SyncHistoryAlarm Error.eSight:{this.ESightIp} pageNo:{startPage}.", ex);
+                    }
+                }
+                // 插入历史告警完成后调用订阅接口
+                this.InsertHistoryEvent(historyAlarms, this.Subscribe);
+                this.OnLog($"Sync History Alarm:[Count:{historyAlarms.Count}]");
+            });
+        }
+
+        /// <summary>
+        /// The insert event.
+        /// </summary>
+        /// <param name="alarmDatas">The alarm datas.</param>
+        /// <param name="callback">The callback.</param>
+        public void InsertHistoryEvent(List<AlarmData> alarmDatas, Action callback)
+        {
+            Task.Run(() =>
+                {
+                    try
+                    {
+                        if (!alarmDatas.Any())
+                        {
+                            return;
+                        }
+
+                        var r = alarmDatas.GroupBy(x => x.NeDN).ToList();
+                        r.ForEach(datas =>
+                        {
+                            var dn = datas.Key;
+                            try
+                            {
+                                var serverType = this.GetServerType(dn);
+                                HWLogger.NOTIFICATION_PROCESS.Info($"Start InsertHistoryEvent :{dn}");
+                                var eventDatas = datas.Select(x => new EventData(x)).ToList();
+                                switch (serverType)
+                                {
+                                    case ServerTypeEnum.Blade:
+                                        BladeConnector.Instance.InsertHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.ChildBlade:
+                                        BladeConnector.Instance.InsertChildHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.Highdensity:
+                                        HighdensityConnector.Instance.InsertHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.ChildHighdensity:
+                                        HighdensityConnector.Instance.InsertChildHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.Rack:
+                                        RackConnector.Instance.InsertHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.KunLun:
+                                        KunLunConnector.Instance.InsertHistoryEvent(eventDatas);
+                                        break;
+                                }
+
+                                HWLogger.NOTIFICATION_PROCESS.Info($"End InsertHistoryEvent :{dn} [Count:{eventDatas.Count}]");
+                            }
+                            catch (Exception ex)
+                            {
+                                HWLogger.NOTIFICATION_PROCESS.Info($"End InsertHistoryEvent :{dn}", ex);
+                            }
+                        });
+                        callback();
+                    }
+                    catch (Exception ex)
+                    {
+                        HWLogger.UI.Error("InsertHistoryEvent Error: ", ex);
+                    }
+                });
         }
 
         /// <summary>

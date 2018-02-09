@@ -30,6 +30,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
     using Microsoft.EnterpriseManagement.Monitoring;
 
     using MPObject = Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject;
+    using System.Collections.Generic;
 
     /// <summary>
     ///     The rack connector.
@@ -632,6 +633,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void InsertEvent(EventData eventData)
         {
             this.InsertEvent(this.RackClass, eventData);
+        }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.RackClass, eventDatas);
         }
 
         /// <summary>

@@ -145,6 +145,7 @@
     <Compile Include="Server\RackServer.cs" />
     <Compile Include="Server\ServerTypeEnum.cs" />
     <Compile Include="StatusHelper.cs" />
+    <Compile Include="Subscribe\AlarmHistory.cs" />
     <Compile Include="TaskResult.cs" />
     <Compile Include="TcpMessage.cs" />
     <Compile Include="WebMutilESightsParam.cs" />

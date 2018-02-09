@@ -29,6 +29,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
     using Microsoft.EnterpriseManagement.ConnectorFramework;
     using Microsoft.EnterpriseManagement.Monitoring;
     using MPObject = Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The highdensity connector.
@@ -706,6 +707,25 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             this.InsertEvent(this.HighdensityClass, eventData);
         }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.HighdensityClass, eventDatas);
+        }
+
+        /// <summary>
+        /// Inserts the child history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertChildHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.ChildHighdensityClass, eventDatas);
+        }
+
 
         /// <summary>
         /// Inserts the device change event.

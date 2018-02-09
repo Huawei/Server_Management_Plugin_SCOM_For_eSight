@@ -28,6 +28,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
     using Microsoft.EnterpriseManagement.ConnectorFramework;
     using Microsoft.EnterpriseManagement.Monitoring;
     using MPObject = Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The kun lun connector.
@@ -494,6 +495,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void InsertEvent(EventData eventData)
         {
             this.InsertEvent(this.KunLunClass, eventData);
+        }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.KunLunClass, eventDatas);
         }
 
         /// <summary>

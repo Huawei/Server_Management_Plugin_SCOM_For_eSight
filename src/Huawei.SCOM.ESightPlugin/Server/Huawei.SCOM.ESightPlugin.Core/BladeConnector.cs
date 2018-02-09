@@ -14,6 +14,7 @@
 namespace Huawei.SCOM.ESightPlugin.Core
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
 
     using Huawei.SCOM.ESightPlugin.Core.Const;
@@ -365,6 +366,24 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void InsertEvent(EventData eventData)
         {
             this.InsertEvent(this.BladeClass, eventData);
+        }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.BladeClass, eventDatas);
+        }
+
+        /// <summary>
+        /// Inserts the child history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertChildHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.ChildBladeClass, eventDatas);
         }
 
         /// <summary>

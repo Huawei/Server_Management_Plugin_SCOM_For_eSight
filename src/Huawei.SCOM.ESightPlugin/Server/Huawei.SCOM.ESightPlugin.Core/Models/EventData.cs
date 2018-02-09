@@ -177,7 +177,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
                     case "4":
                     case "9": return "49";
                     case "5":
-                    case "0": return "50";
+                    case "0": return "05";
                     default: return "16";
                 }
             }
@@ -208,7 +208,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
 
             customMonitoringEvent.Parameters.Add($"{this.Severity}{this.MantissaNumber}");
             customMonitoringEvent.Parameters.Add(this.Priority.ToString());
-            customMonitoringEvent.Parameters.Add(this.AlarmData.AdditionalText);
+            customMonitoringEvent.Parameters.Add(this.AlarmData.AdditionalText ?? string.Empty);
             customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmId.ToString());
             customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmName);
             customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmSN.ToString());
