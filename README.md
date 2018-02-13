@@ -5,11 +5,11 @@ SCOM Plugin for eSight
 I. General Information
 
     Name   :  SCOM Plugin for eSight
-    Version:  1.0
+    Version:  1.0.0
   
 II. Description
     
-    The SCOM plug-in is a plug-in integrated in SCOM. By interconnecting with eSight, the SCOM plug-in can monitor the health status and alarms of blade servers, rack servers, high-density servers, and KunLun servers deployed on eSight
+    The SCOM plug-in is a plug-in integrated in SCOM. By interconnecting with eSight, the SCOM plug-in can monitor the health status and alarms of blade servers, rack servers, high-density servers, and KunLun servers deployed on eSight
     
 III.Supported software versions
 
