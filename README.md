@@ -13,7 +13,7 @@ II. Description
     
 III.Supported software versions
 
-    SCOM 2012 R2 
+    SCOM 2012 R2 
     SCOM 2016 
     
 IV.Software Requirements
@@ -29,6 +29,6 @@ V. Supported Device
     
 VI. Additional Resources
 
-    For more information consult User Guide. https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight
+    For more information consult User Guide. https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight
   
   
