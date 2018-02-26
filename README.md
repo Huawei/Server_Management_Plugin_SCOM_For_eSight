@@ -32,4 +32,4 @@ V. Supported Device
     
 VI. Additional Resources
 
-    For more information consult User Guide. https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs
+    For more information consult User Guide. https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs
