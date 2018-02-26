@@ -1,19 +1,22 @@
 # Server_Management_Plugin_SCOM_For_eSight
+
 ****************************************************************************
-SCOM Plugin for eSight
+Microsoft System Center Operations Manager Plugin for Huawei Server
 ****************************************************************************
+
 I. General Information
 
-    Name   :  SCOM Plugin for eSight
+    Name:     SCOM Plugin for eSight
+    Category: Monitoring
     Version:  1.0.0
   
 II. Description
 
-    The SCOM plug-in is a plug-in integrated in SCOM. By interconnecting with eSight, the SCOM plug-in can monitor the health status and alarms of blade servers, rack servers, high-density servers, and KunLun servers deployed on eSight
+    The SCOM For eSight Plugin is a plug-in integrated in SCOM. By interconnecting with eSight, the SCOM plug-in can monitor the health status and alarms of blade servers, rack servers, high-density servers, and KunLun servers deployed on eSight
     
 III.Supported software versions
 
-    SCOM 2012 R2 
+    SCOM 2012R2 
     SCOM 2016 
     
 IV.Software Requirements
@@ -29,6 +32,6 @@ V. Supported Device
     
 VI. Additional Resources
 
-    For more information consult User Guide. https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight
+    For more information consult User Guide. https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/docs
   
   
