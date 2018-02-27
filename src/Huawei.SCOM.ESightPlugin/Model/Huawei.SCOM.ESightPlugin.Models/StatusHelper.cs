@@ -55,7 +55,8 @@ namespace Huawei.SCOM.ESightPlugin.Models
         }
 
         /// <summary>
-        /// The get present state.
+        /// The get present state. 
+        /// CPU、Memory、Disk、电源、风扇、Board六种部件的在位状态,按照0展示为不在位、-2和2位未知其余为在位 ，未知显示为： Unkown 
         /// </summary>
         /// <param name="presentState">
         /// The present state.
@@ -69,15 +70,15 @@ namespace Huawei.SCOM.ESightPlugin.Models
             {
                 return "Present";
             }
-            if (presentState == "1")
-            {
-                return "Present";
-            }
             if (presentState == "0")
             {
                 return "Absent";
             }
-            return presentState;
+            if (presentState == "-2" || presentState == "2")
+            {
+                return "Unkown";
+            }
+            return "Present";
         }
     }
 }
