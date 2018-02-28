@@ -62,6 +62,11 @@ namespace Huawei.SCOM.ESightPlugin.Models
     /// </summary>
     public class AlarmData
     {
+        public AlarmData()
+        {
+            
+        }
+
         public AlarmData(AlarmHistory data)
         {
             this.OptType = 1;
@@ -282,6 +287,10 @@ namespace Huawei.SCOM.ESightPlugin.Models
     /// </summary>
     public class NedeviceData
     {
+        public NedeviceData()
+        {
+
+        }
         /// <summary>
         /// 设备唯一标识（DN）。
         /// </summary>

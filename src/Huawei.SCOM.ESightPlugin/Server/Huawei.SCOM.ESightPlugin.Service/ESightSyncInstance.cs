@@ -281,8 +281,15 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         this.OnError($"SyncHistoryAlarm Error.eSight:{this.ESightIp} pageNo:{startPage}.", ex);
                     }
                 }
-                // 插入历史告警完成后调用订阅接口
-                this.InsertHistoryEvent(historyAlarms, this.Subscribe);
+                if (!historyAlarms.Any())
+                {
+                    this.Subscribe();
+                }
+                else
+                {
+                    // 插入历史告警完成后调用订阅接口
+                    this.InsertHistoryEvent(historyAlarms, this.Subscribe);
+                }
                 this.OnLog($"Sync History Alarm:[Count:{historyAlarms.Count}]");
             });
         }
@@ -298,11 +305,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     try
                     {
-                        if (!alarmDatas.Any())
-                        {
-                            return;
-                        }
-
                         var r = alarmDatas.GroupBy(x => x.NeDN).ToList();
                         r.ForEach(datas =>
                         {
@@ -311,7 +313,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             {
                                 var serverType = this.GetServerType(dn);
                                 HWLogger.NOTIFICATION_PROCESS.Info($"Start InsertHistoryEvent :{dn}");
-                                var eventDatas = datas.Select(x => new EventData(x, this.ESightIp)).ToList();
+                                var eventDatas = datas.Select(x => new EventData(x, this.ESightIp, serverType)).ToList();
                                 switch (serverType)
                                 {
                                     case ServerTypeEnum.Blade:
@@ -719,8 +721,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.KunLun;
             }
-            HWLogger.NOTIFICATION_PROCESS.Debug($"End GetServerType {deviceId}");
-            return ServerTypeEnum.Default;
+            throw new Exception($"GetServerType Faild: {deviceId}");
         }
 
         /// <summary>
@@ -736,7 +737,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     var serverType = this.GetServerType(data.DeviceId);
 
                     HWLogger.NOTIFICATION_PROCESS.Info($"Start deviceChangeEvent :{data.DeviceId}");
-                    var deviceChangeEventData = new DeviceChangeEventData(data, this.ESightIp);
+                    var deviceChangeEventData = new DeviceChangeEventData(data, this.ESightIp, serverType);
                     switch (serverType)
                     {
                         case ServerTypeEnum.Blade:
@@ -780,7 +781,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     var serverType = this.GetServerType(alarmData.NeDN);
 
                     HWLogger.NOTIFICATION_PROCESS.Info($"Start InsertEvent {alarmData.NeDN}");
-                    var alertModel = new EventData(alarmData, this.ESightIp);
+                    var alertModel = new EventData(alarmData, this.ESightIp, serverType);
 
                     switch (serverType)
                     {

@@ -17,6 +17,8 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
     using System;
     using CommonUtil;
     using Huawei.SCOM.ESightPlugin.Models;
+    using Huawei.SCOM.ESightPlugin.Models.Server;
+
     using Microsoft.EnterpriseManagement.Monitoring;
 
     /// <summary>
@@ -30,9 +32,17 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="eSightIp">The e sight ip.</param>
-        public DeviceChangeEventData(NedeviceData data, string eSightIp)
+        public DeviceChangeEventData(NedeviceData data, string eSightIp, ServerTypeEnum serverType)
         {
-            this.DeviceId = $"{eSightIp}-{ data.DeviceId}";
+            if (serverType == ServerTypeEnum.ChildBlade || serverType == ServerTypeEnum.ChildHighdensity)
+            {
+                this.DeviceId = data.DeviceId;
+            }
+            else
+            {
+                this.DeviceId = $"{eSightIp}-{data.DeviceId}";
+            }
+
             this.LoggingComputer = data.DeviceId;
             this.Message = data.Description;
             this.NedeviceData = data;

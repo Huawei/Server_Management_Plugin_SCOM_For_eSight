@@ -18,6 +18,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
     using CommonUtil;
     using Huawei.SCOM.ESightPlugin.Models;
     using Microsoft.EnterpriseManagement.Monitoring;
+    using ESightPlugin.Models.Server;
 
     /// <summary>
     /// Class EventModel.
@@ -29,11 +30,20 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="eSightIp">The e sight ip.</param>
-        public EventData(AlarmData data, string eSightIp)
+        /// <param name="serverType">Type of the server.</param>
+        public EventData(AlarmData data, string eSightIp, ServerTypeEnum serverType)
         {
             this.AlarmData = data;
             this.OptType = data.OptType;
-            this.DeviceId = $"{eSightIp}-{data.MoDN}";
+            if (serverType == ServerTypeEnum.ChildBlade || serverType == ServerTypeEnum.ChildHighdensity)
+            {
+                this.DeviceId = data.MoDN;
+            }
+            else
+            {
+                this.DeviceId = $"{eSightIp}-{data.MoDN}";
+            }
+
             this.AlarmSn = data.AlarmSN;
             this.Channel = data.AlarmName;
             this.LevelId = this.GetLevel(data.PerceivedSeverity, data.OptType);

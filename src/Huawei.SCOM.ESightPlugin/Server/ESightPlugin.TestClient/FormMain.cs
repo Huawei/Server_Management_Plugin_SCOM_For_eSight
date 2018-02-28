@@ -187,17 +187,17 @@ namespace ESightPlugin.TestClient
             var path = Application.StartupPath + "//..//..//..//..//..//..//..//..//mockNew//alarmData//alarmData.js";
             var data = File.ReadAllText(path).Replace("module.exports =", string.Empty);
 
-            //this.BladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "blade")));
-            //this.ChildBladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "childeblade")));
-            //this.HighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "high")));
-            //this.ChildHighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "childhigh")));
-            //this.KunLunEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "kunlun")));
-            //this.RackEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "rack")));
+            this.BladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "Blade")), ESightIp, ServerTypeEnum.Blade);
+            this.ChildBladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "ChildBlade")), ESightIp, ServerTypeEnum.ChildBlade);
+            this.HighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "High")), ESightIp, ServerTypeEnum.Highdensity);
+            this.ChildHighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "ChildHigh")), ESightIp, ServerTypeEnum.ChildHighdensity);
+            this.KunLunEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "KunLun")), ESightIp, ServerTypeEnum.KunLun);
+            this.RackEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "Rack")), ESightIp, ServerTypeEnum.Rack);
 
             path = Application.StartupPath + "//..//..//..//..//..//..//..//..//mockNew//alarmData//deviceChangeData.js";
             data = File.ReadAllText(path).Replace("module.exports =", string.Empty);
             var daTemp = JsonUtil.DeserializeObject<NedeviceData>(data);
-            this.DeviceChangeEventData = new DeviceChangeEventData(daTemp, "192.168" + "0.1");
+            this.DeviceChangeEventData = new DeviceChangeEventData(daTemp, "192.168" + "0.1", ServerTypeEnum.Blade);
 
             #endregion
         }
