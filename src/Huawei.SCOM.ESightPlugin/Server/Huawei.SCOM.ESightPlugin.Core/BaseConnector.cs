@@ -221,13 +221,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// DN是否存在
         /// </summary>
-        /// <param name="dn">The dn.</param>
+        /// <param name="deviceId">The device identifier.</param>
         /// <param name="mpClass">The mp class.</param>
         /// <returns>PartialMonitoringObject.</returns>
-        public bool ExsitsDn(string dn, ManagementPackClass mpClass)
+        public bool ExsitsDeviceId(string deviceId, ManagementPackClass mpClass)
         {
             MGroup.Instance.CheckConnection();
-            var criteria = new MonitoringObjectCriteria($"DN = '{dn}'", mpClass);
+            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
             var reader =
                 MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(
                     criteria,
@@ -238,16 +238,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Gets the computer by dn.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// Microsoft.EnterpriseManagement.Monitoring.MonitoringObject.
-        /// </returns>
-        public MonitoringObject GetComputerByDn(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>Microsoft.EnterpriseManagement.Monitoring.MonitoringObject.</returns>
+        public MonitoringObject GetComputerByDeviceId(string deviceId)
         {
             MGroup.Instance.CheckConnection();
-            return this.GetObject($"PrincipalName = '{dn}'", this.BaseComputerClass);
+            return this.GetObject($"PrincipalName = '{deviceId}'", this.BaseComputerClass);
         }
 
         /// <summary>
@@ -268,13 +264,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// 根据dn移除Computer
         /// </summary>
-        /// <param name="dn">
+        /// <param name="deviceId">
         /// The dn.
         /// </param>
-        public void RemoveComputerByDn(string dn)
+        public void RemoveComputerByDeviceId(string deviceId)
         {
             MGroup.Instance.CheckConnection();
-            var existingObject = this.GetComputerByDn(dn);
+            var existingObject = this.GetComputerByDeviceId(deviceId);
             if (existingObject != null)
             {
                 var discovery = new IncrementalDiscoveryData();
@@ -296,12 +292,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(
                         mpClass,
                         ObjectQueryOptions.Default);
-                var dns = blades.ToList().Select(x => x.Path).ToList();
+                var deviceIds = blades.ToList().Select(x => x.Path).ToList();
                 var discovery = new IncrementalDiscoveryData();
-                dns.ForEach(
-                    dn =>
+                deviceIds.ForEach(
+                    deviceId =>
                         {
-                            var existingObject = this.GetComputerByDn(dn);
+                            var existingObject = this.GetComputerByDeviceId(deviceId);
                             if (existingObject != null)
                             {
                                 discovery.Remove(existingObject);
@@ -335,12 +331,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(
                         criteria,
                         ObjectQueryOptions.Default);
-                var dns = reader.ToList().Select(x => x.Path).ToList();
+                var deviceIds = reader.ToList().Select(x => x.Path).ToList();
                 var discovery = new IncrementalDiscoveryData();
-                dns.ForEach(
-                    dn =>
+                deviceIds.ForEach(
+                    deviceId =>
                         {
-                            var existingObject = this.GetComputerByDn(dn);
+                            var existingObject = this.GetComputerByDeviceId(deviceId);
                             if (existingObject != null)
                             {
                                 discovery.Remove(existingObject);
@@ -364,11 +360,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
             try
             {
                 MGroup.Instance.CheckConnection();
-                var criteria = new MonitoringObjectCriteria($"DN = '{eventData.Dn}'", mpClass);
+                var criteria = new MonitoringObjectCriteria($"DN = '{eventData.DeviceId}'", mpClass);
                 var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
                 if (!reader.Any())
                 {
-                    throw new Exception($"cannot find DN '{eventData.Dn}'");
+                    throw new Exception($"cannot find DN '{eventData.DeviceId}'");
                 }
                 var obj = reader.First();
                 var alertHistory = obj.GetMonitoringAlerts();
@@ -442,13 +438,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void InsertHistoryEvent(ManagementPackClass mpClass, List<EventData> eventDatas)
         {
             MGroup.Instance.CheckConnection();
-            var dn = eventDatas[0].Dn;
+            var deviceId = eventDatas[0].DeviceId;
 
-            var criteria = new MonitoringObjectCriteria($"DN = '{dn}'", mpClass);
+            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
             var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
             if (!reader.Any())
             {
-                throw new Exception($"cannot find DN '{dn}'");
+                throw new Exception($"cannot find DN '{deviceId}'");
             }
             var obj = reader.First();
             // 获取到历史的事件记录
@@ -460,7 +456,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // 过滤掉已经存在的告警 
             var filterAlertList = eventDatas.Where(y => alertHistory.All(x => x.CustomField6 != y.AlarmSn.ToString())).ToList();
 
-            HWLogger.SERVICE.Info($"InsertHistoryEvent :{dn} [Event Count:{eventDatas.Count}] [New Alert Count:{filterAlertList.Count}]");
+            HWLogger.SERVICE.Info($"InsertHistoryEvent :{deviceId} [Event Count:{eventDatas.Count}] [New Alert Count:{filterAlertList.Count}]");
             if (!filterAlertList.Any())
             {
                 return;
@@ -524,7 +520,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             try
             {
                 MGroup.Instance.CheckConnection();
-                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.Dn}'", mpClass);
+                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.DeviceId}'", mpClass);
                 var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
                 if (reader.Any())
                 {
@@ -535,7 +531,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 }
                 else
                 {
-                    throw new Exception($"cannot find DN '{deviceChangeEventData.Dn}'");
+                    throw new Exception($"cannot find DN '{deviceChangeEventData.DeviceId}'");
                 }
             }
             catch (Exception ex)

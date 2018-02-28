@@ -28,11 +28,12 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// Initializes a new instance of the <see cref="EventData" /> class.
         /// </summary>
         /// <param name="data">The data.</param>
-        public EventData(AlarmData data)
+        /// <param name="eSightIp">The e sight ip.</param>
+        public EventData(AlarmData data, string eSightIp)
         {
             this.AlarmData = data;
             this.OptType = data.OptType;
-            this.Dn = data.MoDN;
+            this.DeviceId = $"{eSightIp}-{data.MoDN}";
             this.AlarmSn = data.AlarmSN;
             this.Channel = data.AlarmName;
             this.LevelId = this.GetLevel(data.PerceivedSeverity, data.OptType);
@@ -55,7 +56,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// Gets or sets the dn.
         /// </summary>
         /// <value>The dn.</value>
-        public string Dn { get; set; }
+        public string DeviceId { get; set; }
 
         /// <summary>
         /// 1-新增告警 2-清除告警 3-确认告警 4-反确认告警 5-变更告警 6-新增事件
@@ -196,7 +197,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// <returns>CustomMonitoringEvent.</returns>
         public CustomMonitoringEvent ToCustomMonitoringEvent()
         {
-            var customMonitoringEvent = new CustomMonitoringEvent(this.Dn, this.AlarmSn)
+            var customMonitoringEvent = new CustomMonitoringEvent(this.DeviceId, this.AlarmSn)
             {
                 LoggingComputer = this.LoggingComputer,
                 Channel = this.Channel,

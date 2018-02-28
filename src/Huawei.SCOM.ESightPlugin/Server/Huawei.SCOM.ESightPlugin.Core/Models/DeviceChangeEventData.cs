@@ -25,15 +25,14 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
     public class DeviceChangeEventData
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeviceChangeEventData"/> class. 
-        /// Initializes a new instance of the <see cref="EventData"/> class.
+        /// Initializes a new instance of the <see cref="DeviceChangeEventData" /> class.
+        /// Initializes a new instance of the <see cref="EventData" /> class.
         /// </summary>
-        /// <param name="data">
-        /// The data.
-        /// </param>
-        public DeviceChangeEventData(NedeviceData data)
+        /// <param name="data">The data.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        public DeviceChangeEventData(NedeviceData data, string eSightIp)
         {
-            this.Dn = data.DeviceId;
+            this.DeviceId = $"{eSightIp}-{ data.DeviceId}";
             this.LoggingComputer = data.DeviceId;
             this.Message = data.Description;
             this.NedeviceData = data;
@@ -49,7 +48,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         ///     Gets or sets the dn.
         /// </summary>
         /// <value>The dn.</value>
-        public string Dn { get; set; }
+        public string DeviceId { get; set; }
 
         /// <summary>
         ///     Gets or sets the logging computer.
@@ -75,7 +74,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// <returns>CustomMonitoringEvent.</returns>
         public CustomMonitoringEvent ToCustomMonitoringEvent()
         {
-            return new CustomMonitoringEvent(this.Dn, 0)
+            return new CustomMonitoringEvent(this.DeviceId, 0)
             {
                 LoggingComputer = this.LoggingComputer,
                 Channel = this.Channel,

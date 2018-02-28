@@ -421,10 +421,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var discoveryData = new IncrementalDiscoveryData();
 
-            var baseComputer = this.GetComputerByDn(model.DN);
+            var baseComputer = this.GetComputerByDeviceId(model.DeviceId);
             if (baseComputer == null)
             {
-                var newBaseComputer = this.CreateComputer(model.DN);
+                var newBaseComputer = this.CreateComputer(model.DeviceId);
                 discoveryData.Add(newBaseComputer);
             }
             else
@@ -435,7 +435,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             #region BladeServer
 
             var bladeServer = this.CreateBladeServer(model);
-            bladeServer[this.HuaweiServerKey].Value = model.DN;
+            bladeServer[this.HuaweiServerKey].Value = model.DeviceId;
 
             discoveryData.Add(bladeServer);
 
@@ -443,15 +443,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Fan
 
-            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DN);
+            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DeviceId);
             discoveryData.Add(fanGroup);
             model.FanList.ForEach(
                 x =>
                     {
                         var fan = this.CreateFan(x);
                         fan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
-                        fan[this.ComputerKey].Value = model.DN;
-                        fan[this.HuaweiServerKey].Value = model.DN;
+                        fan[this.ComputerKey].Value = model.DeviceId;
+                        fan[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(fan);
                     });
 
@@ -459,15 +459,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region PSU
 
-            var psuGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DN);
+            var psuGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DeviceId);
             discoveryData.Add(psuGroup);
             model.PowerSupplyList.ForEach(
                 x =>
                     {
                         var powerSupply = this.CreatePowerSupply(x);
                         powerSupply[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
-                        powerSupply[this.ComputerKey].Value = model.DN;
-                        powerSupply[this.HuaweiServerKey].Value = model.DN;
+                        powerSupply[this.ComputerKey].Value = model.DeviceId;
+                        powerSupply[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(powerSupply);
                     });
 
@@ -475,15 +475,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Switch
 
-            var switchGroup = this.CreateLogicalGroup(this.SwitchGroupClass, model.DN);
+            var switchGroup = this.CreateLogicalGroup(this.SwitchGroupClass, model.DeviceId);
             discoveryData.Add(switchGroup);
             model.SwitchList.ForEach(
                 x =>
                     {
                         var switchObject = this.CreateSwitch(x);
                         switchObject[this.PartGroupKey].Value = switchGroup[this.PartGroupKey].Value;
-                        switchObject[this.ComputerKey].Value = model.DN;
-                        switchObject[this.HuaweiServerKey].Value = model.DN;
+                        switchObject[this.ComputerKey].Value = model.DeviceId;
+                        switchObject[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(switchObject);
                     });
 
@@ -491,13 +491,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region HMM
 
-            var hmmGroup = this.CreateLogicalGroup(this.HmmGroupClass, model.DN);
+            var hmmGroup = this.CreateLogicalGroup(this.HmmGroupClass, model.DeviceId);
             discoveryData.Add(hmmGroup);
 
             var hmm = this.CreateHmm(model.HmmInfo);
             hmm[this.PartGroupKey].Value = hmmGroup[this.PartGroupKey].Value;
-            hmm[this.ComputerKey].Value = model.DN;
-            hmm[this.HuaweiServerKey].Value = model.DN;
+            hmm[this.ComputerKey].Value = model.DeviceId;
+            hmm[this.HuaweiServerKey].Value = model.DeviceId;
             discoveryData.Add(hmm);
 
             #endregion
@@ -505,7 +505,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             #region Child Blade
 
             var childBladeGroup =
-                this.CreateLogicalGroup(this.ChildBladeGroupClass, model.DN);
+                this.CreateLogicalGroup(this.ChildBladeGroupClass, model.DeviceId);
             var childBladeGroupKey = childBladeGroup[this.PartGroupKey].Value.ToString();
             discoveryData.Add(childBladeGroup);
 
@@ -514,8 +514,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     {
                         var childBlade = this.CreateChildBlade(x);
                         childBlade[this.PartGroupKey].Value = childBladeGroupKey;
-                        childBlade[this.ComputerKey].Value = model.DN;
-                        childBlade[this.HuaweiServerKey].Value = model.DN;
+                        childBlade[this.ComputerKey].Value = model.DeviceId;
+                        childBlade[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(childBlade);
 
                         var childBladeKey = this.ChildBladeClass.PropertyCollection["DN"];
@@ -523,7 +523,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         #region CPU
 
                         var cpuGroup =
-                            this.CreateLogicalChildGroup(this.CpuGroupClass, model.DN, x.DN);
+                            this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DN);
 
                         cpuGroup[childBladeKey].Value = x.DN;
                         cpuGroup[this.PartGroupKey].Value = childBladeGroupKey;
@@ -536,8 +536,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     cpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
                                     cpu[childBladeKey].Value = x.DN;
                                     cpu[this.PartGroupKey].Value = childBladeGroupKey;
-                                    cpu[this.ComputerKey].Value = model.DN;
-                                    cpu[this.HuaweiServerKey].Value = model.DN;
+                                    cpu[this.ComputerKey].Value = model.DeviceId;
+                                    cpu[this.HuaweiServerKey].Value = model.DeviceId;
                                     discoveryData.Add(cpu);
                                 });
 
@@ -545,7 +545,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Memory
 
-                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DN, x.DN);
+                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DN);
                         memoryGroup[childBladeKey].Value = x.DN;
                         memoryGroup[this.PartGroupKey].Value = childBladeGroupKey;
                         discoveryData.Add(memoryGroup);
@@ -557,8 +557,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                         memoryGroup[this.PartChildGroupKey].Value;
                                     memory[childBladeKey].Value = x.DN;
                                     memory[this.PartGroupKey].Value = childBladeGroupKey;
-                                    memory[this.ComputerKey].Value = model.DN;
-                                    memory[this.HuaweiServerKey].Value = model.DN;
+                                    memory[this.ComputerKey].Value = model.DeviceId;
+                                    memory[this.HuaweiServerKey].Value = model.DeviceId;
                                     discoveryData.Add(memory);
                                 });
 
@@ -567,7 +567,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         #region Disk
 
                         var diskGroup =
-                            this.CreateLogicalChildGroup(this.DiskGroupClass, model.DN, x.DN);
+                            this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DN);
                         diskGroup[this.PartGroupKey].Value = childBladeGroupKey;
                         diskGroup[childBladeKey].Value = x.DN;
                         discoveryData.Add(diskGroup);
@@ -578,8 +578,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     disk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
                                     disk[childBladeKey].Value = x.DN;
                                     disk[this.PartGroupKey].Value = childBladeGroupKey;
-                                    disk[this.ComputerKey].Value = model.DN;
-                                    disk[this.HuaweiServerKey].Value = model.DN;
+                                    disk[this.ComputerKey].Value = model.DeviceId;
+                                    disk[this.HuaweiServerKey].Value = model.DeviceId;
                                     discoveryData.Add(disk);
                                 });
 
@@ -588,7 +588,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         #region Mezz
 
                         var mezzGroup =
-                            this.CreateLogicalChildGroup(this.MezzGroupClass, model.DN, x.DN);
+                            this.CreateLogicalChildGroup(this.MezzGroupClass, model.DeviceId, x.DN);
                         mezzGroup[this.PartGroupKey].Value = childBladeGroupKey;
                         mezzGroup[childBladeKey].Value = x.DN;
                         discoveryData.Add(mezzGroup);
@@ -600,8 +600,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     mezz[childBladeKey].Value = x.DN;
                                     mezz[this.PartGroupKey].Value = childBladeGroupKey;
 
-                                    mezz[this.ComputerKey].Value = model.DN;
-                                    mezz[this.HuaweiServerKey].Value = model.DN;
+                                    mezz[this.ComputerKey].Value = model.DeviceId;
+                                    mezz[this.HuaweiServerKey].Value = model.DeviceId;
                                     discoveryData.Add(mezz);
                                 });
 
@@ -609,7 +609,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Raid
 
-                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DN, x.DN);
+                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DN);
                         raidGroup[this.PartGroupKey].Value = childBladeGroupKey;
                         raidGroup[childBladeKey].Value = x.DN;
                         discoveryData.Add(raidGroup);
@@ -620,8 +620,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     raid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
                                     raid[childBladeKey].Value = x.DN;
                                     raid[this.PartGroupKey].Value = childBladeGroupKey;
-                                    raid[this.ComputerKey].Value = model.DN;
-                                    raid[this.HuaweiServerKey].Value = model.DN;
+                                    raid[this.ComputerKey].Value = model.DeviceId;
+                                    raid[this.HuaweiServerKey].Value = model.DeviceId;
                                     discoveryData.Add(raid);
                                 });
 
@@ -630,7 +630,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #endregion
 
-            if (!this.ExsitsBladeServer(model.DN))
+            if (!this.ExsitsBladeServer(model.DeviceId))
             {
                 discoveryData.Commit(this.MontioringConnector);
             }
@@ -643,11 +643,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The get blade server.
         /// </summary>
-        /// <param name="dn">The dn.</param>
+        /// <param name="deviceId">The device identifier.</param>
         /// <returns>The <see cref="MonitoringObject" />.</returns>
-        public MonitoringObject GetBladeServer(string dn)
+        public MonitoringObject GetBladeServer(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}'", this.BladeClass);
+            return this.GetObject($"DN = '{deviceId}'", this.BladeClass);
         }
 
         /// <summary>
@@ -700,11 +700,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// </param>
         public void UpdateMainWithOutChildBlade(BladeServer model)
         {
-            HWLogger.NOTIFICATION_PROCESS.Debug($"Start UpdateMainWithOutChildBlade {model.DN}");
-            var oldBlade = this.GetBladeServer(model.DN);
+            HWLogger.NOTIFICATION_PROCESS.Debug($"Start UpdateMainWithOutChildBlade {model.DeviceId}");
+            var oldBlade = this.GetBladeServer(model.DeviceId);
             if (oldBlade == null)
             {
-                throw new Exception($"Can not find the server:{model.DN}");
+                throw new Exception($"Can not find the server:{model.DeviceId}");
             }
 
             var propertys = this.BladeClass.PropertyCollection; // 获取到class的属性
@@ -739,8 +739,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newFan = this.CreateFan(x);
                             newFan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
-                            newFan[this.ComputerKey].Value = model.DN;
-                            newFan[this.HuaweiServerKey].Value = model.DN;
+                            newFan[this.ComputerKey].Value = model.DeviceId;
+                            newFan[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newFan);
                         }
                         else
@@ -769,8 +769,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newSwitch = this.CreateSwitch(x);
                             newSwitch[this.PartGroupKey].Value = switchGroup[this.PartGroupKey].Value;
-                            newSwitch[this.ComputerKey].Value = model.DN;
-                            newSwitch[this.HuaweiServerKey].Value = model.DN;
+                            newSwitch[this.ComputerKey].Value = model.DeviceId;
+                            newSwitch[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newSwitch);
                         }
                         else
@@ -800,8 +800,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newpsu = this.CreatePowerSupply(x);
                             newpsu[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
-                            newpsu[this.ComputerKey].Value = model.DN;
-                            newpsu[this.HuaweiServerKey].Value = model.DN;
+                            newpsu[this.ComputerKey].Value = model.DeviceId;
+                            newpsu[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newpsu);
                         }
                         else
@@ -825,7 +825,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // var relatedObjects = oldBlade.GetRelatedMonitoringObjects(ChildBladeClass);
             // relatedObjects.ToList().ForEach(x => discoveryData.Add(x));
             discoveryData.Overwrite(this.MontioringConnector);
-            HWLogger.NOTIFICATION_PROCESS.Debug($"End UpdateMainWithOutChildBlade {model.DN}");
+            HWLogger.NOTIFICATION_PROCESS.Debug($"End UpdateMainWithOutChildBlade {model.DeviceId}");
         }
 
         /// <summary>
@@ -1032,15 +1032,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The exsits blade server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        private bool ExsitsBladeServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="bool" />.</returns>
+        private bool ExsitsBladeServer(string deviceId)
         {
-            return this.ExsitsDn(dn, this.BladeClass);
+            return this.ExsitsDeviceId(deviceId, this.BladeClass);
         }
 
         #endregion
@@ -1061,7 +1057,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.BladeClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.BladeClass); // 实例化一个class
 
-            obj[this.ComputerKey].Value = model.DN;
+            obj[this.ComputerKey].Value = model.DeviceId;
             obj[propertys["eSight"]].Value = model.ESight;
             obj[propertys["Status"]].Value = model.Status;
             obj[propertys["IPAddress"]].Value = model.IpAddress;
