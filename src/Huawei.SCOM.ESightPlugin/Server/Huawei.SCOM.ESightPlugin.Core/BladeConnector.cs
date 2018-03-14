@@ -396,6 +396,33 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
+        /// The insert child blade event.
+        /// </summary>
+        /// <param name="eventData">The event data.</param>
+        public void InsertSwitchEvent(EventData eventData)
+        {
+            this.InsertEvent(this.SwitchClass, eventData);
+        }
+
+        /// <summary>
+        /// Inserts the child history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InserSwitchHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.SwitchClass, eventDatas);
+        }
+
+        /// <summary>
+        /// Inserts the child device change event.
+        /// </summary>
+        /// <param name="eventData">The event data.</param>
+        public void InsertSwitchDeviceChangeEvent(DeviceChangeEventData eventData)
+        {
+            this.InsertDeviceChangeEvent(this.SwitchClass, eventData);
+        }
+
+        /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="eventData">The event data.</param>
@@ -658,6 +685,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public MonitoringObject GetChildBladeServer(string dn)
         {
             return this.GetObject($"DN = '{dn}'", this.ChildBladeClass);
+        }
+
+        /// <summary>
+        /// Gets the switch board.
+        /// </summary>
+        /// <param name="dn">The dn.</param>
+        /// <returns>Microsoft.EnterpriseManagement.Monitoring.MonitoringObject.</returns>
+        public MonitoringObject GetSwitchBoard(string dn)
+        {
+            return this.GetObject($"DN = '{dn}'", this.SwitchClass);
         }
 
         /// <summary>
@@ -1030,6 +1067,44 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
+        /// 只更新Swith板
+        /// 暂无用
+        /// </summary>
+        /// <param name="model">The model.</param>
+        public void UpdateSwitchBoard(HWBoard model)
+        {
+            HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateSwitch");
+            var oldObject = this.GetObject($"DN = '{model.DN}'", this.SwitchClass);
+            if (oldObject == null)
+            {
+                throw new Exception($"Can not find the Switch board:{model.DN}");
+            }
+
+            var propertys = this.ChildBladeClass.PropertyCollection; // 获取到class的属性
+            var discoveryData = new IncrementalDiscoveryData();
+
+            oldObject[propertys["DN"]].Value = model.DN;
+            oldObject[propertys["ParentDN"]].Value = model.ParentDN;
+            oldObject[propertys["IpAddress"]].Value = model.IpAddress;
+            oldObject[propertys["BoardType"]].Value = model.BoardType;
+            oldObject[propertys["SerialNumber"]].Value = model.SN;
+            oldObject[propertys["PartNumber"]].Value = model.PartNumber;
+            oldObject[propertys["Manufacturer"]].Value = model.Manufacturer;
+            oldObject[propertys["ManufacturerDate"]].Value = model.ManuTime;
+            oldObject[propertys["PresentState"]].Value = model.PresentState;
+            oldObject[propertys["AssertTag"]].Value = model.AssertTag;
+            oldObject[propertys["MoId"]].Value = model.MoId;
+            oldObject[propertys["UUID"]].Value = model.UUID;
+            oldObject[propertys["Status"]].Value = model.HealthState;
+
+            oldObject[this.DisplayNameField].Value = model.Name;
+            discoveryData.Add(oldObject);
+
+            discoveryData.Overwrite(this.MontioringConnector);
+            HWLogger.NOTIFICATION_PROCESS.Debug("End UpdateSwitch");
+        }
+
+        /// <summary>
         /// The exsits blade server.
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
@@ -1317,30 +1392,31 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Creates the raid control.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MPObject"/>.
-        /// </returns>
+        /// <param name="model">The model.</param>
+        /// <returns>The <see cref="MPObject" />.</returns>
         private MPObject CreateSwitch(HWBoard model)
         {
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.SwitchClass); // 实例化一个class
 
+            obj[propertys["DN"]].Value = model.DN;
+            obj[propertys["ParentDN"]].Value = model.ParentDN;
+            obj[propertys["IpAddress"]].Value = model.IpAddress;
+            obj[propertys["BoardType"]].Value = model.BoardType;
+            obj[propertys["SerialNumber"]].Value = model.SN;
+            obj[propertys["PartNumber"]].Value = model.PartNumber;
+            obj[propertys["Manufacturer"]].Value = model.Manufacturer;
+            obj[propertys["ManufacturerDate"]].Value = model.ManuTime;
+            obj[propertys["PresentState"]].Value = model.PresentState;
+            obj[propertys["AssertTag"]].Value = model.AssertTag;
+            obj[propertys["MoId"]].Value = model.MoId;
             obj[propertys["UUID"]].Value = model.UUID;
             obj[propertys["Status"]].Value = model.HealthState;
-            obj[propertys["BladeVersion"]].Value = string.Empty;
-            obj[propertys["SwitchType"]].Value = string.Empty;
-            obj[propertys["ProductName"]].Value = string.Empty;
-            obj[propertys["BoardManufacturer"]].Value = model.Manufacturer;
-            obj[propertys["BoardPartNumber"]].Value = model.PartNumber;
-            obj[propertys["BoardSerialNumber"]].Value = model.SN;
-            obj[propertys["BoardManufacturerDate"]].Value = model.ManuTime;
-
             obj[this.DisplayNameField].Value = model.Name;
             return obj;
         }
+
+
         #endregion
 
         #region Update Methods
@@ -1600,7 +1676,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Updates the fan.
+        /// Updates the Switch.
         /// </summary>
         /// <param name="model">
         /// The model.
@@ -1618,19 +1694,25 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
 
+            oldObject[propertys["ParentDN"]].Value = model.ParentDN;
+            oldObject[propertys["IpAddress"]].Value = model.IpAddress;
+            oldObject[propertys["BoardType"]].Value = model.BoardType;
+            oldObject[propertys["SerialNumber"]].Value = model.SN;
+            oldObject[propertys["PartNumber"]].Value = model.PartNumber;
+            oldObject[propertys["Manufacturer"]].Value = model.Manufacturer;
+            oldObject[propertys["ManufacturerDate"]].Value = model.ManuTime;
+            oldObject[propertys["PresentState"]].Value = model.PresentState;
+            oldObject[propertys["AssertTag"]].Value = model.AssertTag;
+            oldObject[propertys["MoId"]].Value = model.MoId;
+            oldObject[propertys["UUID"]].Value = model.UUID;
             oldObject[propertys["Status"]].Value = model.HealthState;
-            oldObject[propertys["BladeVersion"]].Value = string.Empty;
-            oldObject[propertys["SwitchType"]].Value = string.Empty;
-            oldObject[propertys["ProductName"]].Value = string.Empty;
-            oldObject[propertys["BoardManufacturer"]].Value = model.Manufacturer;
-            oldObject[propertys["BoardPartNumber"]].Value = model.PartNumber;
-            oldObject[propertys["BoardSerialNumber"]].Value = model.SN;
-            oldObject[propertys["BoardManufacturerDate"]].Value = model.ManuTime;
 
             oldObject[this.DisplayNameField].Value = model.Name;
 
             return oldObject;
         }
+
         #endregion
+
     }
 }

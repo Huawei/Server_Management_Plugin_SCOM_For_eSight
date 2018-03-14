@@ -34,7 +34,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// <param name="eSightIp">The e sight ip.</param>
         public DeviceChangeEventData(NedeviceData data, string eSightIp, ServerTypeEnum serverType)
         {
-            if (serverType == ServerTypeEnum.ChildBlade || serverType == ServerTypeEnum.ChildHighdensity)
+            if (serverType == ServerTypeEnum.ChildBlade || serverType == ServerTypeEnum.ChildHighdensity || serverType == ServerTypeEnum.Switch)
             {
                 this.DeviceId = data.DeviceId;
             }

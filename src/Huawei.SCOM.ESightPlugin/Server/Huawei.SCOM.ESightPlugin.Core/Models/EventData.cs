@@ -35,7 +35,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         {
             this.AlarmData = data;
             this.OptType = data.OptType;
-            if (serverType == ServerTypeEnum.ChildBlade || serverType == ServerTypeEnum.ChildHighdensity)
+            if (serverType == ServerTypeEnum.ChildBlade || serverType == ServerTypeEnum.ChildHighdensity || serverType == ServerTypeEnum.Switch)
             {
                 this.DeviceId = data.MoDN;
             }

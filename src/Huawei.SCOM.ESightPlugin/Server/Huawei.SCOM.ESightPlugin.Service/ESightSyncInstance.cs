@@ -322,6 +322,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                                     case ServerTypeEnum.ChildBlade:
                                         BladeConnector.Instance.InsertChildHistoryEvent(eventDatas);
                                         break;
+                                    case ServerTypeEnum.Switch:
+                                        BladeConnector.Instance.InserSwitchHistoryEvent(eventDatas);
+                                        break;
                                     case ServerTypeEnum.Highdensity:
                                         HighdensityConnector.Instance.InsertHistoryEvent(eventDatas);
                                         break;
@@ -721,6 +724,11 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.KunLun;
             }
+            server = BladeConnector.Instance.GetSwitchBoard(dn);
+            if (server != null)
+            {
+                return ServerTypeEnum.Switch;
+            }
             throw new Exception($"GetServerType Faild: {deviceId}");
         }
 
@@ -745,6 +753,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             break;
                         case ServerTypeEnum.ChildBlade:
                             BladeConnector.Instance.InsertChildDeviceChangeEvent(deviceChangeEventData);
+                            break;
+                        case ServerTypeEnum.Switch:
+                            BladeConnector.Instance.InsertSwitchDeviceChangeEvent(deviceChangeEventData);
                             break;
                         case ServerTypeEnum.Highdensity:
                             HighdensityConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
@@ -790,6 +801,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             break;
                         case ServerTypeEnum.ChildBlade:
                             BladeConnector.Instance.InsertChildBladeEvent(alertModel);
+                            break;
+                        case ServerTypeEnum.Switch:
+                            BladeConnector.Instance.InsertSwitchEvent(alertModel);
                             break;
                         case ServerTypeEnum.Highdensity:
                             HighdensityConnector.Instance.InsertEvent(alertModel);
@@ -858,6 +872,23 @@ namespace Huawei.SCOM.ESightPlugin.Service
             catch (Exception ex)
             {
                 this.OnNotifyError($"UpdateChildBladeServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
+            }
+        }
+
+        /// <summary>
+        /// 更新子刀片
+        /// </summary>
+        /// <param name="model">The model.</param>
+        public void UpdateSwitchBoard(HWDeviceDetail model)
+        {
+            try
+            {
+                this.OnNotifyError($"UpdateSwitchBoard Error.eSight not support. eSight:{this.ESightIp} Dn:{model.DN}. ");
+                //BladeConnector.Instance.UpdateSwitch(model);
+            }
+            catch (Exception ex)
+            {
+                this.OnNotifyError($"UpdateSwitchBoard Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
             }
         }
 
@@ -954,6 +985,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
             var serverType = this.GetServerType(dn);
             try
             {
+                // 暂不可以通过交换板的dn获取交换板的详情
+                if (serverType == ServerTypeEnum.Switch)
+                {
+                    this.OnNotifyError($"UpdateSwitchBoard Error.eSight not support. eSight:{this.ESightIp} Dn:{dn}. ");
+                    return;
+                }
                 var device = this.Session.GetServerDetails(dn);
                 switch (serverType)
                 {
@@ -962,6 +999,10 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         break;
                     case ServerTypeEnum.ChildBlade:
                         this.UpdateChildBladeServer(device);
+                        break;
+                    case ServerTypeEnum.Switch:
+                        //todo 暂不可以通过交换板的dn获取交换板的详情
+                        //this.UpdateSwitchBoard(device);
                         break;
                     case ServerTypeEnum.Highdensity:
                         this.UpdateHighdensityServer(device);
