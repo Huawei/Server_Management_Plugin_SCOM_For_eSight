@@ -16,6 +16,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Management.Instrumentation;
     using System.Threading;
     using System.Threading.Tasks;
@@ -232,12 +233,126 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     if (this.IsComplete)
                     {
-                        this.Subscribe();
+                        this.SyncHistoryAlarm();
                         timer.Stop();
                     }
                 };
                 timer.Start();
             }
+        }
+
+        /// <summary>
+        /// Synchronizes the history alarm.
+        /// </summary>
+        public void SyncHistoryAlarm()
+        {
+            this.OnLog($"Start Sync History Alarm");
+            Task.Run(async () =>
+            {
+                await Task.Delay(3 * 1000);
+
+                int totalPage = 1;
+                int startPage = 0;
+                var historyAlarms = new List<AlarmData>();
+                while (startPage < totalPage)
+                {
+                    try
+                    {
+                        startPage++;
+                        var result = this.Session.GetAlarmHistory(startPage);
+                        totalPage = result.TotalPage;
+                        if (result.Code != 0)
+                        {
+                            this.OnNotifyError($"SyncHistoryAlarm faild .pageNo:{startPage}.");
+                            this.OnNotifyError($"{JsonUtil.SerializeObject(result)}");
+                        }
+                        else
+                        {
+                            var deviceEvents = result.Data.Where(x => x.EventType == 2).ToList();
+                            this.OnNotifyLog($"SyncHistoryAlarm Success:[Count:{deviceEvents.Count}]");
+                            deviceEvents.ForEach(x =>
+                            {
+                                historyAlarms.Add(new AlarmData(x));
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.OnError($"SyncHistoryAlarm Error.eSight:{this.ESightIp} pageNo:{startPage}.", ex);
+                    }
+                }
+                if (!historyAlarms.Any())
+                {
+                    this.Subscribe();
+                }
+                else
+                {
+                    // 插入历史告警完成后调用订阅接口
+                    this.InsertHistoryEvent(historyAlarms, this.Subscribe);
+                }
+                this.OnLog($"Sync History Alarm:[Count:{historyAlarms.Count}]");
+            });
+        }
+
+        /// <summary>
+        /// The insert event.
+        /// </summary>
+        /// <param name="alarmDatas">The alarm datas.</param>
+        /// <param name="callback">The callback.</param>
+        public void InsertHistoryEvent(List<AlarmData> alarmDatas, Action callback)
+        {
+            Task.Run(() =>
+                {
+                    try
+                    {
+                        var r = alarmDatas.GroupBy(x => x.NeDN).ToList();
+                        r.ForEach(datas =>
+                        {
+                            var dn = datas.Key;
+                            try
+                            {
+                                var serverType = this.GetServerType(dn);
+                                HWLogger.NOTIFICATION_PROCESS.Info($"Start InsertHistoryEvent :{dn}");
+                                var eventDatas = datas.Select(x => new EventData(x, this.ESightIp, serverType)).ToList();
+                                switch (serverType)
+                                {
+                                    case ServerTypeEnum.Blade:
+                                        BladeConnector.Instance.InsertHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.ChildBlade:
+                                        BladeConnector.Instance.InsertChildHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.Switch:
+                                        BladeConnector.Instance.InserSwitchHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.Highdensity:
+                                        HighdensityConnector.Instance.InsertHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.ChildHighdensity:
+                                        HighdensityConnector.Instance.InsertChildHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.Rack:
+                                        RackConnector.Instance.InsertHistoryEvent(eventDatas);
+                                        break;
+                                    case ServerTypeEnum.KunLun:
+                                        KunLunConnector.Instance.InsertHistoryEvent(eventDatas);
+                                        break;
+                                }
+
+                                HWLogger.NOTIFICATION_PROCESS.Info($"End InsertHistoryEvent :{dn} [Count:{eventDatas.Count}]");
+                            }
+                            catch (Exception ex)
+                            {
+                                HWLogger.NOTIFICATION_PROCESS.Info($"End InsertHistoryEvent :{dn}", ex);
+                            }
+                        });
+                        callback();
+                    }
+                    catch (Exception ex)
+                    {
+                        HWLogger.UI.Error("InsertHistoryEvent Error: ", ex);
+                    }
+                });
         }
 
         /// <summary>
@@ -312,7 +427,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             totalPage = result.TotalPage;
                             foreach (var x in result.Data)
                             {
-                                x.ESight = this.ESightIp;
                                 this.QueryBladeDetial(x);
                             }
                         }
@@ -336,7 +450,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     try
                     {
                         var device = this.Session.GetServerDetails(x.DN);
-                        x.MakeDetail(device);
+                        x.MakeDetail(device, this.ESightIp);
                         x.ChildBlades.ForEach(m =>
                         {
                             var deviceDatail = this.Session.GetServerDetails(m.DN);
@@ -375,7 +489,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             totalPage = result.TotalPage;
                             foreach (var x in result.Data)
                             {
-                                x.ESight = this.ESightIp;
                                 this.QueryHighdensityDetial(x);
                             }
                         }
@@ -399,7 +512,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     try
                     {
                         var device = this.Session.GetServerDetails(x.DN);
-                        x.MakeDetail(device);
+                        x.MakeDetail(device, this.ESightIp);
                         x.ChildHighdensitys.ForEach(
                             m =>
                                 {
@@ -462,8 +575,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     try
                     {
                         var device = this.Session.GetServerDetails(rack.DN);
-                        rack.ESight = this.ESightIp;
-                        rack.MakeDetail(device);
+                        rack.MakeDetail(device, this.ESightIp);
                         RackConnector.Instance.InsertDetials(rack);
                     }
                     catch (Exception ex)
@@ -518,8 +630,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     try
                     {
                         var device = this.Session.GetServerDetails(kunLun.DN);
-                        kunLun.ESight = this.ESightIp;
-                        kunLun.MakeDetail(device);
+                        kunLun.MakeDetail(device, this.ESightIp);
                         KunLunConnector.Instance.InsertDetials(kunLun);
                     }
                     catch (Exception ex)
@@ -542,26 +653,27 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 try
                 {
-                    var serverType = this.GetServerType(dn);
+                    var deviceId = $"{this.ESightIp}-{ dn}";
+                    var serverType = this.GetServerType(deviceId);
                     switch (serverType)
                     {
                         case ServerTypeEnum.Blade:
-                            BladeConnector.Instance.RemoveComputerByDn(dn);
+                            BladeConnector.Instance.RemoveComputerByDeviceId(deviceId);
                             break;
                         case ServerTypeEnum.ChildBlade:
-                            BladeConnector.Instance.RemoveChildBlade(dn);
+                            BladeConnector.Instance.RemoveChildBlade(deviceId);
                             break;
                         case ServerTypeEnum.Highdensity:
-                            HighdensityConnector.Instance.RemoveComputerByDn(dn);
+                            HighdensityConnector.Instance.RemoveComputerByDeviceId(deviceId);
                             break;
                         case ServerTypeEnum.ChildHighdensity:
-                            HighdensityConnector.Instance.RemoveChildHighDensityServer(dn);
+                            HighdensityConnector.Instance.RemoveChildHighDensityServer(deviceId);
                             break;
                         case ServerTypeEnum.Rack:
-                            RackConnector.Instance.RemoveComputerByDn(dn);
+                            RackConnector.Instance.RemoveComputerByDeviceId(deviceId);
                             break;
                         case ServerTypeEnum.KunLun:
-                            KunLunConnector.Instance.RemoveComputerByDn(dn);
+                            KunLunConnector.Instance.RemoveComputerByDeviceId(deviceId);
                             break;
                     }
                 }
@@ -575,16 +687,14 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <summary>
         /// The get server type.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="ServerTypeEnum"/>.
-        /// </returns>
+        /// <param name="dn">The dn.</param>
+        /// <returns>The <see cref="ServerTypeEnum" />.</returns>
         public ServerTypeEnum GetServerType(string dn)
         {
-            HWLogger.NOTIFICATION_PROCESS.Debug($"Start GetServerType {dn}");
-            var server = BladeConnector.Instance.GetBladeServer(dn);
+            var deviceId = $"{this.ESightIp}-{dn}";
+
+            HWLogger.NOTIFICATION_PROCESS.Debug($"Start GetServerType {deviceId}");
+            var server = BladeConnector.Instance.GetBladeServer(deviceId);
             if (server != null)
             {
                 return ServerTypeEnum.Blade;
@@ -594,7 +704,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.ChildBlade;
             }
-            server = HighdensityConnector.Instance.GetHighdensityServer(dn);
+            server = HighdensityConnector.Instance.GetHighdensityServer(deviceId);
             if (server != null)
             {
                 return ServerTypeEnum.Highdensity;
@@ -604,18 +714,22 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.ChildHighdensity;
             }
-            server = RackConnector.Instance.GetRackServer(dn);
+            server = RackConnector.Instance.GetRackServer(deviceId);
             if (server != null)
             {
                 return ServerTypeEnum.Rack;
             }
-            server = KunLunConnector.Instance.GetKunLunServer(dn);
+            server = KunLunConnector.Instance.GetKunLunServer(deviceId);
             if (server != null)
             {
                 return ServerTypeEnum.KunLun;
             }
-            HWLogger.NOTIFICATION_PROCESS.Debug($"End GetServerType {dn}");
-            return ServerTypeEnum.Default;
+            server = BladeConnector.Instance.GetSwitchBoard(dn);
+            if (server != null)
+            {
+                return ServerTypeEnum.Switch;
+            }
+            throw new Exception($"GetServerType Faild: {deviceId}");
         }
 
         /// <summary>
@@ -631,7 +745,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     var serverType = this.GetServerType(data.DeviceId);
 
                     HWLogger.NOTIFICATION_PROCESS.Info($"Start deviceChangeEvent :{data.DeviceId}");
-                    var deviceChangeEventData = new DeviceChangeEventData(data);
+                    var deviceChangeEventData = new DeviceChangeEventData(data, this.ESightIp, serverType);
                     switch (serverType)
                     {
                         case ServerTypeEnum.Blade:
@@ -639,6 +753,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             break;
                         case ServerTypeEnum.ChildBlade:
                             BladeConnector.Instance.InsertChildDeviceChangeEvent(deviceChangeEventData);
+                            break;
+                        case ServerTypeEnum.Switch:
+                            BladeConnector.Instance.InsertSwitchDeviceChangeEvent(deviceChangeEventData);
                             break;
                         case ServerTypeEnum.Highdensity:
                             HighdensityConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
@@ -675,7 +792,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     var serverType = this.GetServerType(alarmData.NeDN);
 
                     HWLogger.NOTIFICATION_PROCESS.Info($"Start InsertEvent {alarmData.NeDN}");
-                    var alertModel = new EventData(alarmData);
+                    var alertModel = new EventData(alarmData, this.ESightIp, serverType);
 
                     switch (serverType)
                     {
@@ -684,6 +801,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             break;
                         case ServerTypeEnum.ChildBlade:
                             BladeConnector.Instance.InsertChildBladeEvent(alertModel);
+                            break;
+                        case ServerTypeEnum.Switch:
+                            BladeConnector.Instance.InsertSwitchEvent(alertModel);
                             break;
                         case ServerTypeEnum.Highdensity:
                             HighdensityConnector.Instance.InsertEvent(alertModel);
@@ -725,8 +845,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     Location = string.Empty,
                     Status = model.Status
                 };
-                server.MakeDetail(model);
-                server.ESight = this.ESightIp;
+                server.MakeDetail(model, this.ESightIp);
                 BladeConnector.Instance.UpdateMainWithOutChildBlade(server);
             }
             catch (Exception ex)
@@ -753,6 +872,23 @@ namespace Huawei.SCOM.ESightPlugin.Service
             catch (Exception ex)
             {
                 this.OnNotifyError($"UpdateChildBladeServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
+            }
+        }
+
+        /// <summary>
+        /// 更新子刀片
+        /// </summary>
+        /// <param name="model">The model.</param>
+        public void UpdateSwitchBoard(HWDeviceDetail model)
+        {
+            try
+            {
+                this.OnNotifyError($"UpdateSwitchBoard Error.eSight not support. eSight:{this.ESightIp} Dn:{model.DN}. ");
+                //BladeConnector.Instance.UpdateSwitch(model);
+            }
+            catch (Exception ex)
+            {
+                this.OnNotifyError($"UpdateSwitchBoard Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
             }
         }
 
@@ -793,10 +929,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     ServerModel = model.Mode,
                     IpAddress = model.IpAddress,
                     Location = string.Empty,
-                    Status = model.Status,
-                    ESight = this.ESightIp
+                    Status = model.Status
                 };
-                server.MakeDetail(model);
+                server.MakeDetail(model, this.ESightIp);
                 HighdensityConnector.Instance.UpdateMainWithOutChildBlade(server);
             }
             catch (Exception ex)
@@ -814,8 +949,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             try
             {
                 var server = new KunLunServer();
-                server.ESight = this.ESightIp;
-                server.MakeDetail(model);
+                server.MakeDetail(model, this.ESightIp);
                 KunLunConnector.Instance.UpdateKunLun(server);
             }
             catch (Exception ex)
@@ -833,8 +967,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             try
             {
                 var server = new RackServer();
-                server.MakeDetail(model);
-                server.ESight = this.ESightIp;
+                server.MakeDetail(model, this.ESightIp);
                 RackConnector.Instance.UpdateRack(server);
             }
             catch (Exception ex)
@@ -852,6 +985,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
             var serverType = this.GetServerType(dn);
             try
             {
+                // 暂不可以通过交换板的dn获取交换板的详情
+                if (serverType == ServerTypeEnum.Switch)
+                {
+                    this.OnNotifyError($"UpdateSwitchBoard Error.eSight not support. eSight:{this.ESightIp} Dn:{dn}. ");
+                    return;
+                }
                 var device = this.Session.GetServerDetails(dn);
                 switch (serverType)
                 {
@@ -860,6 +999,10 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         break;
                     case ServerTypeEnum.ChildBlade:
                         this.UpdateChildBladeServer(device);
+                        break;
+                    case ServerTypeEnum.Switch:
+                        //todo 暂不可以通过交换板的dn获取交换板的详情
+                        //this.UpdateSwitchBoard(device);
                         break;
                     case ServerTypeEnum.Highdensity:
                         this.UpdateHighdensityServer(device);

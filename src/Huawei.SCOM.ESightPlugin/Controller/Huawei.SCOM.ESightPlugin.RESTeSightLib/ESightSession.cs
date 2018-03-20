@@ -539,6 +539,47 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             }
             return result;
         }
+
+        /// <summary>
+        /// Gets the alarm history.
+        /// </summary>
+        /// <returns>QueryPageResult&lt;AlarmHistory&gt;.</returns>
+        /// <exception cref="ESSessionExpceion"></exception>
+        public AlarmHistoryList GetAlarmHistory(int startPage)
+        {
+            var result = new AlarmHistoryList();
+            string url = string.Empty;
+            try
+            {
+                StringBuilder sb = new StringBuilder($"rest/openapi/alarm?clearStatus=0&ackStatus=0&pageNo={startPage}&pageSize=100");
+                url = this.GetFullUrl(sb.ToString());
+                HWLogger.API.Info($"GetAlarmHistory start.Url:{url}");
+
+                this.CheckAndReLogin();
+                this.TrustCertificate();
+
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
+                var res = httpClient.GetAsync(url).Result;
+                var resultStr = res.Content.ReadAsStringAsync().Result;
+                HWLogger.API.Debug($"GetAlarmHistory success.Url:{url} \r\n result:{resultStr}");
+                resultStr = resultStr.Replace("\"data\":\"null\"", "\"data\":[]");
+                result = JsonUtil.DeserializeObject<AlarmHistoryList>(resultStr);
+                if (result.Code != 0)
+                {
+                    throw new ESSessionExpceion(result.Code.ToString(), this, resultStr);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Code = -1;
+                result.Description = ex.Message;
+                HWLogger.API.Error($"GetAlarmHistory Error.Url:{url} : ", ex);
+                throw;
+            }
+            return result;
+        }
+
         #endregion
 
         #region 服务器列表、服务器详情
@@ -574,7 +615,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 }
                 url = this.GetFullUrl(sb.ToString());
 
-                HWLogger.API.Info($"GetServerList success.Url:{url}");
+                HWLogger.API.Info($"GetServerList start.Url:{url}");
 
                 this.CheckAndReLogin();
                 this.TrustCertificate();

@@ -30,6 +30,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
     using Microsoft.EnterpriseManagement.Monitoring;
 
     using MPObject = Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject;
+    using System.Collections.Generic;
 
     /// <summary>
     ///     The rack connector.
@@ -252,29 +253,21 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The exsits rack server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool ExsitsRackServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="bool" />.</returns>
+        public bool ExsitsRackServer(string deviceId)
         {
-            return this.ExsitsDn(dn, this.RackClass);
+            return this.ExsitsDeviceId(deviceId, this.RackClass);
         }
 
         /// <summary>
         /// The get rack server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        public MonitoringObject GetRackServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        public MonitoringObject GetRackServer(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}'", this.RackClass);
+            return this.GetObject($"DN = '{deviceId}'", this.RackClass);
         }
 
         /// <summary>
@@ -286,10 +279,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void InsertDetials(RackServer model)
         {
             var discoveryData = new IncrementalDiscoveryData();
-            var baseComputer = this.GetComputerByDn(model.DN);
+            var baseComputer = this.GetComputerByDeviceId(model.DeviceId);
             if (baseComputer == null)
             {
-                var newBaseComputer = this.CreateComputer(model.DN);
+                var newBaseComputer = this.CreateComputer(model.DeviceId);
                 discoveryData.Add(newBaseComputer);
             }
             else
@@ -298,12 +291,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
             }
 
             var rackServer = this.CreateRackServer(model);
-            rackServer[this.ComputerKey].Value = model.DN;
+            rackServer[this.ComputerKey].Value = model.DeviceId;
             discoveryData.Add(rackServer);
 
             #region Fan
 
-            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DN);
+            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DeviceId);
             discoveryData.Add(fanGroup);
             model.FanList.ForEach(
                 x =>
@@ -311,8 +304,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         var fan = this.CreateFan(x);
                         fan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
 
-                        fan[this.HuaweiServerKey].Value = model.DN;
-                        fan[this.ComputerKey].Value = model.DN;
+                        fan[this.HuaweiServerKey].Value = model.DeviceId;
+                        fan[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(fan);
                     });
 
@@ -320,15 +313,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region PSU
 
-            var powerSupplyGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DN);
+            var powerSupplyGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DeviceId);
             discoveryData.Add(powerSupplyGroup);
             model.PowerSupplyList.ForEach(
                 x =>
                     {
                         var powerSupply = this.CreatePowerSupply(x);
                         powerSupply[this.PartGroupKey].Value = powerSupplyGroup[this.PartGroupKey].Value;
-                        powerSupply[this.HuaweiServerKey].Value = model.DN;
-                        powerSupply[this.ComputerKey].Value = model.DN;
+                        powerSupply[this.HuaweiServerKey].Value = model.DeviceId;
+                        powerSupply[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(powerSupply);
                     });
 
@@ -336,15 +329,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Raid
 
-            var raidGroup = this.CreateLogicalGroup(this.RaidGroupClass, model.DN);
+            var raidGroup = this.CreateLogicalGroup(this.RaidGroupClass, model.DeviceId);
             discoveryData.Add(raidGroup);
             model.RaidList.ForEach(
                 y =>
                     {
                         var raid = this.CreateRaidControl(y);
                         raid[this.PartGroupKey].Value = raidGroup[this.PartGroupKey].Value;
-                        raid[this.HuaweiServerKey].Value = model.DN;
-                        raid[this.ComputerKey].Value = model.DN;
+                        raid[this.HuaweiServerKey].Value = model.DeviceId;
+                        raid[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(raid);
                     });
 
@@ -352,15 +345,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region CPU
 
-            var cpuGroup = this.CreateLogicalGroup(this.CpuGroupClass, model.DN);
+            var cpuGroup = this.CreateLogicalGroup(this.CpuGroupClass, model.DeviceId);
             discoveryData.Add(cpuGroup);
             model.CPUList.ForEach(
                 x =>
                     {
                         var cpu = this.CreateCpu(x);
                         cpu[this.PartGroupKey].Value = cpuGroup[this.PartGroupKey].Value;
-                        cpu[this.HuaweiServerKey].Value = model.DN;
-                        cpu[this.ComputerKey].Value = model.DN;
+                        cpu[this.HuaweiServerKey].Value = model.DeviceId;
+                        cpu[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(cpu);
                     });
 
@@ -368,15 +361,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Memory
 
-            var memoryGroup = this.CreateLogicalGroup(this.MemoryGroupClass, model.DN);
+            var memoryGroup = this.CreateLogicalGroup(this.MemoryGroupClass, model.DeviceId);
             discoveryData.Add(memoryGroup);
             model.MemoryList.ForEach(
                 x =>
                     {
                         var memory = this.CreateMemory(x);
                         memory[this.PartGroupKey].Value = memoryGroup[this.PartGroupKey].Value;
-                        memory[this.HuaweiServerKey].Value = model.DN;
-                        memory[this.ComputerKey].Value = model.DN;
+                        memory[this.HuaweiServerKey].Value = model.DeviceId;
+                        memory[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(memory);
                     });
 
@@ -384,21 +377,21 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Disk
 
-            var diskGroup = this.CreateLogicalGroup(this.PhysicalDiskGroupClass, model.DN);
+            var diskGroup = this.CreateLogicalGroup(this.PhysicalDiskGroupClass, model.DeviceId);
             discoveryData.Add(diskGroup);
             model.DiskList.ForEach(
                 x =>
                     {
                         var disk = this.CreateDisk(x);
                         disk[this.PartGroupKey].Value = diskGroup[this.PartGroupKey].Value;
-                        disk[this.HuaweiServerKey].Value = model.DN;
-                        disk[this.ComputerKey].Value = model.DN;
+                        disk[this.HuaweiServerKey].Value = model.DeviceId;
+                        disk[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(disk);
                     });
 
             #endregion
 
-            if (!this.ExsitsRackServer(model.DN))
+            if (!this.ExsitsRackServer(model.DeviceId))
             {
                 discoveryData.Commit(this.MontioringConnector);
             }
@@ -419,11 +412,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// </exception>
         public void UpdateRack(RackServer model)
         {
-            HWLogger.NOTIFICATION_PROCESS.Debug($"Start UpdateRack {model.DN}");
-            var oldBlade = this.GetRackServer(model.DN);
+            HWLogger.NOTIFICATION_PROCESS.Debug($"Start UpdateRack {model.DeviceId}");
+            var oldBlade = this.GetRackServer(model.DeviceId);
             if (oldBlade == null)
             {
-                throw new Exception($"Can not find the server:{model.DN}");
+                throw new Exception($"Can not find the server:{model.DeviceId}");
             }
             var propertys = this.RackClass.PropertyCollection; // 获取到class的属性
             var discoveryData = new IncrementalDiscoveryData();
@@ -463,8 +456,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (fan == null)
                         {
                             var newFan = this.CreateFan(x);
-                            newFan[this.ComputerKey].Value = model.DN;
-                            newFan[this.HuaweiServerKey].Value = model.DN;
+                            newFan[this.ComputerKey].Value = model.DeviceId;
+                            newFan[this.HuaweiServerKey].Value = model.DeviceId;
                             newFan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newFan);
                         }
@@ -489,8 +482,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (psu == null)
                         {
                             var newpsu = this.CreatePowerSupply(x);
-                            newpsu[this.ComputerKey].Value = model.DN;
-                            newpsu[this.HuaweiServerKey].Value = model.DN;
+                            newpsu[this.ComputerKey].Value = model.DeviceId;
+                            newpsu[this.HuaweiServerKey].Value = model.DeviceId;
                             newpsu[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newpsu);
                         }
@@ -517,8 +510,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (cpu == null)
                         {
                             var newCpu = this.CreateCpu(y);
-                            newCpu[this.ComputerKey].Value = model.DN;
-                            newCpu[this.HuaweiServerKey].Value = model.DN;
+                            newCpu[this.ComputerKey].Value = model.DeviceId;
+                            newCpu[this.HuaweiServerKey].Value = model.DeviceId;
                             newCpu[this.PartGroupKey].Value = cpuGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newCpu);
                         }
@@ -547,8 +540,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (memory == null)
                         {
                             var newMemory = this.CreateMemory(y);
-                            newMemory[this.ComputerKey].Value = model.DN;
-                            newMemory[this.HuaweiServerKey].Value = model.DN;
+                            newMemory[this.ComputerKey].Value = model.DeviceId;
+                            newMemory[this.HuaweiServerKey].Value = model.DeviceId;
                             newMemory[this.PartGroupKey].Value = memoryGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newMemory);
                         }
@@ -577,8 +570,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (disk == null)
                         {
                             var newDisk = this.CreateDisk(y);
-                            newDisk[this.ComputerKey].Value = model.DN;
-                            newDisk[this.HuaweiServerKey].Value = model.DN;
+                            newDisk[this.ComputerKey].Value = model.DeviceId;
+                            newDisk[this.HuaweiServerKey].Value = model.DeviceId;
                             newDisk[this.PartGroupKey].Value = diskGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newDisk);
                         }
@@ -608,8 +601,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (raid == null)
                         {
                             var newRaid = this.CreateRaidControl(y);
-                            newRaid[this.ComputerKey].Value = model.DN;
-                            newRaid[this.HuaweiServerKey].Value = model.DN;
+                            newRaid[this.ComputerKey].Value = model.DeviceId;
+                            newRaid[this.HuaweiServerKey].Value = model.DeviceId;
                             newRaid[this.PartGroupKey].Value = raidGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newRaid);
                         }
@@ -622,7 +615,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             #endregion
 
             discoveryData.Overwrite(this.MontioringConnector);
-            HWLogger.NOTIFICATION_PROCESS.Debug($"End UpdateRack {model.DN}");
+            HWLogger.NOTIFICATION_PROCESS.Debug($"End UpdateRack {model.DeviceId}");
         }
 
         /// <summary>
@@ -632,6 +625,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void InsertEvent(EventData eventData)
         {
             this.InsertEvent(this.RackClass, eventData);
+        }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.RackClass, eventDatas);
         }
 
         /// <summary>
@@ -679,7 +681,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var propertys = this.RackClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.RackClass); // 实例化一个class
-            obj[this.HuaweiServerKey].Value = model.DN;
+            obj[this.HuaweiServerKey].Value = model.DeviceId;
             obj[propertys["Status"]].Value = model.Status;
             obj[propertys["Vendor"]].Value = "HUAWEI";
             obj[propertys["Manufacturer"]].Value = model.Manufacturer;

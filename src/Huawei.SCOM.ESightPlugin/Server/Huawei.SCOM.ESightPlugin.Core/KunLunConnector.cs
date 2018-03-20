@@ -28,6 +28,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
     using Microsoft.EnterpriseManagement.ConnectorFramework;
     using Microsoft.EnterpriseManagement.Monitoring;
     using MPObject = Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The kun lun connector.
@@ -208,10 +209,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var discoveryData = new IncrementalDiscoveryData();
 
-            var baseComputer = this.GetComputerByDn(model.DN);
+            var baseComputer = this.GetComputerByDeviceId(model.DeviceId);
             if (baseComputer == null)
             {
-                var newBaseComputer = this.CreateComputer(model.DN);
+                var newBaseComputer = this.CreateComputer(model.DeviceId);
                 discoveryData.Add(newBaseComputer);
             }
             else
@@ -222,14 +223,14 @@ namespace Huawei.SCOM.ESightPlugin.Core
             #region KunLunServer
 
             var kunLunServer = this.CreateKunLunServer(model);
-            kunLunServer[this.ComputerKey].Value = model.DN;
+            kunLunServer[this.ComputerKey].Value = model.DeviceId;
             discoveryData.Add(kunLunServer);
 
             #endregion
 
             #region Fan
 
-            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DN);
+            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DeviceId);
             discoveryData.Add(fanGroup);
             model.FanList.ForEach(
                 x =>
@@ -237,8 +238,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         var fan = this.CreateFan(x);
                         fan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
 
-                        fan[this.HuaweiServerKey].Value = model.DN;
-                        fan[this.ComputerKey].Value = model.DN;
+                        fan[this.HuaweiServerKey].Value = model.DeviceId;
+                        fan[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(fan);
                     });
 
@@ -246,15 +247,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region PSU
 
-            var powerSupplyGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DN);
+            var powerSupplyGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DeviceId);
             discoveryData.Add(powerSupplyGroup);
             model.PowerSupplyList.ForEach(
                 x =>
                     {
                         var powerSupply = this.CreatePowerSupply(x);
                         powerSupply[this.PartGroupKey].Value = powerSupplyGroup[this.PartGroupKey].Value;
-                        powerSupply[this.HuaweiServerKey].Value = model.DN;
-                        powerSupply[this.ComputerKey].Value = model.DN;
+                        powerSupply[this.HuaweiServerKey].Value = model.DeviceId;
+                        powerSupply[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(powerSupply);
                     });
 
@@ -262,15 +263,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Raid
 
-            var raidGroup = this.CreateLogicalGroup(this.RaidGroupClass, model.DN);
+            var raidGroup = this.CreateLogicalGroup(this.RaidGroupClass, model.DeviceId);
             discoveryData.Add(raidGroup);
             model.RaidList.ForEach(
                 y =>
                     {
                         var raid = this.CreateRaidControl(y);
                         raid[this.PartGroupKey].Value = raidGroup[this.PartGroupKey].Value;
-                        raid[this.HuaweiServerKey].Value = model.DN;
-                        raid[this.ComputerKey].Value = model.DN;
+                        raid[this.HuaweiServerKey].Value = model.DeviceId;
+                        raid[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(raid);
                     });
 
@@ -278,21 +279,21 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Disk
 
-            var diskGroup = this.CreateLogicalGroup(this.PhysicalDiskGroupClass, model.DN);
+            var diskGroup = this.CreateLogicalGroup(this.PhysicalDiskGroupClass, model.DeviceId);
             discoveryData.Add(diskGroup);
             model.DiskList.ForEach(
                 x =>
                     {
                         var disk = this.CreateDisk(x);
                         disk[this.PartGroupKey].Value = diskGroup[this.PartGroupKey].Value;
-                        disk[this.HuaweiServerKey].Value = model.DN;
-                        disk[this.ComputerKey].Value = model.DN;
+                        disk[this.HuaweiServerKey].Value = model.DeviceId;
+                        disk[this.ComputerKey].Value = model.DeviceId;
                         discoveryData.Add(disk);
                     });
 
             #endregion
 
-            if (!this.ExsitsKunLunServer(model.DN))
+            if (!this.ExsitsKunLunServer(model.DeviceId))
             {
                 discoveryData.Commit(this.MontioringConnector);
             }
@@ -310,10 +311,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void UpdateKunLun(KunLunServer model)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateKunLun");
-            var oldServer = this.GetKunLunServer(model.DN);
+            var oldServer = this.GetKunLunServer(model.DeviceId);
             if (oldServer == null)
             {
-                throw new Exception($"Can not find the server:{model.DN}");
+                throw new Exception($"Can not find the server:{model.DeviceId}");
             }
             var propertys = this.KunLunClass.PropertyCollection; // 获取到class的属性
             var discoveryData = new IncrementalDiscoveryData();
@@ -353,8 +354,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (fan == null)
                         {
                             var newFan = this.CreateFan(x);
-                            newFan[this.ComputerKey].Value = model.DN;
-                            newFan[this.HuaweiServerKey].Value = model.DN;
+                            newFan[this.ComputerKey].Value = model.DeviceId;
+                            newFan[this.HuaweiServerKey].Value = model.DeviceId;
                             newFan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newFan);
                         }
@@ -381,8 +382,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (psu == null)
                         {
                             var newpsu = this.CreatePowerSupply(x);
-                            newpsu[this.ComputerKey].Value = model.DN;
-                            newpsu[this.HuaweiServerKey].Value = model.DN;
+                            newpsu[this.ComputerKey].Value = model.DeviceId;
+                            newpsu[this.HuaweiServerKey].Value = model.DeviceId;
                             newpsu[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newpsu);
                         }
@@ -411,8 +412,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (disk == null)
                         {
                             var newDisk = this.CreateDisk(y);
-                            newDisk[this.ComputerKey].Value = model.DN;
-                            newDisk[this.HuaweiServerKey].Value = model.DN;
+                            newDisk[this.ComputerKey].Value = model.DeviceId;
+                            newDisk[this.HuaweiServerKey].Value = model.DeviceId;
                             newDisk[this.PartGroupKey].Value = diskGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newDisk);
                         }
@@ -442,8 +443,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         if (raid == null)
                         {
                             var newRaid = this.CreateRaidControl(y);
-                            newRaid[this.ComputerKey].Value = model.DN;
-                            newRaid[this.HuaweiServerKey].Value = model.DN;
+                            newRaid[this.ComputerKey].Value = model.DeviceId;
+                            newRaid[this.HuaweiServerKey].Value = model.DeviceId;
                             newRaid[this.PartGroupKey].Value = raidGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newRaid);
                         }
@@ -462,29 +463,21 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The exsits kun lun server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool ExsitsKunLunServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="bool" />.</returns>
+        public bool ExsitsKunLunServer(string deviceId)
         {
-            return this.ExsitsDn(dn, this.KunLunClass);
+            return this.ExsitsDeviceId(deviceId, this.KunLunClass);
         }
 
         /// <summary>
         /// The get kun lun server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        public MonitoringObject GetKunLunServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        public MonitoringObject GetKunLunServer(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}'", this.KunLunClass);
+            return this.GetObject($"DN = '{deviceId}'", this.KunLunClass);
         }
 
         /// <summary>
@@ -494,6 +487,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void InsertEvent(EventData eventData)
         {
             this.InsertEvent(this.KunLunClass, eventData);
+        }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.KunLunClass, eventDatas);
         }
 
         /// <summary>
@@ -541,7 +543,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var propertys = this.KunLunClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.KunLunClass); // 实例化一个class
-            obj[this.HuaweiServerKey].Value = model.DN;
+            obj[this.HuaweiServerKey].Value = model.DeviceId;
             obj[propertys["Status"]].Value = model.Status;
             obj[propertys["Vendor"]].Value = "HUAWEI";
             obj[propertys["Manufacturer"]].Value = model.Manufacturer;

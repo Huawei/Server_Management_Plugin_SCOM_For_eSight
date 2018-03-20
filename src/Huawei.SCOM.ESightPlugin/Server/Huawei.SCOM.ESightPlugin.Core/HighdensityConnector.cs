@@ -29,6 +29,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
     using Microsoft.EnterpriseManagement.ConnectorFramework;
     using Microsoft.EnterpriseManagement.Monitoring;
     using MPObject = Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The highdensity connector.
@@ -186,8 +187,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// Gets the disk class.
         /// </summary>
         public ManagementPackClass DiskClass => this.diskClass ?? (this.diskClass =
-                                                                  MGroup.Instance.GetManagementPackClass(
-                                                                      EntityTypeConst.HighdensityServer.Highdensity.Disk));
+                                                                       MGroup.Instance.GetManagementPackClass(
+                                                                           EntityTypeConst.HighdensityServer.Highdensity.Disk));
 
         /// <summary>
         /// Gets the disk group class.
@@ -273,10 +274,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var discoveryData = new IncrementalDiscoveryData();
 
-            var baseComputer = this.GetComputerByDn(model.DN);
+            var baseComputer = this.GetComputerByDeviceId(model.DeviceId);
             if (baseComputer == null)
             {
-                var newBaseComputer = this.CreateComputer(model.DN);
+                var newBaseComputer = this.CreateComputer(model.DeviceId);
                 discoveryData.Add(newBaseComputer);
             }
             else
@@ -286,7 +287,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             #region HighdensityServer
 
             var highdensityServer = this.CreateHighdensityServer(model);
-            highdensityServer[this.HuaweiServerKey].Value = model.DN;
+            highdensityServer[this.HuaweiServerKey].Value = model.DeviceId;
 
             discoveryData.Add(highdensityServer);
 
@@ -294,15 +295,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Fan
 
-            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DN);
+            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DeviceId);
             discoveryData.Add(fanGroup);
             model.FanList.ForEach(
                 x =>
                     {
                         var fan = this.CreateFan(x);
                         fan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
-                        fan[this.ComputerKey].Value = model.DN;
-                        fan[this.HuaweiServerKey].Value = model.DN;
+                        fan[this.ComputerKey].Value = model.DeviceId;
+                        fan[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(fan);
                     });
 
@@ -310,15 +311,15 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region PSU
 
-            var psuGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DN);
+            var psuGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DeviceId);
             discoveryData.Add(psuGroup);
             model.PowerSupplyList.ForEach(
                 x =>
                     {
                         var powerSupply = this.CreatePowerSupply(x);
                         powerSupply[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
-                        powerSupply[this.ComputerKey].Value = model.DN;
-                        powerSupply[this.HuaweiServerKey].Value = model.DN;
+                        powerSupply[this.ComputerKey].Value = model.DeviceId;
+                        powerSupply[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(powerSupply);
                     });
 
@@ -326,7 +327,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #region Child Highdensity
 
-            var childHighdensityGroup = this.CreateLogicalGroup(this.ChildHighdensityGroupClass,model.DN);
+            var childHighdensityGroup = this.CreateLogicalGroup(this.ChildHighdensityGroupClass, model.DeviceId);
             var childHighdensityGroupKey = childHighdensityGroup[this.PartGroupKey].Value.ToString();
             discoveryData.Add(childHighdensityGroup);
             model.ChildHighdensitys.ForEach(
@@ -334,14 +335,14 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     {
                         var childHighdensity = this.CreateChildHighdensity(x);
                         childHighdensity[this.PartGroupKey].Value = childHighdensityGroupKey;
-                        childHighdensity[this.ComputerKey].Value = model.DN;
-                        childHighdensity[this.HuaweiServerKey].Value = model.DN;
+                        childHighdensity[this.ComputerKey].Value = model.DeviceId;
+                        childHighdensity[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(childHighdensity);
                         var childHighdensityKey = this.ChildHighdensityClass.PropertyCollection["DN"];
 
                         #region CPU
 
-                        var cpuGroup = this.CreateLogicalChildGroup(this.CpuGroupClass, model.DN, x.DN);
+                        var cpuGroup = this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DN);
 
                         cpuGroup[childHighdensityKey].Value = x.DN;
                         cpuGroup[this.PartGroupKey].Value = childHighdensityGroupKey;
@@ -353,8 +354,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     cpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
                                     cpu[childHighdensityKey].Value = x.DN;
                                     cpu[this.PartGroupKey].Value = childHighdensityGroupKey;
-                                    cpu[this.ComputerKey].Value = model.DN;
-                                    cpu[this.HuaweiServerKey].Value = model.DN;
+                                    cpu[this.ComputerKey].Value = model.DeviceId;
+                                    cpu[this.HuaweiServerKey].Value = model.DeviceId;
                                     discoveryData.Add(cpu);
                                 });
 
@@ -362,7 +363,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Memory
 
-                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DN, x.DN);
+                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DN);
                         memoryGroup[childHighdensityKey].Value = x.DN;
                         memoryGroup[this.PartGroupKey].Value = childHighdensityGroupKey;
                         discoveryData.Add(memoryGroup);
@@ -374,8 +375,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                         memoryGroup[this.PartChildGroupKey].Value;
                                     memory[childHighdensityKey].Value = x.DN;
                                     memory[this.PartGroupKey].Value = childHighdensityGroupKey;
-                                    memory[this.ComputerKey].Value = model.DN;
-                                    memory[this.HuaweiServerKey].Value = model.DN;
+                                    memory[this.ComputerKey].Value = model.DeviceId;
+                                    memory[this.HuaweiServerKey].Value = model.DeviceId;
                                     discoveryData.Add(memory);
                                 });
 
@@ -383,7 +384,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Disk
 
-                        var diskGroup = this.CreateLogicalChildGroup(this.DiskGroupClass, model.DN, x.DN);
+                        var diskGroup = this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DN);
                         diskGroup[this.PartGroupKey].Value = childHighdensityGroupKey;
                         diskGroup[childHighdensityKey].Value = x.DN;
                         discoveryData.Add(diskGroup);
@@ -394,8 +395,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     disk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
                                     disk[childHighdensityKey].Value = x.DN;
                                     disk[this.PartGroupKey].Value = childHighdensityGroupKey;
-                                    disk[this.ComputerKey].Value = model.DN;
-                                    disk[this.HuaweiServerKey].Value = model.DN;
+                                    disk[this.ComputerKey].Value = model.DeviceId;
+                                    disk[this.HuaweiServerKey].Value = model.DeviceId;
                                     discoveryData.Add(disk);
                                 });
 
@@ -403,7 +404,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Raid
 
-                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DN, x.DN);
+                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DN);
                         raidGroup[this.PartGroupKey].Value = childHighdensityGroupKey;
                         raidGroup[childHighdensityKey].Value = x.DN;
                         discoveryData.Add(raidGroup);
@@ -414,8 +415,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     raid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
                                     raid[childHighdensityKey].Value = x.DN;
                                     raid[this.PartGroupKey].Value = childHighdensityGroupKey;
-                                    raid[this.HuaweiServerKey].Value = model.DN;
-                                    raid[this.ComputerKey].Value = model.DN;
+                                    raid[this.HuaweiServerKey].Value = model.DeviceId;
+                                    raid[this.ComputerKey].Value = model.DeviceId;
                                     discoveryData.Add(raid);
                                 });
 
@@ -424,7 +425,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             #endregion
 
-            if (!this.ExsitsHighdensityServer(model.DN))
+            if (!this.ExsitsHighdensityServer(model.DeviceId))
             {
                 discoveryData.Commit(this.MontioringConnector);
             }
@@ -605,10 +606,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void UpdateMainWithOutChildBlade(HighdensityServer model)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateHighdensity WithOut ChildBoard");
-            var oldBlade = this.GetHighdensityServer(model.DN);
+            var oldBlade = this.GetHighdensityServer(model.DeviceId);
             if (oldBlade == null)
             {
-                throw new Exception($"Can not find the server:{model.DN}");
+                throw new Exception($"Can not find the server:{model.DeviceId}");
             }
             var propertys = this.HighdensityClass.PropertyCollection; // 获取到class的属性
             var discoveryData = new IncrementalDiscoveryData();
@@ -642,8 +643,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newFan = this.CreateFan(x);
                             newFan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
-                            newFan[this.ComputerKey].Value = model.DN;
-                            newFan[this.HuaweiServerKey].Value = model.DN;
+                            newFan[this.ComputerKey].Value = model.DeviceId;
+                            newFan[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newFan);
                         }
                         else
@@ -671,8 +672,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newpsu = this.CreatePowerSupply(x);
                             newpsu[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
-                            newpsu[this.ComputerKey].Value = model.DN;
-                            newpsu[this.HuaweiServerKey].Value = model.DN;
+                            newpsu[this.ComputerKey].Value = model.DeviceId;
+                            newpsu[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newpsu);
                         }
                         else
@@ -706,6 +707,25 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             this.InsertEvent(this.HighdensityClass, eventData);
         }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.HighdensityClass, eventDatas);
+        }
+
+        /// <summary>
+        /// Inserts the child history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertChildHistoryEvent(List<EventData> eventDatas)
+        {
+            this.InsertHistoryEvent(this.ChildHighdensityClass, eventDatas);
+        }
+
 
         /// <summary>
         /// Inserts the device change event.
@@ -764,15 +784,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The exsits get highdensity server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool ExsitsHighdensityServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="bool" />.</returns>
+        public bool ExsitsHighdensityServer(string deviceId)
         {
-            return this.ExsitsDn(dn, this.HighdensityClass);
+            return this.ExsitsDeviceId(deviceId, this.HighdensityClass);
         }
 
         /// <summary>
@@ -792,15 +808,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The get highdensity server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        public MonitoringObject GetHighdensityServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        public MonitoringObject GetHighdensityServer(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}'", this.HighdensityClass);
+            return this.GetObject($"DN = '{deviceId}'", this.HighdensityClass);
         }
         #endregion
 
@@ -819,7 +831,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var propertys = this.HighdensityClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.HighdensityClass); // 实例化一个class
-            obj[this.ComputerKey].Value = model.DN;
+            obj[this.ComputerKey].Value = model.DeviceId;
             obj[propertys["eSight"]].Value = model.ESight;
             obj[propertys["Status"]].Value = model.Status;
             obj[propertys["UUID"]].Value = model.UUID;

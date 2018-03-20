@@ -15,7 +15,10 @@
 namespace Huawei.SCOM.ESightPlugin.Core
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using System.Threading;
 
     using CommonUtil;
 
@@ -218,13 +221,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// DN是否存在
         /// </summary>
-        /// <param name="dn">The dn.</param>
+        /// <param name="deviceId">The device identifier.</param>
         /// <param name="mpClass">The mp class.</param>
         /// <returns>PartialMonitoringObject.</returns>
-        public bool ExsitsDn(string dn, ManagementPackClass mpClass)
+        public bool ExsitsDeviceId(string deviceId, ManagementPackClass mpClass)
         {
             MGroup.Instance.CheckConnection();
-            var criteria = new MonitoringObjectCriteria($"DN = '{dn}'", mpClass);
+            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
             var reader =
                 MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(
                     criteria,
@@ -235,16 +238,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Gets the computer by dn.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// Microsoft.EnterpriseManagement.Monitoring.MonitoringObject.
-        /// </returns>
-        public MonitoringObject GetComputerByDn(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>Microsoft.EnterpriseManagement.Monitoring.MonitoringObject.</returns>
+        public MonitoringObject GetComputerByDeviceId(string deviceId)
         {
             MGroup.Instance.CheckConnection();
-            return this.GetObject($"PrincipalName = '{dn}'", this.BaseComputerClass);
+            return this.GetObject($"PrincipalName = '{deviceId}'", this.BaseComputerClass);
         }
 
         /// <summary>
@@ -265,13 +264,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// 根据dn移除Computer
         /// </summary>
-        /// <param name="dn">
+        /// <param name="deviceId">
         /// The dn.
         /// </param>
-        public void RemoveComputerByDn(string dn)
+        public void RemoveComputerByDeviceId(string deviceId)
         {
             MGroup.Instance.CheckConnection();
-            var existingObject = this.GetComputerByDn(dn);
+            var existingObject = this.GetComputerByDeviceId(deviceId);
             if (existingObject != null)
             {
                 var discovery = new IncrementalDiscoveryData();
@@ -293,12 +292,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(
                         mpClass,
                         ObjectQueryOptions.Default);
-                var dns = blades.ToList().Select(x => x.Path).ToList();
+                var deviceIds = blades.ToList().Select(x => x.Path).ToList();
                 var discovery = new IncrementalDiscoveryData();
-                dns.ForEach(
-                    dn =>
+                deviceIds.ForEach(
+                    deviceId =>
                         {
-                            var existingObject = this.GetComputerByDn(dn);
+                            var existingObject = this.GetComputerByDeviceId(deviceId);
                             if (existingObject != null)
                             {
                                 discovery.Remove(existingObject);
@@ -332,12 +331,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(
                         criteria,
                         ObjectQueryOptions.Default);
-                var dns = reader.ToList().Select(x => x.Path).ToList();
+                var deviceIds = reader.ToList().Select(x => x.Path).ToList();
                 var discovery = new IncrementalDiscoveryData();
-                dns.ForEach(
-                    dn =>
+                deviceIds.ForEach(
+                    deviceId =>
                         {
-                            var existingObject = this.GetComputerByDn(dn);
+                            var existingObject = this.GetComputerByDeviceId(deviceId);
                             if (existingObject != null)
                             {
                                 discovery.Remove(existingObject);
@@ -361,70 +360,153 @@ namespace Huawei.SCOM.ESightPlugin.Core
             try
             {
                 MGroup.Instance.CheckConnection();
-                var criteria = new MonitoringObjectCriteria($"DN = '{eventData.Dn}'", mpClass);
+                var criteria = new MonitoringObjectCriteria($"DN = '{eventData.DeviceId}'", mpClass);
                 var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
                 if (!reader.Any())
                 {
-                    throw new Exception($"cannot find DN '{eventData.Dn}'");
+                    throw new Exception($"cannot find DN '{eventData.DeviceId}'");
                 }
                 var obj = reader.First();
+                var alertHistory = obj.GetMonitoringAlerts();
+                if (eventData.OptType == 1 || eventData.OptType == 6)
                 {
-                    if (eventData.OptType == 1 || eventData.OptType == 6)
+                    // 如果已存在，则不再重复添加
+                    if (alertHistory.All(x => x.CustomField6 != eventData.AlarmSn.ToString()))
                     {
                         obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
                     }
-                    else if (eventData.OptType == 2)
+                }
+                else if (eventData.OptType == 2)
+                {
+                    var alerts = obj.GetMonitoringAlerts().Where(x => x.CustomField6 == eventData.AlarmSn.ToString()).ToList();
+                    if (!alerts.Any())
                     {
-                        var alerts = obj.GetMonitoringAlerts().Where(x => x.CustomField6 == eventData.AlarmSn.ToString()).ToList();
-                        if (!alerts.Any())
-                        {
-                            // throw new Exception($"cannot find alert '{eventData.AlarmSn}'");
-                        }
-                        else
-                        {
-                            alerts.ForEach(alert =>
-                                {
-                                    alert.ResolutionState = this.CloseState.ResolutionState;
-                                    alert.Update(eventData.AlarmData.Comments);
-                                });
-                        }
-                    }
-                    else if (eventData.OptType == 5)
-                    {
-                        var alerts = obj.GetMonitoringAlerts().Where(x => x.CustomField6 == eventData.AlarmSn.ToString()).ToList();
-                        if (!alerts.Any())
-                        {
-                            // 未找到，则当做是新增告警
-                            obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
-                        }
-                        else
-                        {
-                            alerts.ForEach(alert =>
-                            {
-                                alert.CustomField2 = eventData.AlarmData.AdditionalInformation;
-                                alert.CustomField3 = eventData.AlarmData.AdditionalText;
-                                alert.CustomField4 = eventData.AlarmData.AlarmId.ToString();
-                                alert.CustomField5 = eventData.AlarmData.AlarmName;
-                                alert.CustomField6 = eventData.AlarmData.AlarmSN.ToString();
-                                alert.CustomField7 = TimeHelper.StampToDateTime(eventData.AlarmData.ArrivedTime.ToString()).ToString();
-                                alert.CustomField8 = eventData.AlarmData.DevCsn.ToString();
-                                alert.CustomField9 = eventData.AlarmData.EventType.ToString();
-                                alert.CustomField10 = eventData.AlarmData.MoName;
-
-                                alert.Update(eventData.AlarmData.Comments);
-                            });
-                        }
+                        // throw new Exception($"cannot find alert '{eventData.AlarmSn}'");
                     }
                     else
                     {
-                        HWLogger.SERVICE.Error($"Unknown optType {eventData.OptType}");
+                        alerts.ForEach(alert =>
+                            {
+                                alert.ResolutionState = this.CloseState.ResolutionState;
+                                alert.Update(eventData.AlarmData.Comments);
+                            });
                     }
+                }
+                else if (eventData.OptType == 5)
+                {
+                    var alerts = obj.GetMonitoringAlerts().Where(x => x.CustomField6 == eventData.AlarmSn.ToString()).ToList();
+                    if (!alerts.Any())
+                    {
+                        // 未找到，则当做是新增告警
+                        obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
+                    }
+                    else
+                    {
+                        alerts.ForEach(alert =>
+                        {
+                            alert.CustomField2 = eventData.AlarmData.AdditionalInformation;
+                            alert.CustomField3 = eventData.AlarmData.AdditionalText;
+                            alert.CustomField4 = eventData.AlarmData.AlarmId.ToString();
+                            alert.CustomField5 = eventData.AlarmData.AlarmName;
+                            alert.CustomField6 = eventData.AlarmData.AlarmSN.ToString();
+                            alert.CustomField7 = TimeHelper.StampToDateTime(eventData.AlarmData.ArrivedTime.ToString()).ToString();
+                            alert.CustomField8 = eventData.AlarmData.DevCsn.ToString();
+                            alert.CustomField9 = eventData.AlarmData.EventType.ToString();
+                            alert.CustomField10 = eventData.AlarmData.MoName;
+
+                            alert.Update(eventData.AlarmData.Comments);
+                        });
+                    }
+                }
+                else
+                {
+                    HWLogger.SERVICE.Error($"Unknown optType {eventData.OptType}");
                 }
             }
             catch (Exception ex)
             {
                 HWLogger.SERVICE.Error(ex);
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// 插入历史告警-插入前请先排重
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(ManagementPackClass mpClass, List<EventData> eventDatas)
+        {
+            MGroup.Instance.CheckConnection();
+            var deviceId = eventDatas[0].DeviceId;
+
+            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
+            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+            if (!reader.Any())
+            {
+                throw new Exception($"cannot find DN '{deviceId}'");
+            }
+            var obj = reader.First();
+            // 获取到历史的事件记录
+            // var eventHistory = obj.GetMonitoringEvents();
+            // 过滤掉已经存在的事件-如果已存在，则不再重复添加
+            // var filterEventList = eventDatas.Where(y => eventHistory.All(x => x.Parameters[5] != y.AlarmSn.ToString())).ToList();
+
+            var alertHistory = obj.GetMonitoringAlerts();
+            // 过滤掉已经存在的告警 
+            var filterAlertList = eventDatas.Where(y => alertHistory.All(x => x.CustomField6 != y.AlarmSn.ToString())).ToList();
+
+            HWLogger.SERVICE.Info($"InsertHistoryEvent :{deviceId} [Event Count:{eventDatas.Count}] [New Alert Count:{filterAlertList.Count}]");
+            if (!filterAlertList.Any())
+            {
+                return;
+            }
+            var firstData = filterAlertList.FirstOrDefault();
+            if (firstData == null)
+            {
+                return;
+            }
+            this.FindFirstEvent(obj, firstData);
+            Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
+            foreach (var eventData in filterAlertList)
+            {
+                try
+                {
+                    obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
+                }
+                catch (Exception ex)
+                {
+                    HWLogger.SERVICE.Error($"InsertHistoryEvent Error.AlarmSn: {eventData.AlarmSn}", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 判断首次插入事件是否成功
+        /// 首次安装后 第一次插入事件会失败
+        /// 此处进行多次查找，以确定事件插入成功
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="firstEvent">The first event.</param>
+        public void FindFirstEvent(PartialMonitoringObject obj, EventData firstEvent)
+        {
+            var ev = firstEvent.ToCustomMonitoringEvent();
+            ev.LevelId = 2;
+            ev.Channel = "eSight告警初始化";
+            ev.Parameters[4] = "eSight告警初始化";
+            obj.InsertCustomMonitoringEvent(ev);
+            int i = 0;
+            while (i < 100)
+            {
+                var eventHistory = obj.GetMonitoringEvents();
+                HWLogger.SERVICE.Debug($"try Find FirstEvent:{i}.AlarmSn: {firstEvent.AlarmSn}. eventHistory Count:{eventHistory.Count}");
+                if (eventHistory.Any(x => x.Parameters[5] == firstEvent.AlarmSn.ToString()))
+                {
+                    HWLogger.SERVICE.Debug($"Find FirstEvent Finish:{i}.AlarmSn: {firstEvent.AlarmSn}");
+                    break;
+                }
+                Thread.Sleep(2000);
+                i++;
             }
         }
 
@@ -438,7 +520,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             try
             {
                 MGroup.Instance.CheckConnection();
-                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.Dn}'", mpClass);
+                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.DeviceId}'", mpClass);
                 var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
                 if (reader.Any())
                 {
@@ -449,7 +531,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 }
                 else
                 {
-                    throw new Exception($"cannot find DN '{deviceChangeEventData.Dn}'");
+                    throw new Exception($"cannot find DN '{deviceChangeEventData.DeviceId}'");
                 }
             }
             catch (Exception ex)
