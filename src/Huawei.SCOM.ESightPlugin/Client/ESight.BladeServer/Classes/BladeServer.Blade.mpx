@@ -60,6 +60,10 @@
           <Name>DN</Name>
           <Description>DN</Description>
         </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="eSight">
+          <Name>eSight</Name>
+          <Description>eSight</Description>
+        </DisplayString>
         <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="UUID">
           <Name>UUID</Name>
           <Description>UUID</Description>

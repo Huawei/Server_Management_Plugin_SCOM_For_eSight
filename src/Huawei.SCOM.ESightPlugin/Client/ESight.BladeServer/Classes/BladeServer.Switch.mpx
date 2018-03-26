@@ -55,6 +55,10 @@
           <Name>Switch Board</Name>
           <Description>Switch Board</Description>
         </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="eSight">
+          <Name>eSight</Name>
+          <Description>eSight</Description>
+        </DisplayString>
         <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="Status">
           <Name>Status</Name>
           <Description>Status</Description>

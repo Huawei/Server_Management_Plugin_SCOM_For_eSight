@@ -40,6 +40,10 @@
           <Name>Child Boards</Name>
           <Description></Description>
         </DisplayString>
+        <DisplayString ElementID="ESight.HighdensityServer.Highdensity" SubElementID="eSight">
+          <Name>eSight</Name>
+          <Description>eSight</Description>
+        </DisplayString>
         <DisplayString ElementID="ESight.HighdensityServer.Highdensity" SubElementID="DN">
           <Name>DN</Name>
           <Description>DN</Description>
