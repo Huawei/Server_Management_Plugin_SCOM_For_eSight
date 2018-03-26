@@ -5,6 +5,8 @@
         <ClassType ID="ESight.HighdensityServer.Highdensity" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
           <!--ESight：dn-->
           <Property ID="DN" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：eSightIp-->
+          <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：ipAddress-->
           <Property ID="IPAddress" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：uuid-->

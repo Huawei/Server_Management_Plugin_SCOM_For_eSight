@@ -383,7 +383,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventDatas">The event datas.</param>
         public void InsertChildHistoryEvent(List<EventData> eventDatas)
         {
-            this.InsertHistoryEvent(this.ChildBladeClass, eventDatas);
+            this.InsertChildHistoryEvent(this.ChildBladeClass, eventDatas);
         }
 
         /// <summary>
@@ -392,8 +392,9 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventData">The event data.</param>
         public void InsertChildBladeEvent(EventData eventData)
         {
-            this.InsertEvent(this.ChildBladeClass, eventData);
+            this.InsertChildEvent(this.ChildBladeClass, eventData);
         }
+
 
         /// <summary>
         /// The insert child blade event.
@@ -401,7 +402,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventData">The event data.</param>
         public void InsertSwitchEvent(EventData eventData)
         {
-            this.InsertEvent(this.SwitchClass, eventData);
+            this.InsertChildEvent(this.SwitchClass, eventData);
         }
 
         /// <summary>
@@ -410,7 +411,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventDatas">The event datas.</param>
         public void InserSwitchHistoryEvent(List<EventData> eventDatas)
         {
-            this.InsertHistoryEvent(this.SwitchClass, eventDatas);
+            this.InsertChildHistoryEvent(this.SwitchClass, eventDatas);
         }
 
         /// <summary>
@@ -419,7 +420,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventData">The event data.</param>
         public void InsertSwitchDeviceChangeEvent(DeviceChangeEventData eventData)
         {
-            this.InsertDeviceChangeEvent(this.SwitchClass, eventData);
+            this.InsertChildDeviceChangeEvent(this.SwitchClass, eventData);
         }
 
         /// <summary>
@@ -437,7 +438,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventData">The event data.</param>
         public void InsertChildDeviceChangeEvent(DeviceChangeEventData eventData)
         {
-            this.InsertDeviceChangeEvent(this.ChildBladeClass, eventData);
+            this.InsertChildDeviceChangeEvent(this.ChildBladeClass, eventData);
         }
 
         /// <summary>
@@ -872,7 +873,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void UpdateChildBlade(ChildBlade model)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateChildBlade");
-            var oldObject = this.GetObject($"DN = '{model.DN}'", this.ChildBladeClass);
+            var oldObject = this.GetObject($"DN = '{model.DN}' and eSight='{model.ESight}'", this.ChildBladeClass);
             if (oldObject == null)
             {
                 throw new Exception($"Can not find the child blade server:{model.DN}");
@@ -884,6 +885,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var childHighdensityKey = this.ChildBladeClass.PropertyCollection["DN"];
 
             oldObject[propertys["UUID"]].Value = model.UUID;
+            oldObject[propertys["eSight"]].Value = model.ESight;
+
             oldObject[propertys["Status"]].Value = model.Status;
             oldObject[propertys["PresentState"]].Value = "Present";
             oldObject[propertys["BmcIP"]].Value = model.IpAddress;
@@ -1158,6 +1161,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             obj[propertys["DN"]].Value = model.DN;
             obj[propertys["UUID"]].Value = model.UUID;
+            obj[propertys["eSight"]].Value = model.ESight;
 
             obj[propertys["Status"]].Value = model.Status;
             obj[propertys["PresentState"]].Value = "Present";
@@ -1394,12 +1398,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns>The <see cref="MPObject" />.</returns>
-        private MPObject CreateSwitch(HWBoard model)
+        private MPObject CreateSwitch(ChildSwithBoard model)
         {
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.SwitchClass); // 实例化一个class
 
             obj[propertys["DN"]].Value = model.DN;
+            obj[propertys["eSight"]].Value = model.ESight;
             obj[propertys["ParentDN"]].Value = model.ParentDN;
             obj[propertys["IpAddress"]].Value = model.IpAddress;
             obj[propertys["BoardType"]].Value = model.BoardType;
@@ -1684,16 +1689,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <returns>
         /// MPObject.
         /// </returns>
-        private MonitoringObject UpdateSwitch(HWBoard model)
+        private MonitoringObject UpdateSwitch(ChildSwithBoard model)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.SwitchClass);
+            var oldObject = this.GetObject($"DN = '{model.DN}' and eSight='{model.ESight}'", this.SwitchClass);
             if (oldObject == null)
             {
                 return null;
             }
 
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
-
+            oldObject[propertys["eSight"]].Value = model.ESight;
             oldObject[propertys["ParentDN"]].Value = model.ParentDN;
             oldObject[propertys["IpAddress"]].Value = model.IpAddress;
             oldObject[propertys["BoardType"]].Value = model.BoardType;

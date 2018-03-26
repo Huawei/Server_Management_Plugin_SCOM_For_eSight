@@ -862,7 +862,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         {
             try
             {
-                var server = new ChildBlade();
+                var server = new ChildBlade(this.ESightIp);
                 server.MakeChildBladeDetail(model);
                 server.DN = model.DN;
                 server.Name = model.Name;
@@ -900,7 +900,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         {
             try
             {
-                var server = new ChildHighdensity();
+                var server = new ChildHighdensity(this.ESightIp);
                 server.DN = model.DN;
                 server.Name = model.Name;
                 server.IpAddress = model.IpAddress;

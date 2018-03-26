@@ -443,7 +443,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void UpdateChildBoard(ChildHighdensity model)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateChildBoard");
-            var oldObject = this.GetObject($"DN = '{model.DN}'", this.ChildHighdensityClass);
+            var oldObject = this.GetObject($"DN = '{model.DN}' and eSight='{model.ESight}'", this.ChildHighdensityClass);
             if (oldObject == null)
             {
                 throw new Exception($"Can not find the child blade server:{model.DN}");
@@ -453,6 +453,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var discoveryData = new IncrementalDiscoveryData();
 
             var childHighdensityKey = this.ChildHighdensityClass.PropertyCollection["DN"];
+
+            oldObject[propertys["eSight"]].Value = model.ESight;
 
             oldObject[propertys["Status"]].Value = model.Status;
             oldObject[propertys["IPAddress"]].Value = model.IpAddress;
@@ -696,7 +698,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventData">The event data.</param>
         public void InsertChildBladeEvent(EventData eventData)
         {
-            this.InsertEvent(this.ChildHighdensityClass, eventData);
+            this.InsertChildEvent(this.ChildHighdensityClass, eventData);
         }
 
         /// <summary>
@@ -723,9 +725,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventDatas">The event datas.</param>
         public void InsertChildHistoryEvent(List<EventData> eventDatas)
         {
-            this.InsertHistoryEvent(this.ChildHighdensityClass, eventDatas);
+            this.InsertChildHistoryEvent(this.ChildHighdensityClass, eventDatas);
         }
-
 
         /// <summary>
         /// Inserts the device change event.
@@ -742,7 +743,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eventData">The event data.</param>
         public void InsertChildDeviceChangeEvent(DeviceChangeEventData eventData)
         {
-            this.InsertDeviceChangeEvent(this.ChildHighdensityClass, eventData);
+            this.InsertChildDeviceChangeEvent(this.ChildHighdensityClass, eventData);
         }
 
         /// <summary>
@@ -862,6 +863,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.ChildHighdensityClass); // 实例化一个class
 
             obj[propertys["DN"]].Value = model.DN;
+            obj[propertys["eSight"]].Value = model.ESight;
             obj[propertys["Status"]].Value = model.Status;
             obj[propertys["IPAddress"]].Value = model.IpAddress;
             obj[propertys["UUID"]].Value = model.UUID;

@@ -44,6 +44,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
             }
 
             this.LoggingComputer = data.DeviceId;
+            this.ESightIp = eSightIp;
             this.Message = data.Description;
             this.NedeviceData = data;
         }
@@ -59,6 +60,12 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// </summary>
         /// <value>The dn.</value>
         public string DeviceId { get; set; }
+
+        /// <summary>
+        /// Gets the e sight ip.
+        /// </summary>
+        /// <value>The e sight ip.</value>
+        public string ESightIp { get; set; }
 
         /// <summary>
         ///     Gets or sets the logging computer.

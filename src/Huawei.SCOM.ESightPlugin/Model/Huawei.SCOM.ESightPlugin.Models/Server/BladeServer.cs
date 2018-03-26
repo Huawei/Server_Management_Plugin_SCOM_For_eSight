@@ -39,7 +39,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         /// <summary>
         /// The _switch list.
         /// </summary>
-        private List<HWBoard> _switchList;
+        private List<ChildSwithBoard> _switchList;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BladeServer"/> class.
@@ -49,7 +49,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
             this.FanList = new List<HWFAN>();
             this.PowerSupplyList = new List<HWPSU>();
             this.ChildBlades = new List<ChildBlade>();
-            this.SwitchList = new List<HWBoard>();
+            this.SwitchList = new List<ChildSwithBoard>();
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
             this.FanList = new List<HWFAN>();
             this.PowerSupplyList = new List<HWPSU>();
             this.ChildBlades = new List<ChildBlade>();
-            this.SwitchList = new List<HWBoard>();
+            this.SwitchList = new List<ChildSwithBoard>();
         }
 
         /// <summary>
@@ -188,11 +188,11 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         ///     Gets or sets the power supply.
         /// </summary>
         /// <value>The power supply.</value>
-        public List<HWBoard> SwitchList
+        public List<ChildSwithBoard> SwitchList
         {
             get
             {
-                return this._switchList ?? (this._switchList = new List<HWBoard>());
+                return this._switchList ?? (this._switchList = new List<ChildSwithBoard>());
             }
 
             set
@@ -237,7 +237,8 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
             this.DeviceId = $"{eSightIp}-{ detail.DN}";
             this.HmmInfo = hmm;
             this.FanList = detail.FANList;
-            this.SwitchList = detail.BoardList.Where(x => x.BoardType == 1).ToList();
+            this.SwitchList = detail.BoardList.Where(x => x.BoardType == 1)
+                .Select(x => new ChildSwithBoard(x, eSightIp)).ToList();
             this.PowerSupplyList = detail.PSUList;
         }
 

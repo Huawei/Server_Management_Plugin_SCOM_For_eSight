@@ -51,10 +51,12 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         private List<HWRAID> raidList;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChildBlade"/> class.
+        /// Initializes a new instance of the <see cref="ChildBlade" /> class.
         /// </summary>
-        public ChildBlade()
+        /// <param name="eSight">The e sight.</param>
+        public ChildBlade(string eSight)
         {
+            this.ESight = eSight;
             this.CPUList = new List<HWCPU>();
             this.MemoryList = new List<HWMemory>();
             this.DiskList = new List<HWDisk>();
@@ -63,15 +65,15 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChildBlade"/> class.
+        /// Initializes a new instance of the <see cref="ChildBlade" /> class.
         /// </summary>
-        /// <param name="m">
-        /// The m.
-        /// </param>
-        public ChildBlade(Blade m)
+        /// <param name="m">The m.</param>
+        /// <param name="eSight">The e sight.</param>
+        public ChildBlade(Blade m, string eSight)
         {
             this.DN = m.DN;
             this.Name = m.Name;
+            this.ESight = eSight;
             this.IpAddress = m.IpAddress;
             this.CPUList = new List<HWCPU>();
             this.MemoryList = new List<HWMemory>();
@@ -119,9 +121,16 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         public string DN { get; set; }
 
         /// <summary>
-        ///     服务器IP地址
-        ///     SCOM:BmcIP
+        /// eSight Ip
         /// </summary>
+        /// <value>The e sight.</value>
+        public string ESight { get; set; }
+
+        /// <summary>
+        /// 服务器IP地址
+        /// SCOM:BmcIP
+        /// </summary>
+        /// <value>The ip address.</value>
         public string IpAddress { get; set; }
 
         /// <summary>

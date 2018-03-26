@@ -6,6 +6,8 @@
         <ClassType ID="ESight.BladeServer.Switch" Base="System!System.PhysicalEntity" Accessibility="Internal" Abstract="false" Hosted="true" Singleton="false">
 
           <Property ID="DN" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：eSightIp-->
+          <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：parentDn-->
           <Property ID="ParentDN" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：ipAddress-->

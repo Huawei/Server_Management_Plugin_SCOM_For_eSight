@@ -45,10 +45,12 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         private List<HWRAID> raidList;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChildHighdensity"/> class.
+        /// Initializes a new instance of the <see cref="ChildHighdensity" /> class.
         /// </summary>
-        public ChildHighdensity()
+        /// <param name="eSight">The e sight.</param>
+        public ChildHighdensity(string eSight)
         {
+            this.ESight = eSight;
             this.CPUList = new List<HWCPU>();
             this.MemoryList = new List<HWMemory>();
             this.DiskList = new List<HWDisk>();
@@ -56,14 +58,14 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChildHighdensity"/> class.
+        /// Initializes a new instance of the <see cref="ChildHighdensity" /> class.
         /// </summary>
-        /// <param name="m">
-        /// The m.
-        /// </param>
-        public ChildHighdensity(Blade m)
+        /// <param name="m">The m.</param>
+        /// <param name="eSight">The e sight.</param>
+        public ChildHighdensity(Blade m, string eSight)
         {
             this.DN = m.DN;
+            this.ESight = eSight;
             this.Name = m.Name;
             this.IpAddress = m.IpAddress;
             this.CPUList = new List<HWCPU>();
@@ -109,6 +111,12 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         ///     "NE=xxx"
         /// </summary>
         public string DN { get; set; }
+
+        /// <summary>
+        /// Gets or sets the e sight.
+        /// </summary>
+        /// <value>The e sight.</value>
+        public string ESight { get; set; }
 
         /// <summary>
         ///     服务器IP地址

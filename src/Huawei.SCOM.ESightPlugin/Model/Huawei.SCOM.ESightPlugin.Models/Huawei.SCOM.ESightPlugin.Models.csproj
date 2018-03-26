@@ -140,6 +140,7 @@
     <Compile Include="Server\BladeServer.cs" />
     <Compile Include="Server\ChildBlade.cs" />
     <Compile Include="Server\ChildHighdensity.cs" />
+    <Compile Include="Server\ChildSwithBoard.cs" />
     <Compile Include="Server\HighdensityServer.cs" />
     <Compile Include="Server\KunLunServer.cs" />
     <Compile Include="Server\RackServer.cs" />

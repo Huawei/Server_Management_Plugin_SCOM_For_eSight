@@ -351,22 +351,224 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
+        /// Inserts the child event.
+        /// </summary>
+        /// <param name="childClass">The child class.</param>
+        /// <param name="eventData">The event data.</param>
+        public void InsertChildEvent(ManagementPackClass childClass, EventData eventData)
+        {
+            MGroup.Instance.CheckConnection();
+            var criteria = new MonitoringObjectCriteria($"DN = '{eventData.DeviceId}'  and eSight='{eventData.ESightIp}'", childClass);
+            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+            if (!reader.Any())
+            {
+                throw new Exception($"cannot find DN '{eventData.DeviceId}'");
+            }
+            var obj = reader.First();
+            this.InsertEvent(obj, eventData);
+        }
+
+        /// <summary>
         /// Inserts the event.
         /// </summary>
         /// <param name="mpClass">The mp class.</param>
         /// <param name="eventData">The event data.</param>
         public void InsertEvent(ManagementPackClass mpClass, EventData eventData)
         {
+            MGroup.Instance.CheckConnection();
+            var criteria = new MonitoringObjectCriteria($"DN = '{eventData.DeviceId}'", mpClass);
+            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+            if (!reader.Any())
+            {
+                throw new Exception($"cannot find DN '{eventData.DeviceId}'");
+            }
+            var obj = reader.First();
+            this.InsertEvent(obj, eventData);
+        }
+
+        /// <summary>
+        /// Inserts the child event.
+        /// </summary>
+        /// <param name="childClass">The child class.</param>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertChildHistoryEvent(ManagementPackClass childClass, List<EventData> eventDatas)
+        {
+            MGroup.Instance.CheckConnection();
+            var deviceId = eventDatas[0].DeviceId;
+            var eSightIp = eventDatas[0].ESightIp;
+
+            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}' and eSight='{eSightIp}'", childClass);
+            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+            if (!reader.Any())
+            {
+                throw new Exception($"cannot find DN '{deviceId}'");
+            }
+            var obj = reader.First();
+            this.InsertHistoryEvent(obj, eventDatas);
+        }
+
+        /// <summary>
+        /// Inserts the event.
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="eventDatas">The event datas.</param>
+        public void InsertHistoryEvent(ManagementPackClass mpClass, List<EventData> eventDatas)
+        {
+            MGroup.Instance.CheckConnection();
+            var deviceId = eventDatas[0].DeviceId;
+
+            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
+            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+            if (!reader.Any())
+            {
+                throw new Exception($"cannot find DN '{deviceId}'");
+            }
+            var obj = reader.First();
+            this.InsertHistoryEvent(obj, eventDatas);
+        }
+
+        /// <summary>
+        /// 插入历史告警-插入前请先排重
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="eventDatas">The event datas.</param>
+        private void InsertHistoryEvent(PartialMonitoringObject obj, List<EventData> eventDatas)
+        {
+            // 获取到历史的事件记录
+            // var eventHistory = obj.GetMonitoringEvents();
+            // 过滤掉已经存在的事件-如果已存在，则不再重复添加
+            // var filterEventList = eventDatas.Where(y => eventHistory.All(x => x.Parameters[5] != y.AlarmSn.ToString())).ToList();
+
+            var alertHistory = obj.GetMonitoringAlerts();
+            // 过滤掉已经存在的告警 
+            var filterAlertList = eventDatas.Where(y => alertHistory.All(x => x.CustomField6 != y.AlarmSn.ToString())).ToList();
+
+            HWLogger.SERVICE.Info($"InsertHistoryEvent : [Event Count:{eventDatas.Count}] [New Alert Count:{filterAlertList.Count}]");
+            if (!filterAlertList.Any())
+            {
+                return;
+            }
+            var firstData = filterAlertList.FirstOrDefault();
+            if (firstData == null)
+            {
+                return;
+            }
+            this.FindFirstEvent(obj, firstData);
+            Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
+            foreach (var eventData in filterAlertList)
+            {
+                try
+                {
+                    obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
+                }
+                catch (Exception ex)
+                {
+                    HWLogger.SERVICE.Error($"InsertHistoryEvent Error.AlarmSn: {eventData.AlarmSn}", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 判断首次插入事件是否成功
+        /// 首次安装后 第一次插入事件会失败
+        /// 此处进行多次查找，以确定事件插入成功
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="firstEvent">The first event.</param>
+        private void FindFirstEvent(PartialMonitoringObject obj, EventData firstEvent)
+        {
+            var ev = firstEvent.ToCustomMonitoringEvent();
+            ev.LevelId = 2;
+            ev.Channel = "eSight告警初始化";
+            ev.Parameters[4] = "eSight告警初始化";
+            obj.InsertCustomMonitoringEvent(ev);
+            int i = 0;
+            while (i < 100)
+            {
+                var eventHistory = obj.GetMonitoringEvents();
+                HWLogger.SERVICE.Debug($"try Find FirstEvent:{i}.AlarmSn: {firstEvent.AlarmSn}. eventHistory Count:{eventHistory.Count}");
+                if (eventHistory.Any(x => x.Parameters[5] == firstEvent.AlarmSn.ToString()))
+                {
+                    HWLogger.SERVICE.Debug($"Find FirstEvent Finish:{i}.AlarmSn: {firstEvent.AlarmSn}");
+                    break;
+                }
+                Thread.Sleep(2000);
+                i++;
+            }
+        }
+
+        /// <summary>
+        /// Inserts the child event.
+        /// </summary>
+        /// <param name="childClass">The child class.</param>
+        /// <param name="deviceChangeEventData">The device change event data.</param>
+        public void InsertChildDeviceChangeEvent(ManagementPackClass childClass, DeviceChangeEventData deviceChangeEventData)
+        {
             try
             {
                 MGroup.Instance.CheckConnection();
-                var criteria = new MonitoringObjectCriteria($"DN = '{eventData.DeviceId}'", mpClass);
+                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.DeviceId}'  and eSight='{deviceChangeEventData.ESightIp}'", childClass);
                 var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-                if (!reader.Any())
+                if (reader.Any())
                 {
-                    throw new Exception($"cannot find DN '{eventData.DeviceId}'");
+                    var obj = reader.First();
+                    {
+                        obj.InsertCustomMonitoringEvent(deviceChangeEventData.ToCustomMonitoringEvent());
+                    }
                 }
-                var obj = reader.First();
+                else
+                {
+                    throw new Exception($"cannot find DN '{deviceChangeEventData.DeviceId}'");
+                }
+            }
+            catch (Exception ex)
+            {
+                HWLogger.SERVICE.Error(ex);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Inserts the device change event.
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="deviceChangeEventData">The device change event data.</param>
+        public void InsertDeviceChangeEvent(ManagementPackClass mpClass, DeviceChangeEventData deviceChangeEventData)
+        {
+            try
+            {
+                MGroup.Instance.CheckConnection();
+                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.DeviceId}'", mpClass);
+                var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+                if (reader.Any())
+                {
+                    var obj = reader.First();
+                    {
+                        obj.InsertCustomMonitoringEvent(deviceChangeEventData.ToCustomMonitoringEvent());
+                    }
+                }
+                else
+                {
+                    throw new Exception($"cannot find DN '{deviceChangeEventData.DeviceId}'");
+                }
+            }
+            catch (Exception ex)
+            {
+                HWLogger.SERVICE.Error(ex);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Inserts the event.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="eventData">The event data.</param>
+        private void InsertEvent(PartialMonitoringObject obj, EventData eventData)
+        {
+            try
+            {
+
                 var alertHistory = obj.GetMonitoringAlerts();
                 if (eventData.OptType == 1 || eventData.OptType == 6)
                 {
@@ -403,135 +605,24 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     else
                     {
                         alerts.ForEach(alert =>
-                        {
-                            alert.CustomField2 = eventData.AlarmData.AdditionalInformation;
-                            alert.CustomField3 = eventData.AlarmData.AdditionalText;
-                            alert.CustomField4 = eventData.AlarmData.AlarmId.ToString();
-                            alert.CustomField5 = eventData.AlarmData.AlarmName;
-                            alert.CustomField6 = eventData.AlarmData.AlarmSN.ToString();
-                            alert.CustomField7 = TimeHelper.StampToDateTime(eventData.AlarmData.ArrivedTime.ToString()).ToString();
-                            alert.CustomField8 = eventData.AlarmData.DevCsn.ToString();
-                            alert.CustomField9 = eventData.AlarmData.EventType.ToString();
-                            alert.CustomField10 = eventData.AlarmData.MoName;
+                            {
+                                alert.CustomField2 = eventData.AlarmData.AdditionalInformation;
+                                alert.CustomField3 = eventData.AlarmData.AdditionalText;
+                                alert.CustomField4 = eventData.AlarmData.AlarmId.ToString();
+                                alert.CustomField5 = eventData.AlarmData.AlarmName;
+                                alert.CustomField6 = eventData.AlarmData.AlarmSN.ToString();
+                                alert.CustomField7 = TimeHelper.StampToDateTime(eventData.AlarmData.ArrivedTime.ToString()).ToString();
+                                alert.CustomField8 = eventData.AlarmData.DevCsn.ToString();
+                                alert.CustomField9 = eventData.AlarmData.EventType.ToString();
+                                alert.CustomField10 = eventData.AlarmData.MoName;
 
-                            alert.Update(eventData.AlarmData.Comments);
-                        });
+                                alert.Update(eventData.AlarmData.Comments);
+                            });
                     }
                 }
                 else
                 {
                     HWLogger.SERVICE.Error($"Unknown optType {eventData.OptType}");
-                }
-            }
-            catch (Exception ex)
-            {
-                HWLogger.SERVICE.Error(ex);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// 插入历史告警-插入前请先排重
-        /// </summary>
-        /// <param name="mpClass">The mp class.</param>
-        /// <param name="eventDatas">The event datas.</param>
-        public void InsertHistoryEvent(ManagementPackClass mpClass, List<EventData> eventDatas)
-        {
-            MGroup.Instance.CheckConnection();
-            var deviceId = eventDatas[0].DeviceId;
-
-            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
-            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-            if (!reader.Any())
-            {
-                throw new Exception($"cannot find DN '{deviceId}'");
-            }
-            var obj = reader.First();
-            // 获取到历史的事件记录
-            // var eventHistory = obj.GetMonitoringEvents();
-            // 过滤掉已经存在的事件-如果已存在，则不再重复添加
-            // var filterEventList = eventDatas.Where(y => eventHistory.All(x => x.Parameters[5] != y.AlarmSn.ToString())).ToList();
-
-            var alertHistory = obj.GetMonitoringAlerts();
-            // 过滤掉已经存在的告警 
-            var filterAlertList = eventDatas.Where(y => alertHistory.All(x => x.CustomField6 != y.AlarmSn.ToString())).ToList();
-
-            HWLogger.SERVICE.Info($"InsertHistoryEvent :{deviceId} [Event Count:{eventDatas.Count}] [New Alert Count:{filterAlertList.Count}]");
-            if (!filterAlertList.Any())
-            {
-                return;
-            }
-            var firstData = filterAlertList.FirstOrDefault();
-            if (firstData == null)
-            {
-                return;
-            }
-            this.FindFirstEvent(obj, firstData);
-            Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
-            foreach (var eventData in filterAlertList)
-            {
-                try
-                {
-                    obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
-                }
-                catch (Exception ex)
-                {
-                    HWLogger.SERVICE.Error($"InsertHistoryEvent Error.AlarmSn: {eventData.AlarmSn}", ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 判断首次插入事件是否成功
-        /// 首次安装后 第一次插入事件会失败
-        /// 此处进行多次查找，以确定事件插入成功
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="firstEvent">The first event.</param>
-        public void FindFirstEvent(PartialMonitoringObject obj, EventData firstEvent)
-        {
-            var ev = firstEvent.ToCustomMonitoringEvent();
-            ev.LevelId = 2;
-            ev.Channel = "eSight告警初始化";
-            ev.Parameters[4] = "eSight告警初始化";
-            obj.InsertCustomMonitoringEvent(ev);
-            int i = 0;
-            while (i < 100)
-            {
-                var eventHistory = obj.GetMonitoringEvents();
-                HWLogger.SERVICE.Debug($"try Find FirstEvent:{i}.AlarmSn: {firstEvent.AlarmSn}. eventHistory Count:{eventHistory.Count}");
-                if (eventHistory.Any(x => x.Parameters[5] == firstEvent.AlarmSn.ToString()))
-                {
-                    HWLogger.SERVICE.Debug($"Find FirstEvent Finish:{i}.AlarmSn: {firstEvent.AlarmSn}");
-                    break;
-                }
-                Thread.Sleep(2000);
-                i++;
-            }
-        }
-
-        /// <summary>
-        /// Inserts the device change event.
-        /// </summary>
-        /// <param name="mpClass">The mp class.</param>
-        /// <param name="deviceChangeEventData">The device change event data.</param>
-        public void InsertDeviceChangeEvent(ManagementPackClass mpClass, DeviceChangeEventData deviceChangeEventData)
-        {
-            try
-            {
-                MGroup.Instance.CheckConnection();
-                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.DeviceId}'", mpClass);
-                var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-                if (reader.Any())
-                {
-                    var obj = reader.First();
-                    {
-                        obj.InsertCustomMonitoringEvent(deviceChangeEventData.ToCustomMonitoringEvent());
-                    }
-                }
-                else
-                {
-                    throw new Exception($"cannot find DN '{deviceChangeEventData.DeviceId}'");
                 }
             }
             catch (Exception ex)

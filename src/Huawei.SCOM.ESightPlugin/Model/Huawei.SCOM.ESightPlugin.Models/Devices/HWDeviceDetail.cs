@@ -111,6 +111,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
 
         /// <summary>
         /// 板信息，刀片服务器：交换板；机架、高密服务器、刀片：主板；
+        /// todo 此处接口有变动为 "SwitchBoard" 待确认
         /// </summary>
         [JsonProperty(PropertyName = "board")]
         public List<HWBoard> BoardList { get; set; }

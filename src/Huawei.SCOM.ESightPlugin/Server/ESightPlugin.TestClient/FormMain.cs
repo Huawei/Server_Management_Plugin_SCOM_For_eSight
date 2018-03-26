@@ -161,7 +161,7 @@ namespace ESightPlugin.TestClient
             bladeMain.ChildBlades.ForEach(
                 m =>
                     {
-                        var childBlade = new ChildBlade(m);
+                        var childBlade = new ChildBlade(m, this.ESightIp);
                         childBlade.MakeChildBladeDetail(bladeChildDetial);
                         this.BladeTest.ChildBlades.Add(childBlade);
                     });
@@ -171,7 +171,7 @@ namespace ESightPlugin.TestClient
             highdensityMain.ChildBlades.ForEach(
                 m =>
                     {
-                        var childHighdensity = new ChildHighdensity(m);
+                        var childHighdensity = new ChildHighdensity(m, this.ESightIp);
                         childHighdensity.MakeChildBladeDetail(highdensityChildDetial);
                         this.HighTest.ChildHighdensitys.Add(childHighdensity);
                     });

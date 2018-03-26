@@ -695,7 +695,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                     BladeServer bladeServer = new BladeServer(x);
                     x.ChildBlades.ForEach(m =>
                     {
-                        ChildBlade childBlade = new ChildBlade(m);
+                        ChildBlade childBlade = new ChildBlade(m, this.ESight.HostIP);
                         bladeServer.ChildBlades.Add(childBlade);
                     });
                     result.Data.Add(bladeServer);
@@ -719,7 +719,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                     var highDesentyServer = new HighdensityServer(x);
                     x.ChildBlades.ForEach(m =>
                         {
-                            var childHighdensity = new ChildHighdensity(m);
+                            var childHighdensity = new ChildHighdensity(m, this.ESight.HostIP);
                             highDesentyServer.ChildHighdensitys.Add(childHighdensity);
                         });
                     result.Data.Add(highDesentyServer);

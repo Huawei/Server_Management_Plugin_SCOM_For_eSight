@@ -44,6 +44,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
                 this.DeviceId = $"{eSightIp}-{data.MoDN}";
             }
 
+            this.ESightIp = eSightIp;
             this.AlarmSn = data.AlarmSN;
             this.Channel = data.AlarmName;
             this.LevelId = this.GetLevel(data.PerceivedSeverity, data.OptType);
@@ -67,6 +68,12 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// </summary>
         /// <value>The dn.</value>
         public string DeviceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the e sight ip.
+        /// </summary>
+        /// <value>The e sight ip.</value>
+        public string ESightIp { get; set; }
 
         /// <summary>
         /// 1-新增告警 2-清除告警 3-确认告警 4-反确认告警 5-变更告警 6-新增事件
