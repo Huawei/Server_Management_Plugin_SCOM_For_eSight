@@ -226,7 +226,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteChildBlade_Click(object sender, EventArgs e)
         {
             var dn = "NE=34603911";
-            BladeConnector.Instance.RemoveChildBlade(dn);
+            BladeConnector.Instance.RemoveChildBlade(dn, this.ESightIp);
         }
 
 
@@ -289,7 +289,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteChildHighDensity_Click(object sender, EventArgs e)
         {
             var dn = string.Empty;
-            HighdensityConnector.Instance.RemoveChildHighDensityServer(dn);
+            HighdensityConnector.Instance.RemoveChildHighDensityServer(dn, this.ESightIp);
         }
 
         /// <summary>

@@ -749,12 +749,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The remove child high density server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        public void RemoveChildHighDensityServer(string dn)
+        /// <param name="dn">The dn.</param>
+        /// <param name="eSight">The e sight.</param>
+        public void RemoveChildHighDensityServer(string dn, string eSight)
         {
-            var existingObject = this.GetChildHighdensityServer(dn);
+            var existingObject = this.GetChildHighdensityServer(dn, eSight);
             if (existingObject != null)
             {
                 var discovery = new IncrementalDiscoveryData();
@@ -795,15 +794,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The get child highdensity server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        public MonitoringObject GetChildHighdensityServer(string dn)
+        /// <param name="dn">The dn.</param>
+        /// <param name="eSight">The e sight.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        public MonitoringObject GetChildHighdensityServer(string dn, string eSight)
         {
-            return this.GetObject($"DN = '{dn}'", this.ChildHighdensityClass);
+            return this.GetObject($"DN = '{dn}' and eSight='{eSight}'", this.ChildHighdensityClass);
         }
 
         /// <summary>

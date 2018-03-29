@@ -682,29 +682,48 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// The get child blade server.
         /// </summary>
         /// <param name="dn">The dn.</param>
+        /// <param name="eSight">The e sight.</param>
         /// <returns>The <see cref="MonitoringObject" />.</returns>
-        public MonitoringObject GetChildBladeServer(string dn)
+        public MonitoringObject GetChildBladeServer(string dn, string eSight)
         {
-            return this.GetObject($"DN = '{dn}'", this.ChildBladeClass);
+            return this.GetObject($"DN = '{dn}' and eSight='{eSight}'", this.ChildBladeClass);
         }
 
         /// <summary>
         /// Gets the switch board.
         /// </summary>
         /// <param name="dn">The dn.</param>
+        /// <param name="eSight">The e sight.</param>
         /// <returns>Microsoft.EnterpriseManagement.Monitoring.MonitoringObject.</returns>
-        public MonitoringObject GetSwitchBoard(string dn)
+        public MonitoringObject GetSwitchBoard(string dn, string eSight)
         {
-            return this.GetObject($"DN = '{dn}'", this.SwitchClass);
+            return this.GetObject($"DN = '{dn}' and eSight='{eSight}'", this.SwitchClass);
         }
 
         /// <summary>
         /// The remove child blade.
         /// </summary>
         /// <param name="dn">The dn.</param>
-        public void RemoveChildBlade(string dn)
+        /// <param name="eSight">The e sight.</param>
+        public void RemoveChildBlade(string dn, string eSight)
         {
-            var existingObject = this.GetChildBladeServer(dn);
+            var existingObject = this.GetChildBladeServer(dn, eSight);
+            if (existingObject != null)
+            {
+                var discovery = new IncrementalDiscoveryData();
+                discovery.Remove(existingObject);
+                discovery.Commit(this.MontioringConnector);
+            }
+        }
+
+        /// <summary>
+        /// The remove child Switch.
+        /// </summary>
+        /// <param name="dn">The dn.</param>
+        /// <param name="eSight">The e sight.</param>
+        public void RemoveChildSwitch(string dn, string eSight)
+        {
+            var existingObject = this.GetSwitchBoard(dn, eSight);
             if (existingObject != null)
             {
                 var discovery = new IncrementalDiscoveryData();

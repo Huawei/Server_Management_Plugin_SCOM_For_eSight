@@ -661,13 +661,16 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             BladeConnector.Instance.RemoveComputerByDeviceId(deviceId);
                             break;
                         case ServerTypeEnum.ChildBlade:
-                            BladeConnector.Instance.RemoveChildBlade(deviceId);
+                            BladeConnector.Instance.RemoveChildBlade(dn, this.ESightIp);
                             break;
                         case ServerTypeEnum.Highdensity:
                             HighdensityConnector.Instance.RemoveComputerByDeviceId(deviceId);
                             break;
                         case ServerTypeEnum.ChildHighdensity:
-                            HighdensityConnector.Instance.RemoveChildHighDensityServer(deviceId);
+                            HighdensityConnector.Instance.RemoveChildHighDensityServer(dn, this.ESightIp);
+                            break;
+                        case ServerTypeEnum.Switch:
+                            BladeConnector.Instance.RemoveChildSwitch(dn, this.ESightIp);
                             break;
                         case ServerTypeEnum.Rack:
                             RackConnector.Instance.RemoveComputerByDeviceId(deviceId);
@@ -699,7 +702,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.Blade;
             }
-            server = BladeConnector.Instance.GetChildBladeServer(dn);
+            server = BladeConnector.Instance.GetChildBladeServer(dn, this.ESightIp);
             if (server != null)
             {
                 return ServerTypeEnum.ChildBlade;
@@ -709,7 +712,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.Highdensity;
             }
-            server = HighdensityConnector.Instance.GetChildHighdensityServer(dn);
+            server = HighdensityConnector.Instance.GetChildHighdensityServer(dn, this.ESightIp);
             if (server != null)
             {
                 return ServerTypeEnum.ChildHighdensity;
@@ -724,7 +727,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.KunLun;
             }
-            server = BladeConnector.Instance.GetSwitchBoard(dn);
+            server = BladeConnector.Instance.GetSwitchBoard(dn, this.ESightIp);
             if (server != null)
             {
                 return ServerTypeEnum.Switch;
