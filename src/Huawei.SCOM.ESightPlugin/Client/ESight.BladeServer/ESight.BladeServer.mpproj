@@ -61,6 +61,7 @@
     <Folder Include="Rules" />
     <Folder Include="Rules\Blade" />
     <Folder Include="Rules\ChildBlade" />
+    <Folder Include="Rules\ChildBoard" />
     <Folder Include="Scripts" />
     <Folder Include="Views" />
   </ItemGroup>
@@ -311,6 +312,46 @@
       <SubType>Code</SubType>
       <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule249.mptg</DependentUpon>
     </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule105.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule105.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule116.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule116.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule127.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule127.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule138.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule138.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule149.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule149.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule205.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule205.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule216.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule216.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule227.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule227.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule238.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule238.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule249.mptg.mpx">
+      <SubType>Code</SubType>
+      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule249.mptg</DependentUpon>
+    </Compile>
     <Compile Include="Views\BladeServerDiagramView.mptg.mpx">
       <SubType>Code</SubType>
       <DependentUpon>Views\BladeServerDiagramView.mptg</DependentUpon>
@@ -506,6 +547,46 @@
       <Generator>FragmentGenerator</Generator>
     </Content>
     <Content Include="Rules\ChildBlade\ChildBladeAlertRule249.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule105.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule116.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule127.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule138.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule149.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule205.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule216.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule227.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule238.mptg">
+      <SubType>Content</SubType>
+      <Generator>FragmentGenerator</Generator>
+    </Content>
+    <Content Include="Rules\ChildBoard\ChildBoardAlertRule249.mptg">
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>

@@ -73,6 +73,8 @@ namespace ESightPlugin.TestClient
 
         public EventData ChildBladeEventData { get; set; }
 
+        public EventData SwitchEventData { get; set; }
+
         public EventData HighEventData { get; set; }
 
         public EventData ChildHighEventData { get; set; }
@@ -189,6 +191,7 @@ namespace ESightPlugin.TestClient
 
             this.BladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "Blade")), ESightIp, ServerTypeEnum.Blade);
             this.ChildBladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "ChildBlade")), ESightIp, ServerTypeEnum.ChildBlade);
+            this.SwitchEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "Switch")), ESightIp, ServerTypeEnum.Switch);
             this.HighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "High")), ESightIp, ServerTypeEnum.Highdensity);
             this.ChildHighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "ChildHigh")), ESightIp, ServerTypeEnum.ChildHighdensity);
             this.KunLunEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "KunLun")), ESightIp, ServerTypeEnum.KunLun);
@@ -493,16 +496,18 @@ namespace ESightPlugin.TestClient
             BladeEventData.OptType = 1;
             HighEventData.OptType = 1;
             ChildBladeEventData.OptType = 1;
+            SwitchEventData.OptType = 1;
             ChildHighEventData.OptType = 1;
             KunLunEventData.OptType = 1;
             RackEventData.OptType = 1;
 
-            BladeConnector.Instance.InsertEvent(BladeEventData);
-            HighdensityConnector.Instance.InsertEvent(HighEventData);
-            BladeConnector.Instance.InsertChildBladeEvent(ChildBladeEventData);
-            HighdensityConnector.Instance.InsertChildBladeEvent(ChildHighEventData);
-            KunLunConnector.Instance.InsertEvent(KunLunEventData);
-            RackConnector.Instance.InsertEvent(RackEventData);
+            BladeConnector.Instance.InsertSwitchEvent(SwitchEventData);
+            //BladeConnector.Instance.InsertEvent(BladeEventData);
+            //HighdensityConnector.Instance.InsertEvent(HighEventData);
+            //BladeConnector.Instance.InsertChildBladeEvent(ChildBladeEventData);
+            //HighdensityConnector.Instance.InsertChildBladeEvent(ChildHighEventData);
+            //KunLunConnector.Instance.InsertEvent(KunLunEventData);
+            //RackConnector.Instance.InsertEvent(RackEventData);
         }
 
         private void btnUpdateAlert_Click(object sender, EventArgs e)
