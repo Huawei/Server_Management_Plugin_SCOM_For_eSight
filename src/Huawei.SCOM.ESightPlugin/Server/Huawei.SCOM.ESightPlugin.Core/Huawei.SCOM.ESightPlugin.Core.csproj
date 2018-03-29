@@ -101,6 +101,10 @@
     <Compile Include="RackConnector.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Controller\Huawei.SCOM.ESightPlugin.RESTeSightLib\Huawei.SCOM.ESightPlugin.RESTeSightLib.csproj">
+      <Project>{5C1C1DE2-3507-4557-8B83-1321646FCF9D}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.RESTeSightLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Model\Huawei.SCOM.ESightPlugin.Const\Huawei.SCOM.ESightPlugin.Const.csproj">
       <Project>{74c9b977-a729-47d0-8e18-5d00b3b6b553}</Project>
       <Name>Huawei.SCOM.ESightPlugin.Const</Name>

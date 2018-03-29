@@ -543,8 +543,9 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// Gets the alarm history.
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>QueryPageResult&lt;AlarmHistory&gt;.</returns>
-        /// <exception cref="ESSessionExpceion"></exception>
+        /// <exception cref="ESSessionExpceion">e</exception>
         public AlarmHistoryList GetAlarmHistory(int startPage)
         {
             var result = new AlarmHistoryList();
@@ -684,6 +685,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// 查询刀片列表
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>刀片列表</returns>
         public ApiServerList<BladeServer> QueryBladeServer(int startPage)
         {
@@ -708,6 +710,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// 查询高密列表
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>高密列表</returns>
         public ApiServerList<HighdensityServer> QueryHighDesentyServer(int startPage)
         {
@@ -732,6 +735,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// 查询机架列表
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>机架列表</returns>
         public ApiServerList<RackServer> QueryRackServer(int startPage)
         {
@@ -751,6 +755,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// 查询昆仑列表
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>机架列表</returns>
         public ApiServerList<KunLunServer> QueryKunLunServer(int startPage)
         {

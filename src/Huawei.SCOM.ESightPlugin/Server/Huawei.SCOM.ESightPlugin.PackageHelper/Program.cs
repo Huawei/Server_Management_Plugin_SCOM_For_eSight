@@ -947,7 +947,8 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
                 InternetIp = ipAddress,
                 InternetPort = port,
                 PollingInterval = 14400000,
-                TempTcpPort = 40001
+                TempTcpPort = 40001,
+                IsFirstInsertEvent = false
             };
             var path = $"{RunPath}\\PluginConfig.xml";
             ConfigHelper.SavePluginConfig(config, path);

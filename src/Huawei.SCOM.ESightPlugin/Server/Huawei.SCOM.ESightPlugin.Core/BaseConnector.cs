@@ -32,6 +32,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
     using Microsoft.EnterpriseManagement.ConnectorFramework;
     using Microsoft.EnterpriseManagement.Monitoring;
     using MPObject = Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject;
+    using RESTeSightLib.Helper;
 
     /// <summary>
     /// The base connector.
@@ -448,13 +449,21 @@ namespace Huawei.SCOM.ESightPlugin.Core
             {
                 return;
             }
-            var firstData = filterAlertList.FirstOrDefault();
-            if (firstData == null)
+            var pluginConfig = ConfigHelper.GetPluginConfig();
+            //判断是否安装后首次插入事件
+            if (!pluginConfig.IsFirstInsertEvent)
             {
-                return;
+                var firstData = filterAlertList.FirstOrDefault();
+                if (firstData == null)
+                {
+                    return;
+                }
+                this.FindFirstEvent(obj, firstData);
+                pluginConfig.IsFirstInsertEvent = true;
+                ConfigHelper.SavePluginConfig(pluginConfig);
+                Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
             }
-            this.FindFirstEvent(obj, firstData);
-            Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
+
             foreach (var eventData in filterAlertList)
             {
                 try
@@ -498,7 +507,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Inserts the child event.
+        /// Inserts the child device change event.
         /// </summary>
         /// <param name="childClass">The child class.</param>
         /// <param name="deviceChangeEventData">The device change event data.</param>

@@ -32,5 +32,11 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// </summary>
         /// <value>The internet port.</value>
         public int TempTcpPort { get; set; }
+
+        /// <summary>
+        /// 判断是否第一次插入事件
+        /// </summary>
+        /// <value>The internet port.</value>
+        public bool IsFirstInsertEvent { get; set; }
     }
 }
