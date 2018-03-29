@@ -479,8 +479,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var ev = firstEvent.ToCustomMonitoringEvent();
             ev.LevelId = 2;
-            ev.Channel = "eSight告警初始化";
-            ev.Parameters[4] = "eSight告警初始化";
+            ev.Channel = "scom plugin for eSight waring initialization";
+            ev.Parameters[4] = "scom plugin for eSight waring initialization";
             obj.InsertCustomMonitoringEvent(ev);
             int i = 0;
             while (i < 100)
