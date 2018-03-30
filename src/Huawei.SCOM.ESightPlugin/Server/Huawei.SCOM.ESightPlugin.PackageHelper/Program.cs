@@ -233,7 +233,6 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
             SaveConfig();
             CopySdkFiles();
             ModifyWebServerConfig();
-            ResetESightSubscribeStatus();
             CreateESightConfigLibraryMp();
             // 服务已安装 则跳过安装
             if (ServiceController.GetServices().All(s => s.ServiceName == ServiceName))
@@ -331,7 +330,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
             try
             {
                 OnLog("Reset ESight Subscribe Status to 0");
-                var filePath = RunPath + "\\KN\\eSight.bin";
+                var filePath = RunPath + "..\\KN\\eSight.bin";
                 if (File.Exists(filePath))
                 {
                     List<HWESightHost> list;
@@ -339,16 +338,17 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
                     {
                         var bf = new BinaryFormatter();
                         list = bf.Deserialize(fs) as List<HWESightHost> ?? new List<HWESightHost>();
-                        list.ForEach(x =>
-                            {
-                                x.SubscriptionAlarmStatus = 0;
-                                x.SubscriptionNeDeviceStatus = 0;
-                                x.SubscripeAlarmError = string.Empty;
-                                x.SubscripeNeDeviceError = string.Empty;
-                                x.LatestConnectInfo = string.Empty;
-                                x.LatestStatus = "Ready";
-                            });
-                        OnLog($"Reset ESight Subscribe Status :{list.Count} eSight");
+                        list.ForEach(
+                            x =>
+                                {
+                                    x.SubscriptionAlarmStatus = 0;
+                                    x.SubscriptionNeDeviceStatus = 0;
+                                    x.SubscripeAlarmError = string.Empty;
+                                    x.SubscripeNeDeviceError = string.Empty;
+                                    x.LatestConnectInfo = string.Empty;
+                                    x.LatestStatus = "Ready";
+                                    OnLog($"Reset ESight [{x.HostIP}] Subscribe Status");
+                                });
                         fs.Dispose();
                     }
                     using (var fsSave = new FileStream(filePath, FileMode.Create))
@@ -356,6 +356,10 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
                         new BinaryFormatter().Serialize(fsSave, list);
                         fsSave.Dispose();
                     }
+                }
+                else
+                {
+                    OnLog("Reset ESight Subscribe Status: can not find eSight config file：" + filePath);
                 }
             }
             catch (Exception ex)
