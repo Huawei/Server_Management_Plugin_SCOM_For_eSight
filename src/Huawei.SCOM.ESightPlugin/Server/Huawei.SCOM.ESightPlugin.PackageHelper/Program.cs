@@ -271,6 +271,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
 
             // 卸载前先取消订阅
             UnSubscribeAllESight();
+            ResetESightSubscribeStatus();
 
             if (!keepESight)
             {
@@ -329,6 +330,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
         {
             try
             {
+                OnLog("Reset ESight Subscribe Status to 0");
                 var filePath = RunPath + "\\KN\\eSight.bin";
                 if (File.Exists(filePath))
                 {
@@ -346,6 +348,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
                                 x.LatestConnectInfo = string.Empty;
                                 x.LatestStatus = "Ready";
                             });
+                        OnLog($"Reset ESight Subscribe Status :{list.Count} eSight");
                         fs.Dispose();
                     }
                     using (var fsSave = new FileStream(filePath, FileMode.Create))
