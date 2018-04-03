@@ -269,7 +269,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         else
                         {
                             var deviceEvents = result.Data.Where(x => x.EventType == 2).ToList();
-                            this.OnNotifyLog($"SyncHistoryAlarm Success:[Count:{deviceEvents.Count}]");
+                            this.OnNotifyLog($"SyncHistoryAlarm Success:[TotalCount:{result.Data.Count} EventType2Count:{deviceEvents.Count}]");
                             deviceEvents.ForEach(x =>
                             {
                                 historyAlarms.Add(new AlarmData(x));

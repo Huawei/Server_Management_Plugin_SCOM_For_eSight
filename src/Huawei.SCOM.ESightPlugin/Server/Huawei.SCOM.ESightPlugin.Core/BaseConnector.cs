@@ -398,14 +398,27 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var deviceId = eventDatas[0].DeviceId;
             var eSightIp = eventDatas[0].ESightIp;
 
-            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}' and eSight='{eSightIp}'", childClass);
-            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-            if (!reader.Any())
+            while (true)
             {
-                throw new Exception($"cannot find DN '{deviceId}'");
+                var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}' and eSight='{eSightIp}'", childClass);
+                var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+                if (!reader.Any())
+                {
+                    throw new Exception($"cannot find DN '{deviceId}'");
+                }
+                var obj = reader.First();
+                if (obj.HealthState != HealthState.Uninitialized)
+                {
+                    HWLogger.SERVICE.Debug($"{deviceId} is {obj.HealthState}.Start insert event");
+                    this.InsertHistoryEvent(obj, eventDatas);
+                    break;
+                }
+                else
+                {
+                    HWLogger.SERVICE.Debug($"{deviceId} is Uninitialized...");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
             }
-            var obj = reader.First();
-            this.InsertHistoryEvent(obj, eventDatas);
         }
 
         /// <summary>
@@ -418,14 +431,27 @@ namespace Huawei.SCOM.ESightPlugin.Core
             MGroup.Instance.CheckConnection();
             var deviceId = eventDatas[0].DeviceId;
 
-            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
-            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-            if (!reader.Any())
+            while (true)
             {
-                throw new Exception($"cannot find DN '{deviceId}'");
+                var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
+                var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+                if (!reader.Any())
+                {
+                    throw new Exception($"cannot find DN '{deviceId}'");
+                }
+                var obj = reader.First();
+                if (obj.HealthState != HealthState.Uninitialized)
+                {
+                    HWLogger.SERVICE.Debug($"{deviceId} is {obj.HealthState}.Start insert event");
+                    this.InsertHistoryEvent(obj, eventDatas);
+                    break;
+                }
+                else
+                {
+                    HWLogger.SERVICE.Debug($"{deviceId} is Uninitialized...");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
             }
-            var obj = reader.First();
-            this.InsertHistoryEvent(obj, eventDatas);
         }
 
         /// <summary>
@@ -449,21 +475,27 @@ namespace Huawei.SCOM.ESightPlugin.Core
             {
                 return;
             }
-            var pluginConfig = ConfigHelper.GetPluginConfig();
-            //判断是否安装后首次插入事件
-            if (!pluginConfig.IsFirstInsertEvent)
+            //var pluginConfig = ConfigHelper.GetPluginConfig();
+            ////判断是否安装后首次插入事件
+            //if (!pluginConfig.IsFirstInsertEvent)
+            //{
+            //    var firstData = filterAlertList.FirstOrDefault();
+            //    if (firstData == null)
+            //    {
+            //        return;
+            //    }
+            //    this.FindFirstEvent(obj, firstData);
+            //    pluginConfig.IsFirstInsertEvent = true;
+            //    ConfigHelper.SavePluginConfig(pluginConfig);
+            //    Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
+            //}
+            var firstData = filterAlertList.FirstOrDefault();
+            if (firstData == null)
             {
-                var firstData = filterAlertList.FirstOrDefault();
-                if (firstData == null)
-                {
-                    return;
-                }
-                this.FindFirstEvent(obj, firstData);
-                pluginConfig.IsFirstInsertEvent = true;
-                ConfigHelper.SavePluginConfig(pluginConfig);
-                Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
+                return;
             }
-
+            this.FindFirstEvent(obj, firstData);
+            Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
             foreach (var eventData in filterAlertList)
             {
                 try
