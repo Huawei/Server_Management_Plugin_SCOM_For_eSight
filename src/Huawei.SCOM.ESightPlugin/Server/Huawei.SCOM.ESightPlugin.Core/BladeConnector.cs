@@ -363,82 +363,63 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// The insert event.
         /// </summary>
         /// <param name="eventData">The event data.</param>
-        public void InsertEvent(EventData eventData)
+        /// <param name="serverType">Type of the server.</param>
+        public void InsertEvent(EventData eventData, ServerTypeEnum serverType)
         {
-            this.InsertEvent(this.BladeClass, eventData);
+            switch (serverType)
+            {
+                case ServerTypeEnum.Blade:
+                    this.InsertEvent(this.BladeClass, eventData);
+                    break;
+                case ServerTypeEnum.ChildBlade:
+                    this.InsertEvent(this.ChildBladeClass, eventData);
+                    break;
+                case ServerTypeEnum.Switch:
+                    this.InsertEvent(this.SwitchClass, eventData);
+                    break;
+            }
         }
 
         /// <summary>
         /// Inserts the history event.
         /// </summary>
         /// <param name="eventDatas">The event datas.</param>
-        public void InsertHistoryEvent(List<EventData> eventDatas)
+        /// <param name="serverType">Type of the server.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas, ServerTypeEnum serverType)
         {
-            this.InsertHistoryEvent(this.BladeClass, eventDatas);
-        }
-
-        /// <summary>
-        /// Inserts the child history event.
-        /// </summary>
-        /// <param name="eventDatas">The event datas.</param>
-        public void InsertChildHistoryEvent(List<EventData> eventDatas)
-        {
-            this.InsertChildHistoryEvent(this.ChildBladeClass, eventDatas);
-        }
-
-        /// <summary>
-        /// The insert child blade event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertChildBladeEvent(EventData eventData)
-        {
-            this.InsertChildEvent(this.ChildBladeClass, eventData);
-        }
-
-
-        /// <summary>
-        /// The insert child blade event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertSwitchEvent(EventData eventData)
-        {
-            this.InsertChildEvent(this.SwitchClass, eventData);
-        }
-
-        /// <summary>
-        /// Inserts the child history event.
-        /// </summary>
-        /// <param name="eventDatas">The event datas.</param>
-        public void InserSwitchHistoryEvent(List<EventData> eventDatas)
-        {
-            this.InsertChildHistoryEvent(this.SwitchClass, eventDatas);
-        }
-
-        /// <summary>
-        /// Inserts the child device change event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertSwitchDeviceChangeEvent(DeviceChangeEventData eventData)
-        {
-            this.InsertChildDeviceChangeEvent(this.SwitchClass, eventData);
+            switch (serverType)
+            {
+                case ServerTypeEnum.Blade:
+                    this.InsertHistoryEvent(this.BladeClass, eventDatas);
+                    break;
+                case ServerTypeEnum.ChildBlade:
+                    this.InsertHistoryEvent(this.ChildBladeClass, eventDatas);
+                    break;
+                case ServerTypeEnum.Switch:
+                    this.InsertHistoryEvent(this.SwitchClass, eventDatas);
+                    break;
+            }
         }
 
         /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="eventData">The event data.</param>
-        public void InsertDeviceChangeEvent(DeviceChangeEventData eventData)
+        /// <param name="serverType">Type of the server.</param>
+        public void InsertDeviceChangeEvent(DeviceChangeEventData eventData, ServerTypeEnum serverType)
         {
-            this.InsertDeviceChangeEvent(this.BladeClass, eventData);
-        }
-
-        /// <summary>
-        /// Inserts the child device change event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertChildDeviceChangeEvent(DeviceChangeEventData eventData)
-        {
-            this.InsertChildDeviceChangeEvent(this.ChildBladeClass, eventData);
+            switch (serverType)
+            {
+                case ServerTypeEnum.Blade:
+                    this.InsertDeviceChangeEvent(this.BladeClass, eventData);
+                    break;
+                case ServerTypeEnum.ChildBlade:
+                    this.InsertDeviceChangeEvent(this.ChildBladeClass, eventData);
+                    break;
+                case ServerTypeEnum.Switch:
+                    this.InsertDeviceChangeEvent(this.SwitchClass, eventData);
+                    break;
+            }
         }
 
         /// <summary>
@@ -551,9 +532,9 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         #region CPU
 
                         var cpuGroup =
-                            this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DN);
+                            this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DeviceId);
 
-                        cpuGroup[childBladeKey].Value = x.DN;
+                        cpuGroup[childBladeKey].Value = x.DeviceId;
                         cpuGroup[this.PartGroupKey].Value = childBladeGroupKey;
                         discoveryData.Add(cpuGroup);
 
@@ -562,7 +543,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                 {
                                     var cpu = this.CreateCpu(y);
                                     cpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
-                                    cpu[childBladeKey].Value = x.DN;
+                                    cpu[childBladeKey].Value = x.DeviceId;
                                     cpu[this.PartGroupKey].Value = childBladeGroupKey;
                                     cpu[this.ComputerKey].Value = model.DeviceId;
                                     cpu[this.HuaweiServerKey].Value = model.DeviceId;
@@ -573,8 +554,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Memory
 
-                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DN);
-                        memoryGroup[childBladeKey].Value = x.DN;
+                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DeviceId);
+                        memoryGroup[childBladeKey].Value = x.DeviceId;
                         memoryGroup[this.PartGroupKey].Value = childBladeGroupKey;
                         discoveryData.Add(memoryGroup);
                         x.MemoryList.ForEach(
@@ -583,7 +564,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     var memory = this.CreateMemory(y);
                                     memory[this.PartChildGroupKey].Value =
                                         memoryGroup[this.PartChildGroupKey].Value;
-                                    memory[childBladeKey].Value = x.DN;
+                                    memory[childBladeKey].Value = x.DeviceId;
                                     memory[this.PartGroupKey].Value = childBladeGroupKey;
                                     memory[this.ComputerKey].Value = model.DeviceId;
                                     memory[this.HuaweiServerKey].Value = model.DeviceId;
@@ -595,16 +576,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         #region Disk
 
                         var diskGroup =
-                            this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DN);
+                            this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DeviceId);
                         diskGroup[this.PartGroupKey].Value = childBladeGroupKey;
-                        diskGroup[childBladeKey].Value = x.DN;
+                        diskGroup[childBladeKey].Value = x.DeviceId;
                         discoveryData.Add(diskGroup);
                         x.DiskList.ForEach(
                             y =>
                                 {
                                     var disk = this.CreateDisk(y);
                                     disk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
-                                    disk[childBladeKey].Value = x.DN;
+                                    disk[childBladeKey].Value = x.DeviceId;
                                     disk[this.PartGroupKey].Value = childBladeGroupKey;
                                     disk[this.ComputerKey].Value = model.DeviceId;
                                     disk[this.HuaweiServerKey].Value = model.DeviceId;
@@ -616,16 +597,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         #region Mezz
 
                         var mezzGroup =
-                            this.CreateLogicalChildGroup(this.MezzGroupClass, model.DeviceId, x.DN);
+                            this.CreateLogicalChildGroup(this.MezzGroupClass, model.DeviceId, x.DeviceId);
                         mezzGroup[this.PartGroupKey].Value = childBladeGroupKey;
-                        mezzGroup[childBladeKey].Value = x.DN;
+                        mezzGroup[childBladeKey].Value = x.DeviceId;
                         discoveryData.Add(mezzGroup);
                         x.MezzList.ForEach(
                             y =>
                                 {
                                     var mezz = this.CreateMezz(y);
                                     mezz[this.PartChildGroupKey].Value = mezzGroup[this.PartChildGroupKey].Value;
-                                    mezz[childBladeKey].Value = x.DN;
+                                    mezz[childBladeKey].Value = x.DeviceId;
                                     mezz[this.PartGroupKey].Value = childBladeGroupKey;
 
                                     mezz[this.ComputerKey].Value = model.DeviceId;
@@ -637,16 +618,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Raid
 
-                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DN);
+                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DeviceId);
                         raidGroup[this.PartGroupKey].Value = childBladeGroupKey;
-                        raidGroup[childBladeKey].Value = x.DN;
+                        raidGroup[childBladeKey].Value = x.DeviceId;
                         discoveryData.Add(raidGroup);
                         x.RaidList.ForEach(
                             y =>
                                 {
                                     var raid = this.CreateRaidControl(y);
                                     raid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
-                                    raid[childBladeKey].Value = x.DN;
+                                    raid[childBladeKey].Value = x.DeviceId;
                                     raid[this.PartGroupKey].Value = childBladeGroupKey;
                                     raid[this.ComputerKey].Value = model.DeviceId;
                                     raid[this.HuaweiServerKey].Value = model.DeviceId;
@@ -681,33 +662,30 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The get child blade server.
         /// </summary>
-        /// <param name="dn">The dn.</param>
-        /// <param name="eSight">The e sight.</param>
+        /// <param name="deviceId">The device identifier.</param>
         /// <returns>The <see cref="MonitoringObject" />.</returns>
-        public MonitoringObject GetChildBladeServer(string dn, string eSight)
+        public MonitoringObject GetChildBladeServer(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}' and eSight='{eSight}'", this.ChildBladeClass);
+            return this.GetObject($"DN = '{deviceId}'", this.ChildBladeClass);
         }
 
         /// <summary>
         /// Gets the switch board.
         /// </summary>
-        /// <param name="dn">The dn.</param>
-        /// <param name="eSight">The e sight.</param>
+        /// <param name="deviceId">The device identifier.</param>
         /// <returns>Microsoft.EnterpriseManagement.Monitoring.MonitoringObject.</returns>
-        public MonitoringObject GetSwitchBoard(string dn, string eSight)
+        public MonitoringObject GetSwitchBoard(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}' and eSight='{eSight}'", this.SwitchClass);
+            return this.GetObject($"DN = '{deviceId}'", this.SwitchClass);
         }
 
         /// <summary>
         /// The remove child blade.
         /// </summary>
-        /// <param name="dn">The dn.</param>
-        /// <param name="eSight">The e sight.</param>
-        public void RemoveChildBlade(string dn, string eSight)
+        /// <param name="deviceId">The device identifier.</param>
+        public void RemoveChildBlade(string deviceId)
         {
-            var existingObject = this.GetChildBladeServer(dn, eSight);
+            var existingObject = this.GetChildBladeServer(deviceId);
             if (existingObject != null)
             {
                 var discovery = new IncrementalDiscoveryData();
@@ -719,11 +697,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// The remove child Switch.
         /// </summary>
-        /// <param name="dn">The dn.</param>
-        /// <param name="eSight">The e sight.</param>
-        public void RemoveChildSwitch(string dn, string eSight)
+        /// <param name="deviceId">The device identifier.</param>
+        public void RemoveChildSwitch(string deviceId)
         {
-            var existingObject = this.GetSwitchBoard(dn, eSight);
+            var existingObject = this.GetSwitchBoard(deviceId);
             if (existingObject != null)
             {
                 var discovery = new IncrementalDiscoveryData();
@@ -892,10 +869,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void UpdateChildBlade(ChildBlade model)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateChildBlade");
-            var oldObject = this.GetObject($"DN = '{model.DN}' and eSight='{model.ESight}'", this.ChildBladeClass);
+            var oldObject = this.GetObject($"DN = '{model.DeviceId}'", this.ChildBladeClass);
             if (oldObject == null)
             {
-                throw new Exception($"Can not find the child blade server:{model.DN}");
+                throw new Exception($"Can not find the child blade server:{model.DeviceId}");
             }
 
             var propertys = this.ChildBladeClass.PropertyCollection; // 获取到class的属性
@@ -939,10 +916,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newCpu = this.CreateCpu(y);
                             newCpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
-                            newCpu[childHighdensityKey].Value = model.DN;
+                            newCpu[childHighdensityKey].Value = model.DeviceId;
                             newCpu[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newCpu[this.ComputerKey].Value = model.DN;
-                            newCpu[this.HuaweiServerKey].Value = model.DN;
+                            newCpu[this.ComputerKey].Value = model.DeviceId;
+                            newCpu[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newCpu);
                         }
                         else
@@ -971,10 +948,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newMemory = this.CreateMemory(y);
                             newMemory[this.PartChildGroupKey].Value = memoryGroup[this.PartChildGroupKey].Value;
-                            newMemory[childHighdensityKey].Value = model.DN;
+                            newMemory[childHighdensityKey].Value = model.DeviceId;
                             newMemory[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newMemory[this.ComputerKey].Value = model.DN;
-                            newMemory[this.HuaweiServerKey].Value = model.DN;
+                            newMemory[this.ComputerKey].Value = model.DeviceId;
+                            newMemory[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newMemory);
                         }
                         else
@@ -1004,10 +981,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newDisk = this.CreateDisk(y);
                             newDisk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
-                            newDisk[childHighdensityKey].Value = model.DN;
+                            newDisk[childHighdensityKey].Value = model.DeviceId;
                             newDisk[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newDisk[this.ComputerKey].Value = model.DN;
-                            newDisk[this.HuaweiServerKey].Value = model.DN;
+                            newDisk[this.ComputerKey].Value = model.DeviceId;
+                            newDisk[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newDisk);
                         }
                         else
@@ -1037,10 +1014,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newMezz = this.CreateMezz(y);
                             newMezz[this.PartChildGroupKey].Value = mezzGroup[this.PartChildGroupKey].Value;
-                            newMezz[childHighdensityKey].Value = model.DN;
+                            newMezz[childHighdensityKey].Value = model.DeviceId;
                             newMezz[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newMezz[this.ComputerKey].Value = model.DN;
-                            newMezz[this.HuaweiServerKey].Value = model.DN;
+                            newMezz[this.ComputerKey].Value = model.DeviceId;
+                            newMezz[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newMezz);
                         }
                         else
@@ -1070,10 +1047,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newRaid = this.CreateRaidControl(y);
                             newRaid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
-                            newRaid[childHighdensityKey].Value = model.DN;
+                            newRaid[childHighdensityKey].Value = model.DeviceId;
                             newRaid[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newRaid[this.ComputerKey].Value = model.DN;
-                            newRaid[this.HuaweiServerKey].Value = model.DN;
+                            newRaid[this.ComputerKey].Value = model.DeviceId;
+                            newRaid[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newRaid);
                         }
                         else
@@ -1178,7 +1155,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.ChildBladeClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.ChildBladeClass); // 实例化一个class
 
-            obj[propertys["DN"]].Value = model.DN;
+            obj[propertys["DN"]].Value = model.DeviceId;
             obj[propertys["UUID"]].Value = model.UUID;
             obj[propertys["eSight"]].Value = model.ESight;
 
@@ -1422,7 +1399,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.SwitchClass); // 实例化一个class
 
-            obj[propertys["DN"]].Value = model.DN;
+            obj[propertys["DN"]].Value = model.DeviceId;
             obj[propertys["eSight"]].Value = model.ESight;
             obj[propertys["ParentDN"]].Value = model.ParentDN;
             obj[propertys["IpAddress"]].Value = model.IpAddress;
@@ -1710,7 +1687,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// </returns>
         private MonitoringObject UpdateSwitch(ChildSwithBoard model)
         {
-            var oldObject = this.GetObject($"DN = '{model.DN}' and eSight='{model.ESight}'", this.SwitchClass);
+            var oldObject = this.GetObject($"DN = '{model.DeviceId}'", this.SwitchClass);
             if (oldObject == null)
             {
                 return null;

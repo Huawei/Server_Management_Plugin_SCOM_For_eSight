@@ -342,9 +342,9 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region CPU
 
-                        var cpuGroup = this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DN);
+                        var cpuGroup = this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DeviceId);
 
-                        cpuGroup[childHighdensityKey].Value = x.DN;
+                        cpuGroup[childHighdensityKey].Value = x.DeviceId;
                         cpuGroup[this.PartGroupKey].Value = childHighdensityGroupKey;
                         discoveryData.Add(cpuGroup);
                         x.CPUList.ForEach(
@@ -352,7 +352,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                 {
                                     var cpu = this.CreateCpu(y);
                                     cpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
-                                    cpu[childHighdensityKey].Value = x.DN;
+                                    cpu[childHighdensityKey].Value = x.DeviceId;
                                     cpu[this.PartGroupKey].Value = childHighdensityGroupKey;
                                     cpu[this.ComputerKey].Value = model.DeviceId;
                                     cpu[this.HuaweiServerKey].Value = model.DeviceId;
@@ -363,8 +363,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Memory
 
-                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DN);
-                        memoryGroup[childHighdensityKey].Value = x.DN;
+                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DeviceId);
+                        memoryGroup[childHighdensityKey].Value = x.DeviceId;
                         memoryGroup[this.PartGroupKey].Value = childHighdensityGroupKey;
                         discoveryData.Add(memoryGroup);
                         x.MemoryList.ForEach(
@@ -373,7 +373,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                                     var memory = this.CreateMemory(y);
                                     memory[this.PartChildGroupKey].Value =
                                         memoryGroup[this.PartChildGroupKey].Value;
-                                    memory[childHighdensityKey].Value = x.DN;
+                                    memory[childHighdensityKey].Value = x.DeviceId;
                                     memory[this.PartGroupKey].Value = childHighdensityGroupKey;
                                     memory[this.ComputerKey].Value = model.DeviceId;
                                     memory[this.HuaweiServerKey].Value = model.DeviceId;
@@ -384,16 +384,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Disk
 
-                        var diskGroup = this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DN);
+                        var diskGroup = this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DeviceId);
                         diskGroup[this.PartGroupKey].Value = childHighdensityGroupKey;
-                        diskGroup[childHighdensityKey].Value = x.DN;
+                        diskGroup[childHighdensityKey].Value = x.DeviceId;
                         discoveryData.Add(diskGroup);
                         x.DiskList.ForEach(
                             y =>
                                 {
                                     var disk = this.CreateDisk(y);
                                     disk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
-                                    disk[childHighdensityKey].Value = x.DN;
+                                    disk[childHighdensityKey].Value = x.DeviceId;
                                     disk[this.PartGroupKey].Value = childHighdensityGroupKey;
                                     disk[this.ComputerKey].Value = model.DeviceId;
                                     disk[this.HuaweiServerKey].Value = model.DeviceId;
@@ -404,16 +404,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                         #region Raid
 
-                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DN);
+                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DeviceId);
                         raidGroup[this.PartGroupKey].Value = childHighdensityGroupKey;
-                        raidGroup[childHighdensityKey].Value = x.DN;
+                        raidGroup[childHighdensityKey].Value = x.DeviceId;
                         discoveryData.Add(raidGroup);
                         x.RaidList.ForEach(
                             y =>
                                 {
                                     var raid = this.CreateRaidControl(y);
                                     raid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
-                                    raid[childHighdensityKey].Value = x.DN;
+                                    raid[childHighdensityKey].Value = x.DeviceId;
                                     raid[this.PartGroupKey].Value = childHighdensityGroupKey;
                                     raid[this.HuaweiServerKey].Value = model.DeviceId;
                                     raid[this.ComputerKey].Value = model.DeviceId;
@@ -443,10 +443,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void UpdateChildBoard(ChildHighdensity model)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateChildBoard");
-            var oldObject = this.GetObject($"DN = '{model.DN}' and eSight='{model.ESight}'", this.ChildHighdensityClass);
+            var oldObject = this.GetObject($"DN = '{model.DeviceId}'", this.ChildHighdensityClass);
             if (oldObject == null)
             {
-                throw new Exception($"Can not find the child blade server:{model.DN}");
+                throw new Exception($"Can not find the child blade server:{model.DeviceId}");
             }
             var propertys = this.ChildHighdensityClass.PropertyCollection; // 获取到class的属性
 
@@ -483,10 +483,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newCpu = this.CreateCpu(y);
                             newCpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
-                            newCpu[childHighdensityKey].Value = model.DN;
+                            newCpu[childHighdensityKey].Value = model.DeviceId;
                             newCpu[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newCpu[this.ComputerKey].Value = model.DN;
-                            newCpu[this.HuaweiServerKey].Value = model.DN;
+                            newCpu[this.ComputerKey].Value = model.DeviceId;
+                            newCpu[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newCpu);
                         }
                         else
@@ -515,10 +515,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newMemory = this.CreateMemory(y);
                             newMemory[this.PartChildGroupKey].Value = memoryGroup[this.PartChildGroupKey].Value;
-                            newMemory[childHighdensityKey].Value = model.DN;
+                            newMemory[childHighdensityKey].Value = model.DeviceId;
                             newMemory[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newMemory[this.ComputerKey].Value = model.DN;
-                            newMemory[this.HuaweiServerKey].Value = model.DN;
+                            newMemory[this.ComputerKey].Value = model.DeviceId;
+                            newMemory[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newMemory);
                         }
                         else
@@ -548,10 +548,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newDisk = this.CreateDisk(y);
                             newDisk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
-                            newDisk[childHighdensityKey].Value = model.DN;
+                            newDisk[childHighdensityKey].Value = model.DeviceId;
                             newDisk[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newDisk[this.ComputerKey].Value = model.DN;
-                            newDisk[this.HuaweiServerKey].Value = model.DN;
+                            newDisk[this.ComputerKey].Value = model.DeviceId;
+                            newDisk[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newDisk);
                         }
                         else
@@ -581,10 +581,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             var newRaid = this.CreateRaidControl(y);
                             newRaid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
-                            newRaid[childHighdensityKey].Value = model.DN;
+                            newRaid[childHighdensityKey].Value = model.DeviceId;
                             newRaid[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newRaid[this.ComputerKey].Value = model.DN;
-                            newRaid[this.HuaweiServerKey].Value = model.DN;
+                            newRaid[this.ComputerKey].Value = model.DeviceId;
+                            newRaid[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newRaid);
                         }
                         else
@@ -693,67 +693,69 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// The insert child blade event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertChildBladeEvent(EventData eventData)
-        {
-            this.InsertChildEvent(this.ChildHighdensityClass, eventData);
-        }
-
-        /// <summary>
         /// The insert event.
         /// </summary>
         /// <param name="eventData">The event data.</param>
-        public void InsertEvent(EventData eventData)
+        /// <param name="serverType">Type of the server.</param>
+        public void InsertEvent(EventData eventData, ServerTypeEnum serverType)
         {
-            this.InsertEvent(this.HighdensityClass, eventData);
+            switch (serverType)
+            {
+                case ServerTypeEnum.Highdensity:
+                    this.InsertEvent(this.HighdensityClass, eventData);
+                    break;
+                case ServerTypeEnum.ChildHighdensity:
+                    this.InsertEvent(this.ChildHighdensityClass, eventData);
+                    break;
+            }
         }
 
         /// <summary>
         /// Inserts the history event.
         /// </summary>
         /// <param name="eventDatas">The event datas.</param>
-        public void InsertHistoryEvent(List<EventData> eventDatas)
+        /// <param name="serverType">Type of the server.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas, ServerTypeEnum serverType)
         {
-            this.InsertHistoryEvent(this.HighdensityClass, eventDatas);
-        }
-
-        /// <summary>
-        /// Inserts the child history event.
-        /// </summary>
-        /// <param name="eventDatas">The event datas.</param>
-        public void InsertChildHistoryEvent(List<EventData> eventDatas)
-        {
-            this.InsertChildHistoryEvent(this.ChildHighdensityClass, eventDatas);
+            switch (serverType)
+            {
+                case ServerTypeEnum.Highdensity:
+                    this.InsertHistoryEvent(this.HighdensityClass, eventDatas);
+                    break;
+                case ServerTypeEnum.ChildHighdensity:
+                    this.InsertHistoryEvent(this.ChildHighdensityClass, eventDatas);
+                    break;
+               
+            }
         }
 
         /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="eventData">The event data.</param>
-        public void InsertDeviceChangeEvent(DeviceChangeEventData eventData)
+        /// <param name="serverType">Type of the server.</param>
+        public void InsertDeviceChangeEvent(DeviceChangeEventData eventData, ServerTypeEnum serverType)
         {
-            this.InsertDeviceChangeEvent(this.HighdensityClass, eventData);
-        }
+            switch (serverType)
+            {
+                case ServerTypeEnum.Highdensity:
+                    this.InsertDeviceChangeEvent(this.HighdensityClass, eventData);
+                    break;
+                case ServerTypeEnum.ChildHighdensity:
+                    this.InsertDeviceChangeEvent(this.ChildHighdensityClass, eventData);
+                    break;
 
-        /// <summary>
-        /// Inserts the child device change event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertChildDeviceChangeEvent(DeviceChangeEventData eventData)
-        {
-            this.InsertChildDeviceChangeEvent(this.ChildHighdensityClass, eventData);
+            }
+            this.InsertDeviceChangeEvent(this.HighdensityClass, eventData);
         }
 
         /// <summary>
         /// The remove child high density server.
         /// </summary>
-        /// <param name="dn">The dn.</param>
-        /// <param name="eSight">The e sight.</param>
-        public void RemoveChildHighDensityServer(string dn, string eSight)
+        /// <param name="deviceId">The device identifier.</param>
+        public void RemoveChildHighDensityServer(string deviceId)
         {
-            var existingObject = this.GetChildHighdensityServer(dn, eSight);
+            var existingObject = this.GetObject($"DN = '{deviceId}'", this.ChildHighdensityClass);
             if (existingObject != null)
             {
                 var discovery = new IncrementalDiscoveryData();
@@ -792,17 +794,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// The get child highdensity server.
-        /// </summary>
-        /// <param name="dn">The dn.</param>
-        /// <param name="eSight">The e sight.</param>
-        /// <returns>The <see cref="MonitoringObject" />.</returns>
-        public MonitoringObject GetChildHighdensityServer(string dn, string eSight)
-        {
-            return this.GetObject($"DN = '{dn}' and eSight='{eSight}'", this.ChildHighdensityClass);
-        }
-
-        /// <summary>
         /// The get highdensity server.
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
@@ -810,6 +801,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public MonitoringObject GetHighdensityServer(string deviceId)
         {
             return this.GetObject($"DN = '{deviceId}'", this.HighdensityClass);
+        }
+
+        /// <summary>
+        /// The get child blade server.
+        /// </summary>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        public MonitoringObject GetChildHighdensityServer(string deviceId)
+        {
+            return this.GetObject($"DN = '{deviceId}'", this.ChildHighdensityClass);
         }
         #endregion
 
@@ -858,7 +859,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.ChildHighdensityClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.ChildHighdensityClass); // 实例化一个class
 
-            obj[propertys["DN"]].Value = model.DN;
+            obj[propertys["DN"]].Value = model.DeviceId;
             obj[propertys["eSight"]].Value = model.ESight;
             obj[propertys["Status"]].Value = model.Status;
             obj[propertys["IPAddress"]].Value = model.IpAddress;

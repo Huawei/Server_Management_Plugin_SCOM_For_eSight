@@ -28,6 +28,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         /// <param name="eSight">The e sight.</param>
         public ChildSwithBoard(HWBoard model, string eSight)
         {
+            this.DeviceId = $"{eSight}-{ model.DN}";
             this.DN = model.DN;
             this.ESight = eSight;
             this.ParentDN = model.ParentDN;
@@ -46,10 +47,16 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         }
 
         /// <summary>
+        /// 服务器唯一标识，格式为eSightIp-Dn
+        /// "192.168.1.1-NE=xxx"
+        /// </summary>
+        public string DN { get; set; }
+
+        /// <summary>
         /// Gets or sets the dn.
         /// </summary>
         /// <value>The dn.</value>
-        public string DN { get; set; }
+        public string DeviceId { get; set; }
 
         /// <summary>
         /// Gets or sets the e sight.

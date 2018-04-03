@@ -317,19 +317,13 @@ namespace Huawei.SCOM.ESightPlugin.Service
                                 switch (serverType)
                                 {
                                     case ServerTypeEnum.Blade:
-                                        BladeConnector.Instance.InsertHistoryEvent(eventDatas);
-                                        break;
                                     case ServerTypeEnum.ChildBlade:
-                                        BladeConnector.Instance.InsertChildHistoryEvent(eventDatas);
-                                        break;
                                     case ServerTypeEnum.Switch:
-                                        BladeConnector.Instance.InserSwitchHistoryEvent(eventDatas);
+                                        BladeConnector.Instance.InsertHistoryEvent(eventDatas, serverType);
                                         break;
                                     case ServerTypeEnum.Highdensity:
-                                        HighdensityConnector.Instance.InsertHistoryEvent(eventDatas);
-                                        break;
                                     case ServerTypeEnum.ChildHighdensity:
-                                        HighdensityConnector.Instance.InsertChildHistoryEvent(eventDatas);
+                                        HighdensityConnector.Instance.InsertHistoryEvent(eventDatas, serverType);
                                         break;
                                     case ServerTypeEnum.Rack:
                                         RackConnector.Instance.InsertHistoryEvent(eventDatas);
@@ -453,7 +447,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         x.MakeDetail(device, this.ESightIp);
                         x.ChildBlades.ForEach(m =>
                         {
-                            var deviceDatail = this.Session.GetServerDetails(m.DN);
+                            var deviceDatail = this.Session.GetServerDetails(m.DeviceId);
                             m.MakeChildBladeDetail(deviceDatail);
                         });
 
@@ -516,7 +510,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         x.ChildHighdensitys.ForEach(
                             m =>
                                 {
-                                    var deviceDatail = this.Session.GetServerDetails(m.DN);
+                                    var deviceDatail = this.Session.GetServerDetails(m.DeviceId);
                                     m.MakeChildBladeDetail(deviceDatail);
                                 });
 
@@ -661,16 +655,16 @@ namespace Huawei.SCOM.ESightPlugin.Service
                             BladeConnector.Instance.RemoveComputerByDeviceId(deviceId);
                             break;
                         case ServerTypeEnum.ChildBlade:
-                            BladeConnector.Instance.RemoveChildBlade(dn, this.ESightIp);
+                            BladeConnector.Instance.RemoveChildBlade(deviceId);
                             break;
                         case ServerTypeEnum.Highdensity:
                             HighdensityConnector.Instance.RemoveComputerByDeviceId(deviceId);
                             break;
                         case ServerTypeEnum.ChildHighdensity:
-                            HighdensityConnector.Instance.RemoveChildHighDensityServer(dn, this.ESightIp);
+                            HighdensityConnector.Instance.RemoveChildHighDensityServer(deviceId);
                             break;
                         case ServerTypeEnum.Switch:
-                            BladeConnector.Instance.RemoveChildSwitch(dn, this.ESightIp);
+                            BladeConnector.Instance.RemoveChildSwitch(deviceId);
                             break;
                         case ServerTypeEnum.Rack:
                             RackConnector.Instance.RemoveComputerByDeviceId(deviceId);
@@ -702,7 +696,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.Blade;
             }
-            server = BladeConnector.Instance.GetChildBladeServer(dn, this.ESightIp);
+            server = BladeConnector.Instance.GetChildBladeServer(deviceId);
             if (server != null)
             {
                 return ServerTypeEnum.ChildBlade;
@@ -712,7 +706,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.Highdensity;
             }
-            server = HighdensityConnector.Instance.GetChildHighdensityServer(dn, this.ESightIp);
+            server = HighdensityConnector.Instance.GetChildHighdensityServer(deviceId);
             if (server != null)
             {
                 return ServerTypeEnum.ChildHighdensity;
@@ -727,7 +721,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 return ServerTypeEnum.KunLun;
             }
-            server = BladeConnector.Instance.GetSwitchBoard(dn, this.ESightIp);
+            server = BladeConnector.Instance.GetSwitchBoard(deviceId);
             if (server != null)
             {
                 return ServerTypeEnum.Switch;
@@ -752,19 +746,13 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     switch (serverType)
                     {
                         case ServerTypeEnum.Blade:
-                            BladeConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
-                            break;
                         case ServerTypeEnum.ChildBlade:
-                            BladeConnector.Instance.InsertChildDeviceChangeEvent(deviceChangeEventData);
-                            break;
                         case ServerTypeEnum.Switch:
-                            BladeConnector.Instance.InsertSwitchDeviceChangeEvent(deviceChangeEventData);
+                            BladeConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData, serverType);
                             break;
                         case ServerTypeEnum.Highdensity:
-                            HighdensityConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
-                            break;
                         case ServerTypeEnum.ChildHighdensity:
-                            HighdensityConnector.Instance.InsertChildDeviceChangeEvent(deviceChangeEventData);
+                            HighdensityConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData, serverType);
                             break;
                         case ServerTypeEnum.Rack:
                             RackConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
@@ -800,19 +788,13 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     switch (serverType)
                     {
                         case ServerTypeEnum.Blade:
-                            BladeConnector.Instance.InsertEvent(alertModel);
-                            break;
                         case ServerTypeEnum.ChildBlade:
-                            BladeConnector.Instance.InsertChildBladeEvent(alertModel);
-                            break;
                         case ServerTypeEnum.Switch:
-                            BladeConnector.Instance.InsertSwitchEvent(alertModel);
+                            BladeConnector.Instance.InsertEvent(alertModel, serverType);
                             break;
                         case ServerTypeEnum.Highdensity:
-                            HighdensityConnector.Instance.InsertEvent(alertModel);
-                            break;
                         case ServerTypeEnum.ChildHighdensity:
-                            HighdensityConnector.Instance.InsertChildBladeEvent(alertModel);
+                            HighdensityConnector.Instance.InsertEvent(alertModel, serverType);
                             break;
                         case ServerTypeEnum.Rack:
                             RackConnector.Instance.InsertEvent(alertModel);
@@ -867,7 +849,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 var server = new ChildBlade(this.ESightIp);
                 server.MakeChildBladeDetail(model);
-                server.DN = model.DN;
                 server.Name = model.Name;
                 server.IpAddress = model.IpAddress;
                 BladeConnector.Instance.UpdateChildBlade(server);
@@ -904,7 +885,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
             try
             {
                 var server = new ChildHighdensity(this.ESightIp);
-                server.DN = model.DN;
                 server.Name = model.Name;
                 server.IpAddress = model.IpAddress;
                 server.MakeChildBladeDetail(model);

@@ -226,7 +226,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteChildBlade_Click(object sender, EventArgs e)
         {
             var dn = "NE=34603911";
-            BladeConnector.Instance.RemoveChildBlade(dn, this.ESightIp);
+            BladeConnector.Instance.RemoveChildBlade($"{this.ESightIp}-{ dn}");
         }
 
 
@@ -289,7 +289,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteChildHighDensity_Click(object sender, EventArgs e)
         {
             var dn = string.Empty;
-            HighdensityConnector.Instance.RemoveChildHighDensityServer(dn, this.ESightIp);
+            HighdensityConnector.Instance.RemoveChildHighDensityServer($"{this.ESightIp}-{ dn}");
         }
 
         /// <summary>
@@ -500,9 +500,20 @@ namespace ESightPlugin.TestClient
             ChildHighEventData.OptType = 1;
             KunLunEventData.OptType = 1;
             RackEventData.OptType = 1;
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    BladeConnector.Instance.InsertSwitchEvent(SwitchEventData);
+            //    SwitchEventData.AlarmSn += 1;
+            //}
 
-            BladeConnector.Instance.InsertSwitchEvent(SwitchEventData);
-            //BladeConnector.Instance.InsertEvent(BladeEventData);
+            //SwitchEventData.LevelId = 2;
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    BladeConnector.Instance.InsertSwitchEvent(SwitchEventData);
+            //    SwitchEventData.AlarmSn += 1;
+            //}
+
+            BladeConnector.Instance.InsertEvent(BladeEventData,ServerTypeEnum.Blade);
             //HighdensityConnector.Instance.InsertEvent(HighEventData);
             //BladeConnector.Instance.InsertChildBladeEvent(ChildBladeEventData);
             //HighdensityConnector.Instance.InsertChildBladeEvent(ChildHighEventData);

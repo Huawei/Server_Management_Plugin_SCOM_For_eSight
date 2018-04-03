@@ -352,24 +352,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Inserts the child event.
-        /// </summary>
-        /// <param name="childClass">The child class.</param>
-        /// <param name="eventData">The event data.</param>
-        public void InsertChildEvent(ManagementPackClass childClass, EventData eventData)
-        {
-            MGroup.Instance.CheckConnection();
-            var criteria = new MonitoringObjectCriteria($"DN = '{eventData.DeviceId}'  and eSight='{eventData.ESightIp}'", childClass);
-            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-            if (!reader.Any())
-            {
-                throw new Exception($"cannot find DN '{eventData.DeviceId}'");
-            }
-            var obj = reader.First();
-            this.InsertEvent(obj, eventData);
-        }
-
-        /// <summary>
         /// Inserts the event.
         /// </summary>
         /// <param name="mpClass">The mp class.</param>
@@ -385,40 +367,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
             }
             var obj = reader.First();
             this.InsertEvent(obj, eventData);
-        }
-
-        /// <summary>
-        /// Inserts the child event.
-        /// </summary>
-        /// <param name="childClass">The child class.</param>
-        /// <param name="eventDatas">The event datas.</param>
-        public void InsertChildHistoryEvent(ManagementPackClass childClass, List<EventData> eventDatas)
-        {
-            MGroup.Instance.CheckConnection();
-            var deviceId = eventDatas[0].DeviceId;
-            var eSightIp = eventDatas[0].ESightIp;
-
-            while (true)
-            {
-                var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}' and eSight='{eSightIp}'", childClass);
-                var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-                if (!reader.Any())
-                {
-                    throw new Exception($"cannot find DN '{deviceId}'");
-                }
-                var obj = reader.First();
-                if (obj.HealthState != HealthState.Uninitialized)
-                {
-                    HWLogger.SERVICE.Debug($"{deviceId} is {obj.HealthState}.Start insert event");
-                    this.InsertHistoryEvent(obj, eventDatas);
-                    break;
-                }
-                else
-                {
-                    HWLogger.SERVICE.Debug($"{deviceId} is Uninitialized...");
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-                }
-            }
         }
 
         /// <summary>
@@ -535,37 +483,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 }
                 Thread.Sleep(2000);
                 i++;
-            }
-        }
-
-        /// <summary>
-        /// Inserts the child device change event.
-        /// </summary>
-        /// <param name="childClass">The child class.</param>
-        /// <param name="deviceChangeEventData">The device change event data.</param>
-        public void InsertChildDeviceChangeEvent(ManagementPackClass childClass, DeviceChangeEventData deviceChangeEventData)
-        {
-            try
-            {
-                MGroup.Instance.CheckConnection();
-                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.DeviceId}'  and eSight='{deviceChangeEventData.ESightIp}'", childClass);
-                var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-                if (reader.Any())
-                {
-                    var obj = reader.First();
-                    {
-                        obj.InsertCustomMonitoringEvent(deviceChangeEventData.ToCustomMonitoringEvent());
-                    }
-                }
-                else
-                {
-                    throw new Exception($"cannot find DN '{deviceChangeEventData.DeviceId}'");
-                }
-            }
-            catch (Exception ex)
-            {
-                HWLogger.SERVICE.Error(ex);
-                throw;
             }
         }
 
