@@ -232,6 +232,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
         {
             SaveConfig();
             CopySdkFiles();
+            ResetESightSubscribeStatus();
             ModifyWebServerConfig();
             CreateESightConfigLibraryMp();
             // 服务已安装 则跳过安装
