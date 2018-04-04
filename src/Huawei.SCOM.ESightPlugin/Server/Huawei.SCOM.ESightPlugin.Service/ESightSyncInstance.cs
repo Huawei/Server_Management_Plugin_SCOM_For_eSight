@@ -447,7 +447,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         x.MakeDetail(device, this.ESightIp);
                         x.ChildBlades.ForEach(m =>
                         {
-                            var deviceDatail = this.Session.GetServerDetails(m.DeviceId);
+                            var deviceDatail = this.Session.GetServerDetails(m.DN);
                             m.MakeChildBladeDetail(deviceDatail);
                         });
 
@@ -510,7 +510,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         x.ChildHighdensitys.ForEach(
                             m =>
                                 {
-                                    var deviceDatail = this.Session.GetServerDetails(m.DeviceId);
+                                    var deviceDatail = this.Session.GetServerDetails(m.DN);
                                     m.MakeChildBladeDetail(deviceDatail);
                                 });
 

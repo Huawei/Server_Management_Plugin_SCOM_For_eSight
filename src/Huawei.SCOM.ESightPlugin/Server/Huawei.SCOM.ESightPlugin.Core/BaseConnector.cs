@@ -352,68 +352,19 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Inserts the event.
-        /// </summary>
-        /// <param name="mpClass">The mp class.</param>
-        /// <param name="eventData">The event data.</param>
-        public void InsertEvent(ManagementPackClass mpClass, EventData eventData)
-        {
-            MGroup.Instance.CheckConnection();
-            var criteria = new MonitoringObjectCriteria($"DN = '{eventData.DeviceId}'", mpClass);
-            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-            if (!reader.Any())
-            {
-                throw new Exception($"cannot find DN '{eventData.DeviceId}'");
-            }
-            var obj = reader.First();
-            this.InsertEvent(obj, eventData);
-        }
-
-        /// <summary>
-        /// Inserts the event.
+        /// 插入历史告警-插入前请先排重
         /// </summary>
         /// <param name="mpClass">The mp class.</param>
         /// <param name="eventDatas">The event datas.</param>
         public void InsertHistoryEvent(ManagementPackClass mpClass, List<EventData> eventDatas)
         {
-            MGroup.Instance.CheckConnection();
-            var deviceId = eventDatas[0].DeviceId;
-
-            while (true)
-            {
-                var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
-                var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-                if (!reader.Any())
-                {
-                    throw new Exception($"cannot find DN '{deviceId}'");
-                }
-                var obj = reader.First();
-                if (obj.HealthState != HealthState.Uninitialized)
-                {
-                    HWLogger.SERVICE.Debug($"{deviceId} is {obj.HealthState}.Start insert event");
-                    this.InsertHistoryEvent(obj, eventDatas);
-                    break;
-                }
-                else
-                {
-                    HWLogger.SERVICE.Debug($"{deviceId} is Uninitialized...");
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-                }
-            }
-        }
-
-        /// <summary>
-        /// 插入历史告警-插入前请先排重
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="eventDatas">The event datas.</param>
-        private void InsertHistoryEvent(PartialMonitoringObject obj, List<EventData> eventDatas)
-        {
             // 获取到历史的事件记录
             // var eventHistory = obj.GetMonitoringEvents();
             // 过滤掉已经存在的事件-如果已存在，则不再重复添加
             // var filterEventList = eventDatas.Where(y => eventHistory.All(x => x.Parameters[5] != y.AlarmSn.ToString())).ToList();
-
+            var deviceId = eventDatas[0].DeviceId;
+            var obj = GetReadyObject(mpClass, deviceId);
+            HWLogger.SERVICE.Debug($"{deviceId}:Start insert event.");
             var alertHistory = obj.GetMonitoringAlerts();
             // 过滤掉已经存在的告警 
             var filterAlertList = eventDatas.Where(y => alertHistory.All(x => x.CustomField6 != y.AlarmSn.ToString())).ToList();
@@ -437,13 +388,14 @@ namespace Huawei.SCOM.ESightPlugin.Core
             //    ConfigHelper.SavePluginConfig(pluginConfig);
             //    Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
             //}
-            var firstData = filterAlertList.FirstOrDefault();
-            if (firstData == null)
-            {
-                return;
-            }
-            this.FindFirstEvent(obj, firstData);
-            Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
+            //var firstData = filterAlertList.FirstOrDefault();
+            //if (firstData == null)
+            //{
+            //    return;
+            //}
+            //this.FindFirstEvent(obj, firstData);
+
+            //Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
             foreach (var eventData in filterAlertList)
             {
                 try
@@ -466,10 +418,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="firstEvent">The first event.</param>
         private void FindFirstEvent(PartialMonitoringObject obj, EventData firstEvent)
         {
-            var ev = firstEvent.ToCustomMonitoringEvent();
-            ev.LevelId = 2;
-            ev.Channel = "scom plugin for eSight warning initialization";
-            ev.Parameters[4] = "scom plugin for eSight warning initialization";
+            var ev = firstEvent.ToCustomMonitoringInitEvent();
             obj.InsertCustomMonitoringEvent(ev);
             int i = 0;
             while (i < 100)
@@ -520,13 +469,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Inserts the event.
         /// </summary>
-        /// <param name="obj">The object.</param>
+        /// <param name="mpClass">The mp class.</param>
         /// <param name="eventData">The event data.</param>
-        private void InsertEvent(PartialMonitoringObject obj, EventData eventData)
+        public void InsertEvent(ManagementPackClass mpClass, EventData eventData)
         {
             try
             {
-
+                PartialMonitoringObject obj = GetObjectByDeviceId(mpClass, eventData.DeviceId);
                 var alertHistory = obj.GetMonitoringAlerts();
                 if (eventData.OptType == 1 || eventData.OptType == 6)
                 {
@@ -588,6 +537,84 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 HWLogger.SERVICE.Error(ex);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Gets the object by device identifier.
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>PartialMonitoringObject.</returns>
+        /// <exception cref="System.Exception"></exception>
+        private PartialMonitoringObject GetObjectByDeviceId(ManagementPackClass mpClass, string deviceId)
+        {
+            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
+            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+            if (!reader.Any())
+            {
+                throw new Exception($"cannot find DN '{deviceId}'");
+            }
+            return reader.First();
+        }
+
+        /// <summary>
+        /// Inserts the event.
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        private PartialMonitoringObject GetReadyObject(ManagementPackClass mpClass, string deviceId)
+        {
+            MGroup.Instance.CheckConnection();
+            var obj = GetObjectByDeviceId(mpClass, deviceId);
+            if (obj.StateLastModified == null) //代表是新增的
+            {
+                #region 新增对象
+                HWLogger.SERVICE.Debug($"New Object:{deviceId}");
+                while (true)
+                {
+                    //重新查询obj状态
+                    obj = GetObjectByDeviceId(mpClass, deviceId);
+                    if (obj.HealthState != HealthState.Uninitialized)
+                    {
+                        HWLogger.SERVICE.Debug($"{deviceId} first healthState is {obj.HealthState}.");
+                        break;
+                    }
+                    HWLogger.SERVICE.Debug($"wait {deviceId} first Initialized...");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+                #endregion
+            }
+            else
+            {
+                #region 对象之前缓存过
+
+                HWLogger.SERVICE.Debug($"Existed Object before:{deviceId}. StateLastModified(Utc):{obj.StateLastModified}.");
+                var stateLastModified = obj.StateLastModified;
+                var startTime = DateTime.UtcNow;
+                //距离上次状态变更大于5分钟 说明需要等待刷新健康状态
+                if ((startTime - stateLastModified.Value).TotalMinutes > 5)
+                {
+                    //最多尝试5分钟
+                    while ((DateTime.UtcNow - startTime).TotalMinutes < 5)
+                    {
+                        //重新查询obj状态
+                        obj = GetObjectByDeviceId(mpClass, deviceId);
+                        if (obj.StateLastModified > stateLastModified.Value)
+                        {
+                            HWLogger.SERVICE.Debug($"{deviceId} Reset HealthState :{obj.HealthState} StateLastModified(Utc):{obj.StateLastModified} UtcNow:{DateTime.UtcNow}.");
+                            break;
+                        }
+                        HWLogger.SERVICE.Debug($"wait {deviceId}  Reinitialize HealthState...");
+                        Thread.Sleep(TimeSpan.FromSeconds(5));
+                    }
+                }
+                else //距离上次状态变更小于5分钟
+                {
+                    HWLogger.SERVICE.Debug($"{deviceId} healthState :{obj.HealthState} StateLastModified:(Utc){obj.StateLastModified}  UtcNow:{startTime}.");
+                }
+                #endregion
+            }
+            return obj;
         }
 
         #endregion

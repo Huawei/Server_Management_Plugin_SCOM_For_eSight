@@ -75,7 +75,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
                 {
                     throw new Exception($"The message do not contain DN param.");
                 }
-                if (alarmData.OptType == 3 && alarmData.OptType == 4)
+                if (alarmData.OptType == 3 || alarmData.OptType == 4)
                 {
                     // 过滤掉3：确认告警4：反确认告警
                     HWLogger.NOTIFICATION.Info($"OptType is{alarmData.OptType}, Do not handle");

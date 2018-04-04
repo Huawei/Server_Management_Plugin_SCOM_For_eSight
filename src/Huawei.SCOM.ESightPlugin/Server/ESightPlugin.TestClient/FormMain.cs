@@ -13,6 +13,9 @@
 // ***********************************************************************
 
 // ReSharper disable All
+
+using System.Collections.Generic;
+
 namespace ESightPlugin.TestClient
 {
     using System;
@@ -513,7 +516,7 @@ namespace ESightPlugin.TestClient
             //    SwitchEventData.AlarmSn += 1;
             //}
 
-            BladeConnector.Instance.InsertEvent(BladeEventData,ServerTypeEnum.Blade);
+            BladeConnector.Instance.InsertHistoryEvent(new List<EventData>() { BladeEventData }, ServerTypeEnum.Blade);
             //HighdensityConnector.Instance.InsertEvent(HighEventData);
             //BladeConnector.Instance.InsertChildBladeEvent(ChildBladeEventData);
             //HighdensityConnector.Instance.InsertChildBladeEvent(ChildHighEventData);

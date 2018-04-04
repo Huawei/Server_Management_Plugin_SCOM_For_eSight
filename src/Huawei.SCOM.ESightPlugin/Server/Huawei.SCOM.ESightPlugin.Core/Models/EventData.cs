@@ -35,14 +35,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         {
             this.AlarmData = data;
             this.OptType = data.OptType;
-            if (serverType == ServerTypeEnum.ChildBlade || serverType == ServerTypeEnum.ChildHighdensity || serverType == ServerTypeEnum.Switch)
-            {
-                this.DeviceId = data.MoDN;
-            }
-            else
-            {
-                this.DeviceId = $"{eSightIp}-{data.MoDN}";
-            }
+            this.DeviceId = $"{eSightIp}-{data.MoDN}";
 
             this.ESightIp = eSightIp;
             this.AlarmSn = data.AlarmSN;
@@ -237,6 +230,30 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
             return customMonitoringEvent;
         }
 
+        public CustomMonitoringEvent ToCustomMonitoringInitEvent()
+        {
+            var customMonitoringEvent = new CustomMonitoringEvent(this.DeviceId, this.AlarmSn)
+            {
+                LoggingComputer = this.LoggingComputer,
+                Channel = "scom plugin for eSight warning initialization",
+                TimeGenerated = DateTime.Now,
+                LevelId = 2,
+                EventData = this.ToEventData(),
+                Message = new CustomMonitoringEventMessage(this.Message),
+            };
+
+            customMonitoringEvent.Parameters.Add($"1{this.MantissaNumber}");
+            customMonitoringEvent.Parameters.Add("1");
+            customMonitoringEvent.Parameters.Add(this.AlarmData.AdditionalText ?? string.Empty);
+            customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmId.ToString());
+            customMonitoringEvent.Parameters.Add("scom plugin for eSight warning initialization");
+            customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmSN.ToString());
+            customMonitoringEvent.Parameters.Add(TimeHelper.StampToDateTime(this.AlarmData.ArrivedTime.ToString()).ToString());
+            customMonitoringEvent.Parameters.Add(this.AlarmData.DevCsn.ToString());
+            customMonitoringEvent.Parameters.Add(this.AlarmData.EventType.ToString());
+            customMonitoringEvent.Parameters.Add(this.AlarmData.MoName);
+            return customMonitoringEvent;
+        }
 
         /// <summary>
         /// Gets the level.
