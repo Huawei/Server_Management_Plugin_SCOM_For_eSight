@@ -445,19 +445,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
             try
             {
                 MGroup.Instance.CheckConnection();
-                var criteria = new MonitoringObjectCriteria($"DN = '{deviceChangeEventData.DeviceId}'", mpClass);
-                var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-                if (reader.Any())
-                {
-                    var obj = reader.First();
-                    {
-                        obj.InsertCustomMonitoringEvent(deviceChangeEventData.ToCustomMonitoringEvent());
-                    }
-                }
-                else
-                {
-                    throw new Exception($"cannot find DN '{deviceChangeEventData.DeviceId}'");
-                }
+                PartialMonitoringObject obj = GetNewReadyObject(mpClass, deviceChangeEventData.DeviceId);
+                obj.InsertCustomMonitoringEvent(deviceChangeEventData.ToCustomMonitoringEvent());
             }
             catch (Exception ex)
             {
@@ -475,7 +464,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             try
             {
-                PartialMonitoringObject obj = GetObjectByDeviceId(mpClass, eventData.DeviceId);
+                PartialMonitoringObject obj = GetNewReadyObject(mpClass, eventData.DeviceId);
                 var alertHistory = obj.GetMonitoringAlerts();
                 if (eventData.OptType == 1 || eventData.OptType == 6)
                 {
@@ -558,7 +547,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Inserts the event.
+        /// 插入告警时，等待对象的healthState不再是Not Monitor
         /// </summary>
         /// <param name="mpClass">The mp class.</param>
         /// <param name="deviceId">The device identifier.</param>
@@ -566,7 +555,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             MGroup.Instance.CheckConnection();
             var obj = GetObjectByDeviceId(mpClass, deviceId);
-            if (obj.StateLastModified == null) //代表是新增的
+            if (obj.StateLastModified == null) //代表是新增的对象
             {
                 #region 新增对象
                 HWLogger.SERVICE.Debug($"New Object:{deviceId}");
@@ -617,6 +606,36 @@ namespace Huawei.SCOM.ESightPlugin.Core
             return obj;
         }
 
+        /// <summary>
+        /// 插入告警时，等待新增的对象的healthState不再是Not Monitor
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>PartialMonitoringObject.</returns>
+        private PartialMonitoringObject GetNewReadyObject(ManagementPackClass mpClass, string deviceId)
+        {
+            MGroup.Instance.CheckConnection();
+            var obj = GetObjectByDeviceId(mpClass, deviceId);
+            if (obj.StateLastModified == null) //代表是新增的
+            {
+                #region 新增对象
+                HWLogger.SERVICE.Debug($"New Object:{deviceId}");
+                while (true)
+                {
+                    //重新查询obj状态
+                    obj = GetObjectByDeviceId(mpClass, deviceId);
+                    if (obj.HealthState != HealthState.Uninitialized)
+                    {
+                        HWLogger.SERVICE.Debug($"{deviceId} first healthState is {obj.HealthState}.");
+                        break;
+                    }
+                    HWLogger.SERVICE.Debug($"wait {deviceId} first Initialized...");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+                #endregion
+            }
+            return obj;
+        }
         #endregion
 
         #region Private Methods
