@@ -67,8 +67,6 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
             this.DeviceId = $"{eSight}-{ m.DN}";
             this.DN = m.DN;
             this.ESight = eSight;
-            this.Name = m.Name;
-            this.IpAddress = m.IpAddress;
             this.CPUList = new List<HWCPU>();
             this.MemoryList = new List<HWMemory>();
             this.DiskList = new List<HWDisk>();
@@ -213,6 +211,8 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         /// </param>
         public void MakeChildBladeDetail(HWDeviceDetail detail)
         {
+            this.Name = detail.Name;
+            this.IpAddress = detail.IpAddress;
             this.DN = detail.DN;
             this.DeviceId = $"{this.ESight}-{ detail.DN}";
             this.CPUList = detail.CPUList;

@@ -489,7 +489,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             model.SwitchList.ForEach(
                 x =>
                     {
-                        var switchObject = this.CreateSwitch(x);
+                        var switchObject = this.CreateSwitch(x, model.ServerName);
                         switchObject[this.PartGroupKey].Value = switchGroup[this.PartGroupKey].Value;
                         switchObject[this.ComputerKey].Value = model.DeviceId;
                         switchObject[this.HuaweiServerKey].Value = model.DeviceId;
@@ -521,7 +521,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             model.ChildBlades.ForEach(
                 x =>
                     {
-                        var childBlade = this.CreateChildBlade(x);
+                        var childBlade = this.CreateChildBlade(x, model.ServerName);
                         childBlade[this.PartGroupKey].Value = childBladeGroupKey;
                         childBlade[this.ComputerKey].Value = model.DeviceId;
                         childBlade[this.HuaweiServerKey].Value = model.DeviceId;
@@ -798,10 +798,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
             model.SwitchList.ForEach(
                 x =>
                     {
-                        var switchObj = this.UpdateSwitch(x);
+                        var switchObj = this.UpdateSwitch(x, model.ServerName);
                         if (switchObj == null)
                         {
-                            var newSwitch = this.CreateSwitch(x);
+                            var newSwitch = this.CreateSwitch(x, model.ServerName);
                             newSwitch[this.PartGroupKey].Value = switchGroup[this.PartGroupKey].Value;
                             newSwitch[this.ComputerKey].Value = model.DeviceId;
                             newSwitch[this.HuaweiServerKey].Value = model.DeviceId;
@@ -894,8 +894,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["ProductDescription"]].Value = string.Empty;
             oldObject[propertys["ProductSerialNumber"]].Value = string.Empty;
             oldObject[propertys["SystemCPUUsage"]].Value = string.Empty;
-
-            oldObject[this.DisplayNameField].Value = model.Name;
+            var parent = this.GetParentServer(oldObject);
+            if (parent != null)
+            {
+                oldObject[this.DisplayNameField].Value = $"{parent.DisplayName}-{model.Name}";
+            }
             discoveryData.Add(oldObject);
 
             #region CPU
@@ -1096,7 +1099,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["UUID"]].Value = model.UUID;
             oldObject[propertys["Status"]].Value = model.HealthState;
 
-            oldObject[this.DisplayNameField].Value = model.Name;
+            var parent = this.GetParentServer(oldObject);
+            if (parent != null)
+            {
+                oldObject[this.DisplayNameField].Value = $"{parent.DisplayName}-{model.Name}";
+            }
             discoveryData.Add(oldObject);
 
             discoveryData.Overwrite(this.MontioringConnector);
@@ -1149,8 +1156,9 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// Creates the child blade .
         /// </summary>
         /// <param name="model">The Child model.</param>
+        /// <param name="parentName">Name of the parent.</param>
         /// <returns>Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject.</returns>
-        private MPObject CreateChildBlade(ChildBlade model)
+        private MPObject CreateChildBlade(ChildBlade model, string parentName)
         {
             var propertys = this.ChildBladeClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.ChildBladeClass); // 实例化一个class
@@ -1171,7 +1179,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             obj[propertys["ProductSerialNumber"]].Value = string.Empty;
             obj[propertys["SystemCPUUsage"]].Value = string.Empty;
 
-            obj[this.DisplayNameField].Value = model.Name;
+            obj[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
 
             return obj;
         }
@@ -1393,8 +1401,9 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// Creates the raid control.
         /// </summary>
         /// <param name="model">The model.</param>
+        /// <param name="parentName">Name of the parent.</param>
         /// <returns>The <see cref="MPObject" />.</returns>
-        private MPObject CreateSwitch(ChildSwithBoard model)
+        private MPObject CreateSwitch(ChildSwithBoard model, string parentName)
         {
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.SwitchClass); // 实例化一个class
@@ -1413,7 +1422,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             obj[propertys["MoId"]].Value = model.MoId;
             obj[propertys["UUID"]].Value = model.UUID;
             obj[propertys["Status"]].Value = model.HealthState;
-            obj[this.DisplayNameField].Value = model.Name;
+            obj[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
             return obj;
         }
 
@@ -1679,13 +1688,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Updates the Switch.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// MPObject.
-        /// </returns>
-        private MonitoringObject UpdateSwitch(ChildSwithBoard model)
+        /// <param name="model">The model.</param>
+        /// <param name="parentName">Name of the parent.</param>
+        /// <returns>MPObject.</returns>
+        private MonitoringObject UpdateSwitch(ChildSwithBoard model, string parentName)
         {
             var oldObject = this.GetObject($"DN = '{model.DeviceId}'", this.SwitchClass);
             if (oldObject == null)
@@ -1708,12 +1714,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["UUID"]].Value = model.UUID;
             oldObject[propertys["Status"]].Value = model.HealthState;
 
-            oldObject[this.DisplayNameField].Value = model.Name;
+            oldObject[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
 
             return oldObject;
         }
 
         #endregion
-
     }
 }

@@ -849,8 +849,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 var server = new ChildBlade(this.ESightIp);
                 server.MakeChildBladeDetail(model);
-                server.Name = model.Name;
-                server.IpAddress = model.IpAddress;
                 BladeConnector.Instance.UpdateChildBlade(server);
             }
             catch (Exception ex)
@@ -885,8 +883,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
             try
             {
                 var server = new ChildHighdensity(this.ESightIp);
-                server.Name = model.Name;
-                server.IpAddress = model.IpAddress;
                 server.MakeChildBladeDetail(model);
                 HighdensityConnector.Instance.UpdateChildBoard(server);
             }

@@ -357,7 +357,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 var param = new
                 {
                     systemID = HttpUtility.UrlEncode(this.ESight.SystemID),
-                    openID = this.OpenId,
+                    openID = this.ESight.OpenID,
                     url = alramUrl,
                     dataType = "JSON",
                     desc = "ESightSCOM.ESightPlugin"

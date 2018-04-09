@@ -363,7 +363,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // 过滤掉已经存在的事件-如果已存在，则不再重复添加
             // var filterEventList = eventDatas.Where(y => eventHistory.All(x => x.Parameters[5] != y.AlarmSn.ToString())).ToList();
             var deviceId = eventDatas[0].DeviceId;
-            var obj = GetReadyObject(mpClass, deviceId);
+            var obj = this.GetReadyObject(mpClass, deviceId);
             HWLogger.SERVICE.Debug($"{deviceId}:Start insert event.");
             var alertHistory = obj.GetMonitoringAlerts();
             // 过滤掉已经存在的告警 
@@ -374,28 +374,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
             {
                 return;
             }
-            //var pluginConfig = ConfigHelper.GetPluginConfig();
-            ////判断是否安装后首次插入事件
-            //if (!pluginConfig.IsFirstInsertEvent)
-            //{
-            //    var firstData = filterAlertList.FirstOrDefault();
-            //    if (firstData == null)
-            //    {
-            //        return;
-            //    }
-            //    this.FindFirstEvent(obj, firstData);
-            //    pluginConfig.IsFirstInsertEvent = true;
-            //    ConfigHelper.SavePluginConfig(pluginConfig);
-            //    Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
-            //}
-            //var firstData = filterAlertList.FirstOrDefault();
-            //if (firstData == null)
-            //{
-            //    return;
-            //}
-            //this.FindFirstEvent(obj, firstData);
-
-            //Thread.Sleep(2 * 60 * 1000); // 睡眠120秒-alert首次生成慢。
             foreach (var eventData in filterAlertList)
             {
                 try
@@ -410,32 +388,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// 判断首次插入事件是否成功
-        /// 首次安装后 第一次插入事件会失败
-        /// 此处进行多次查找，以确定事件插入成功
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="firstEvent">The first event.</param>
-        private void FindFirstEvent(PartialMonitoringObject obj, EventData firstEvent)
-        {
-            var ev = firstEvent.ToCustomMonitoringInitEvent();
-            obj.InsertCustomMonitoringEvent(ev);
-            int i = 0;
-            while (i < 100)
-            {
-                var eventHistory = obj.GetMonitoringEvents();
-                HWLogger.SERVICE.Debug($"try Find FirstEvent:{i}.AlarmSn: {firstEvent.AlarmSn}. eventHistory Count:{eventHistory.Count}");
-                if (eventHistory.Any(x => x.Parameters[5] == firstEvent.AlarmSn.ToString()))
-                {
-                    HWLogger.SERVICE.Debug($"Find FirstEvent Finish:{i}.AlarmSn: {firstEvent.AlarmSn}");
-                    break;
-                }
-                Thread.Sleep(2000);
-                i++;
-            }
-        }
-
-        /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="mpClass">The mp class.</param>
@@ -445,7 +397,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             try
             {
                 MGroup.Instance.CheckConnection();
-                PartialMonitoringObject obj = GetNewReadyObject(mpClass, deviceChangeEventData.DeviceId);
+                PartialMonitoringObject obj = this.GetNewReadyObject(mpClass, deviceChangeEventData.DeviceId);
                 obj.InsertCustomMonitoringEvent(deviceChangeEventData.ToCustomMonitoringEvent());
             }
             catch (Exception ex)
@@ -529,136 +481,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Gets the object by device identifier.
-        /// </summary>
-        /// <param name="mpClass">The mp class.</param>
-        /// <param name="deviceId">The device identifier.</param>
-        /// <returns>PartialMonitoringObject.</returns>
-        /// <exception cref="System.Exception"></exception>
-        private PartialMonitoringObject GetObjectByDeviceId(ManagementPackClass mpClass, string deviceId)
-        {
-            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
-            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
-            if (!reader.Any())
-            {
-                throw new Exception($"cannot find DN '{deviceId}'");
-            }
-            return reader.First();
-        }
-
-        /// <summary>
-        /// 插入告警时，等待对象的healthState不再是Not Monitor
-        /// </summary>
-        /// <param name="mpClass">The mp class.</param>
-        /// <param name="deviceId">The device identifier.</param>
-        private PartialMonitoringObject GetReadyObject(ManagementPackClass mpClass, string deviceId)
-        {
-            MGroup.Instance.CheckConnection();
-            var obj = GetObjectByDeviceId(mpClass, deviceId);
-            if (obj.StateLastModified == null) //代表是新增的对象
-            {
-                #region 新增对象
-                HWLogger.SERVICE.Debug($"New Object:{deviceId}");
-                while (true)
-                {
-                    //重新查询obj状态
-                    obj = GetObjectByDeviceId(mpClass, deviceId);
-                    if (obj.HealthState != HealthState.Uninitialized)
-                    {
-                        HWLogger.SERVICE.Debug($"{deviceId} first healthState is {obj.HealthState}.");
-                        break;
-                    }
-                    HWLogger.SERVICE.Debug($"wait {deviceId} first Initialized...");
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-                }
-                #endregion
-            }
-            else
-            {
-                #region 对象之前缓存过
-
-                HWLogger.SERVICE.Debug($"Existed Object before:{deviceId}. StateLastModified(Utc):{obj.StateLastModified}.");
-                var stateLastModified = obj.StateLastModified;
-                var startTime = DateTime.UtcNow;
-                //距离上次状态变更大于5分钟 说明需要等待刷新健康状态
-                if ((startTime - stateLastModified.Value).TotalMinutes > 5)
-                {
-                    //最多尝试5分钟
-                    while ((DateTime.UtcNow - startTime).TotalMinutes < 5)
-                    {
-                        //重新查询obj状态
-                        obj = GetObjectByDeviceId(mpClass, deviceId);
-                        if (obj.StateLastModified > stateLastModified.Value)
-                        {
-                            HWLogger.SERVICE.Debug($"{deviceId} Reset HealthState :{obj.HealthState} StateLastModified(Utc):{obj.StateLastModified} UtcNow:{DateTime.UtcNow}.");
-                            break;
-                        }
-                        HWLogger.SERVICE.Debug($"wait {deviceId}  Reinitialize HealthState...");
-                        Thread.Sleep(TimeSpan.FromSeconds(5));
-                    }
-                }
-                else //距离上次状态变更小于5分钟
-                {
-                    HWLogger.SERVICE.Debug($"{deviceId} healthState :{obj.HealthState} StateLastModified:(Utc){obj.StateLastModified}  UtcNow:{startTime}.");
-                }
-                #endregion
-            }
-            return obj;
-        }
-
-        /// <summary>
-        /// 插入告警时，等待新增的对象的healthState不再是Not Monitor
-        /// </summary>
-        /// <param name="mpClass">The mp class.</param>
-        /// <param name="deviceId">The device identifier.</param>
-        /// <returns>PartialMonitoringObject.</returns>
-        private PartialMonitoringObject GetNewReadyObject(ManagementPackClass mpClass, string deviceId)
-        {
-            MGroup.Instance.CheckConnection();
-            var obj = GetObjectByDeviceId(mpClass, deviceId);
-            if (obj.StateLastModified == null) //代表是新增的
-            {
-                #region 新增对象
-                HWLogger.SERVICE.Debug($"New Object:{deviceId}");
-                while (true)
-                {
-                    //重新查询obj状态
-                    obj = GetObjectByDeviceId(mpClass, deviceId);
-                    if (obj.HealthState != HealthState.Uninitialized)
-                    {
-                        HWLogger.SERVICE.Debug($"{deviceId} first healthState is {obj.HealthState}.");
-                        break;
-                    }
-                    HWLogger.SERVICE.Debug($"wait {deviceId} first Initialized...");
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-                }
-                #endregion
-            }
-            return obj;
-        }
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Determines whether this instance is install.
-        /// </summary>
-        /// <returns>System.Boolean.</returns>
-        public MonitoringConnector GetConnector()
-        {
-            try
-            {
-                MGroup.Instance.CheckConnection();
-                var cfMgmt = MGroup.Instance.GetConnectorFramework();
-                return cfMgmt.GetConnector(this.ConnectorGuid);
-            }
-            catch (ObjectNotFoundException)
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
         /// The install.
         /// </summary>
         /// <exception cref="Exception">ex</exception>
@@ -690,6 +512,185 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 throw;
             }
         }
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Gets the parent server.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>PartialMonitoringObject.</returns>
+        protected PartialMonitoringObject GetParentServer(MonitoringObject obj)
+        {
+            var group = obj.GetParentPartialMonitoringObjects();
+            if (group.Any())
+            {
+                var parent = group.First();
+                var t = parent.GetParentPartialMonitoringObjects();
+                if (t.Any())
+                {
+                    return t.First();
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the object by device identifier.
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>PartialMonitoringObject.</returns>
+        /// <exception cref="System.Exception">e</exception>
+        private PartialMonitoringObject GetObjectByDeviceId(ManagementPackClass mpClass, string deviceId)
+        {
+            var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
+            var reader = MGroup.Instance.EntityObjects.GetObjectReader<PartialMonitoringObject>(criteria, ObjectQueryOptions.Default);
+            if (!reader.Any())
+            {
+                throw new Exception($"cannot find DN '{deviceId}'");
+            }
+            return reader.First();
+        }
+
+        /// <summary>
+        /// 插入告警时，等待对象的healthState不再是Not Monitor
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>PartialMonitoringObject.</returns>
+        private PartialMonitoringObject GetReadyObject(ManagementPackClass mpClass, string deviceId)
+        {
+            MGroup.Instance.CheckConnection();
+            var obj = this.GetObjectByDeviceId(mpClass, deviceId);
+            if (obj.StateLastModified == null)
+            {
+                #region 新增对象
+                HWLogger.SERVICE.Debug($"New Object:{deviceId}");
+                while (true)
+                {
+                    // 重新查询obj状态
+                    obj = this.GetObjectByDeviceId(mpClass, deviceId);
+                    if (obj.HealthState != HealthState.Uninitialized)
+                    {
+                        HWLogger.SERVICE.Debug($"{deviceId} first healthState is {obj.HealthState}.");
+                        break;
+                    }
+                    HWLogger.SERVICE.Debug($"wait {deviceId} first Initialized...");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+                #endregion
+            }
+            else
+            {
+                #region 对象之前缓存过
+
+                HWLogger.SERVICE.Debug($"Existed Object before:{deviceId}. StateLastModified(Utc):{obj.StateLastModified}.");
+                var stateLastModified = obj.StateLastModified;
+                var startTime = DateTime.UtcNow;
+                // 距离上次状态变更大于5分钟 说明需要等待刷新健康状态
+                if ((startTime - stateLastModified.Value).TotalMinutes > 5)
+                {
+                    // 最多尝试5分钟
+                    while ((DateTime.UtcNow - startTime).TotalMinutes < 5)
+                    {
+                        // 重新查询obj状态
+                        obj = this.GetObjectByDeviceId(mpClass, deviceId);
+                        if (obj.StateLastModified > stateLastModified.Value)
+                        {
+                            HWLogger.SERVICE.Debug($"{deviceId} Reset HealthState :{obj.HealthState} StateLastModified(Utc):{obj.StateLastModified} UtcNow:{DateTime.UtcNow}.");
+                            break;
+                        }
+                        HWLogger.SERVICE.Debug($"wait {deviceId}  Reinitialize HealthState...");
+                        Thread.Sleep(TimeSpan.FromSeconds(5));
+                    }
+                }
+                else 
+                {
+                    // 距离上次状态变更小于5分钟
+                    HWLogger.SERVICE.Debug($"{deviceId} healthState :{obj.HealthState} StateLastModified:(Utc){obj.StateLastModified}  UtcNow:{startTime}.");
+                }
+                #endregion
+            }
+            return obj;
+        }
+
+        /// <summary>
+        /// 插入告警时，等待新增的对象的healthState不再是Not Monitor
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>PartialMonitoringObject.</returns>
+        private PartialMonitoringObject GetNewReadyObject(ManagementPackClass mpClass, string deviceId)
+        {
+            MGroup.Instance.CheckConnection();
+            var obj = this.GetObjectByDeviceId(mpClass, deviceId);
+            if (obj.StateLastModified == null)
+            {
+                #region 新增对象
+                HWLogger.SERVICE.Debug($"New Object:{deviceId}");
+                while (true)
+                {
+                    // 重新查询obj状态
+                    obj = this.GetObjectByDeviceId(mpClass, deviceId);
+                    if (obj.HealthState != HealthState.Uninitialized)
+                    {
+                        HWLogger.SERVICE.Debug($"{deviceId} first healthState is {obj.HealthState}.");
+                        break;
+                    }
+                    HWLogger.SERVICE.Debug($"wait {deviceId} first Initialized...");
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                }
+                #endregion
+            }
+            return obj;
+        }
+
+        /// <summary>
+        /// 判断首次插入事件是否成功
+        /// 首次安装后 第一次插入事件会失败
+        /// 此处进行多次查找，以确定事件插入成功
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="firstEvent">The first event.</param>
+        private void FindFirstEvent(PartialMonitoringObject obj, EventData firstEvent)
+        {
+            var ev = firstEvent.ToCustomMonitoringInitEvent();
+            obj.InsertCustomMonitoringEvent(ev);
+            int i = 0;
+            while (i < 100)
+            {
+                var eventHistory = obj.GetMonitoringEvents();
+                HWLogger.SERVICE.Debug($"try Find FirstEvent:{i}.AlarmSn: {firstEvent.AlarmSn}. eventHistory Count:{eventHistory.Count}");
+                if (eventHistory.Any(x => x.Parameters[5] == firstEvent.AlarmSn.ToString()))
+                {
+                    HWLogger.SERVICE.Debug($"Find FirstEvent Finish:{i}.AlarmSn: {firstEvent.AlarmSn}");
+                    break;
+                }
+                Thread.Sleep(2000);
+                i++;
+            }
+        }
+
+        /// <summary>
+        /// Determines whether this instance is install.
+        /// </summary>
+        /// <returns>System.Boolean.</returns>
+        private MonitoringConnector GetConnector()
+        {
+            try
+            {
+                MGroup.Instance.CheckConnection();
+                var cfMgmt = MGroup.Instance.GetConnectorFramework();
+                return cfMgmt.GetConnector(this.ConnectorGuid);
+            }
+            catch (ObjectNotFoundException)
+            {
+                return null;
+            }
+        }
+
         #endregion
     }
 }

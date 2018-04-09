@@ -333,7 +333,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             model.ChildHighdensitys.ForEach(
                 x =>
                     {
-                        var childHighdensity = this.CreateChildHighdensity(x);
+                        var childHighdensity = this.CreateChildHighdensity(x, model.ServerName);
                         childHighdensity[this.PartGroupKey].Value = childHighdensityGroupKey;
                         childHighdensity[this.ComputerKey].Value = model.DeviceId;
                         childHighdensity[this.HuaweiServerKey].Value = model.DeviceId;
@@ -461,8 +461,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["UUID"]].Value = model.UUID;
             oldObject[propertys["ProductSn"]].Value = model.ProductSn;
             oldObject[propertys["Type"]].Value = model.Type;
-
-            oldObject[this.DisplayNameField].Value = model.Name;
+            var parent = this.GetParentServer(oldObject);
+            if (parent != null)
+            {
+                oldObject[this.DisplayNameField].Value = $"{parent.DisplayName}-{model.Name}";
+            }
             discoveryData.Add(oldObject);
 
             #region CPU
@@ -725,7 +728,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 case ServerTypeEnum.ChildHighdensity:
                     this.InsertHistoryEvent(this.ChildHighdensityClass, eventDatas);
                     break;
-               
+
             }
         }
 
@@ -848,13 +851,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Creates the child Highdensity.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// MPObject.
-        /// </returns>
-        private MPObject CreateChildHighdensity(ChildHighdensity model)
+        /// <param name="model">The model.</param>
+        /// <param name="parentName">Name of the parent.</param>
+        /// <returns>MPObject.</returns>
+        private MPObject CreateChildHighdensity(ChildHighdensity model, string parentName)
         {
             var propertys = this.ChildHighdensityClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.ChildHighdensityClass); // 实例化一个class
@@ -867,7 +867,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             obj[propertys["ProductSn"]].Value = model.ProductSn;
             obj[propertys["Type"]].Value = model.Type;
 
-            obj[this.DisplayNameField].Value = model.Name;
+            obj[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
             return obj;
         }
 
