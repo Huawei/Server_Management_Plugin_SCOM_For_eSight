@@ -610,7 +610,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// </summary>
         /// <param name="model">The model.</param>
         /// <param name="isUpdateChildServer">if set to <c>true</c> [is update child server].</param>
-        /// <exception cref="System.Exception"></exception>
+        /// <exception cref="System.Exception">e</exception>
         public void UpdateMainWithOutChildBlade(HighdensityServer model, bool isUpdateChildServer = false)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateHighdensity WithOut ChildBoard");
@@ -701,7 +701,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                 var relatedChildBladeObjects = childBladeGroup.GetRelatedMonitoringObjects(this.ChildHighdensityClass);
                 var deleteChildBlade = relatedChildBladeObjects.Where(
-                        x => model.ChildHighdensitys.All(y => y.UUID != x[this.ChildHighdensityClass.PropertyCollection["UUID"]].Value.ToString()))
+                        x => model.ChildHighdensitys.All(y => y.DeviceId != x[this.ChildHighdensityClass.PropertyCollection["DN"]].Value.ToString()))
                     .ToList();
                 deleteChildBlade.ForEach(x => { discoveryData.Remove(x); });
                 model.ChildHighdensitys.ForEach(
@@ -772,7 +772,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// </summary>
         /// <param name="childDeviceId">The child device identifier.</param>
         /// <returns>System.String.</returns>
-        /// <exception cref="System.Exception">
+        /// <exception cref="System.Exception">e
         /// </exception>
         public string GetParentDn(string childDeviceId)
         {

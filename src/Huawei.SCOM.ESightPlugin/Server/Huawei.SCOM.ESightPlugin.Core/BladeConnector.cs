@@ -867,7 +867,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                 var relatedChildBladeObjects = childBladeGroup.GetRelatedMonitoringObjects(this.ChildBladeClass);
                 var deleteChildBlade = relatedChildBladeObjects.Where(
-                        x => model.ChildBlades.All(y => y.UUID != x[this.ChildBladeClass.PropertyCollection["UUID"]].Value.ToString()))
+                        x => model.ChildBlades.All(y => y.DeviceId != x[this.ChildBladeClass.PropertyCollection["DN"]].Value.ToString()))
                     .ToList();
                 deleteChildBlade.ForEach(x => { discoveryData.Remove(x); });
                 model.ChildBlades.ForEach(
