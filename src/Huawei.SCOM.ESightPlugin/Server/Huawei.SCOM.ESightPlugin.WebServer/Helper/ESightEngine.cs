@@ -303,63 +303,71 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
         /// </summary>
         private void RefreshPwds()
         {
-            HWLogger.DEFAULT.InfoFormat("Refresh eSightpwd with encryption...");
-            lock (LockRefreshPwds)
+            try
             {
-                lock (this.eSightSessions)
+                HWLogger.DEFAULT.InfoFormat("Refresh eSightpwd with encryption...");
+                lock (LockRefreshPwds)
                 {
-                    using (var mutex = new Mutex(false, "huawei.SCOM.ESightPlugin.engine"))
+                    lock (this.eSightSessions)
                     {
-                        if (mutex.WaitOne(TimeSpan.FromSeconds(60), false))
+                        using (var mutex = new Mutex(false, "huawei.SCOM.ESightPlugin.engine"))
                         {
-                            string oldMainKey;
-
-                            // 2017-10-11 检查是否需要升级的密钥。
-                            if (!EncryptUtil.IsCompatibleVersion())
+                            if (mutex.WaitOne(TimeSpan.FromSeconds(60), false))
                             {
-                                oldMainKey = EncryptUtil.GetMainKey1060();
-                                HWLogger.DEFAULT.InfoFormat("oldMainKey:{0}", oldMainKey);
-                                if (string.IsNullOrEmpty(oldMainKey))
+                                string oldMainKey;
+
+                                // 2017-10-11 检查是否需要升级的密钥。
+                                if (!EncryptUtil.IsCompatibleVersion())
                                 {
-                                    return;
+                                    oldMainKey = EncryptUtil.GetMainKey1060();
+                                    HWLogger.DEFAULT.InfoFormat("oldMainKey:{0}", oldMainKey);
+                                    if (string.IsNullOrEmpty(oldMainKey))
+                                    {
+                                        return;
+                                    }
+                                    EncryptUtil.ClearAndUpgradeKey();
                                 }
-                                EncryptUtil.ClearAndUpgradeKey();
-                            }
-                            else
-                            {
-                                // 旧的key
-                                oldMainKey = EncryptUtil.GetMainKeyWithoutInit();
-                                if (string.IsNullOrEmpty(oldMainKey))
+                                else
                                 {
-                                    return;
+                                    // 旧的key
+                                    oldMainKey = EncryptUtil.GetMainKeyWithoutInit();
+                                    if (string.IsNullOrEmpty(oldMainKey))
+                                    {
+                                        return;
+                                    }
+
+                                    // 重新初始化主密钥。
+                                    EncryptUtil.InitMainKey();
                                 }
 
-                                // 重新初始化主密钥。
-                                EncryptUtil.InitMainKey();
-                            }
+                                var newMainKey = EncryptUtil.GetMainKeyFromPath();
 
-                            var newMainKey = EncryptUtil.GetMainKeyFromPath();
+                                // LogUtil.HWLogger.DEFAULT.InfoFormat("Change key,oldMainKey={1},newMainKey={1}",oldMainKey,newMainKey);
+                                // 遍历所有session.
+                                var hostlist = ESightDal.Instance.GetList();
+                                foreach (var eSightHost in hostlist)
+                                {
+                                    var pwd = EncryptUtil.DecryptWithKey(oldMainKey, eSightHost.LoginPd);
+                                    var enPwd = EncryptUtil.EncryptWithKey(newMainKey, pwd);
 
-                            // LogUtil.HWLogger.DEFAULT.InfoFormat("Change key,oldMainKey={1},newMainKey={1}",oldMainKey,newMainKey);
-                            // 遍历所有session.
-                            var hostlist = ESightDal.Instance.GetList();
-                            foreach (var eSightHost in hostlist)
-                            {
-                                var pwd = EncryptUtil.DecryptWithKey(oldMainKey, eSightHost.LoginPd);
-                                var enPwd = EncryptUtil.EncryptWithKey(newMainKey, pwd);
+                                    var iEsSession = this.FindEsSession(eSightHost.HostIP);
+                                    iEsSession.ESight.LoginPd = enPwd;
 
-                                var iEsSession = this.FindEsSession(eSightHost.HostIP);
-                                iEsSession.ESight.LoginPd = enPwd;
-
-                                this.eSightSessions[eSightHost.HostIP.ToUpper()] = iEsSession;
-                                ESightDal.Instance.UpdateESightPwd(eSightHost.HostIP, enPwd);
+                                    this.eSightSessions[eSightHost.HostIP.ToUpper()] = iEsSession;
+                                    ESightDal.Instance.UpdateESightPwd(eSightHost.HostIP, enPwd);
+                                    HWLogger.DEFAULT.InfoFormat($"Refresh eSightpwd :{eSightHost.HostIP}!");
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            HWLogger.DEFAULT.InfoFormat("Refresh eSightpwd with encryption successful!");
+                HWLogger.DEFAULT.InfoFormat("Refresh eSightpwd with encryption successful!");
+            }
+            catch (Exception ex)
+            {
+                HWLogger.DEFAULT.Error("Refresh eSightpwd  Error!", ex);
+            }
         }
 
         /// <summary>
