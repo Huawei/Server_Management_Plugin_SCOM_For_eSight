@@ -316,6 +316,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                             {
                                 string oldMainKey;
 
+                                #region 检查是否需要升级的密钥
                                 // 2017-10-11 检查是否需要升级的密钥。
                                 if (!EncryptUtil.IsCompatibleVersion())
                                 {
@@ -339,12 +340,15 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                                     // 重新初始化主密钥。
                                     EncryptUtil.InitMainKey();
                                 }
+                                #endregion
 
                                 var newMainKey = EncryptUtil.GetMainKeyFromPath();
 
+                                #region 刷新密码
                                 // LogUtil.HWLogger.DEFAULT.InfoFormat("Change key,oldMainKey={1},newMainKey={1}",oldMainKey,newMainKey);
                                 // 遍历所有session.
                                 var hostlist = ESightDal.Instance.GetList();
+                                HWLogger.DEFAULT.InfoFormat($"Start Refresh eSightpwd !eSight Count:{hostlist.Count}");
                                 foreach (var eSightHost in hostlist)
                                 {
                                     var pwd = EncryptUtil.DecryptWithKey(oldMainKey, eSightHost.LoginPd);
@@ -357,6 +361,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                                     ESightDal.Instance.UpdateESightPwd(eSightHost.HostIP, enPwd);
                                     HWLogger.DEFAULT.InfoFormat($"Refresh eSightpwd :{eSightHost.HostIP}!");
                                 }
+                                #endregion
                             }
                         }
                     }
