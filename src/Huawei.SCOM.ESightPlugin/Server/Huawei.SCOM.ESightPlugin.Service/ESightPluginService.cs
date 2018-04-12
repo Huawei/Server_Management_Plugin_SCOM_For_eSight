@@ -32,6 +32,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
 
     using Huawei.SCOM.ESightPlugin.Core;
     using Huawei.SCOM.ESightPlugin.Models;
+    using Huawei.SCOM.ESightPlugin.Models.Server;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper;
 
@@ -600,6 +601,13 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
                 this.OnLog($"msgType is {nedeviceData.MsgType}  Start sync server {eSight.HostIP}");
                 var instance = this.FindInstance(eSight);
+                var serverType = instance.GetServerType(dn);
+                // 高密的设备变更消息需要单独处理
+                if (serverType == ServerTypeEnum.ChildHighdensity || serverType == ServerTypeEnum.Highdensity)
+                {
+                    this.HandlerHighdensityServerDeviceChange(instance, nedeviceData);
+                    return;
+                }
                 switch (nedeviceData.MsgType)
                 {
                     case 1: // 新增
@@ -621,6 +629,34 @@ namespace Huawei.SCOM.ESightPlugin.Service
             catch (Exception ex)
             {
                 HWLogger.NOTIFICATION_PROCESS.Error($"Analysis NeDevice  error. data:{json}", ex);
+            }
+        }
+
+        /// <summary>
+        /// 处理高密服务器的设备变更事件
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <param name="nedeviceData">The nedevice data.</param>
+        private void HandlerHighdensityServerDeviceChange(ESightSyncInstance instance, NotifyModel<NedeviceData> nedeviceData)
+        {
+            var dn = nedeviceData.Data.DeviceId;
+            HWLogger.NOTIFICATION_PROCESS.Error($"Handler HighdensityServer DeviceChange :{dn}");
+            switch (nedeviceData.MsgType)
+            {
+                case 1: // 新增
+                    instance.Sync();
+                    break;
+                case 2: // 删除时，更新该eSight下所有的高密服务器
+                    this.OnLog($"Start removing the server.Dn:{dn}");
+                    instance.SyncHighdensityList();
+                    break;
+                case 3: // 修改时，更新整个高密服务器，并插入事件。
+                    instance.Enqueue(dn);
+                    instance.InsertDeviceChangeEvent(nedeviceData.Data);
+                    break;
+                default:
+                    HWLogger.NOTIFICATION_PROCESS.Error($"UnKnown MsgType :{dn}");
+                    break;
             }
         }
 

@@ -875,34 +875,36 @@ namespace Huawei.SCOM.ESightPlugin.Service
         }
 
         /// <summary>
-        /// 更新高密子服务器
+        /// 当Dn为高密子服务器的DN时,需要更新整个管理板
         /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateChildHighdensityServer(HWDeviceDetail model)
+        /// <param name="childDeviceId">The child device identifier.</param>
+        public void UpdateChildHighdensityServer(string dn)
         {
+            var childDeviceId = $"{this.ESightIp}-{dn}";
             try
             {
-                var server = new ChildHighdensity(this.ESightIp);
-                server.MakeChildBladeDetail(model);
-                HighdensityConnector.Instance.UpdateChildBoard(server);
+                var parentDn = HighdensityConnector.Instance.GetParentDn(childDeviceId);
+                this.OnNotifyLog($" Get ChildHighdensityServer ParentDn：{childDeviceId}-->{parentDn}");
+                this.UpdateHighdensityServer(parentDn);
             }
             catch (Exception ex)
             {
-                this.OnNotifyError($"UpdateChildHighdensityServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
+                this.OnNotifyError($"UpdateChildHighdensityServer Error.eSight:{this.ESightIp} Dn:{childDeviceId}. ", ex);
             }
         }
 
         /// <summary>
         /// 更新高密管理板
         /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateHighdensityServer(HWDeviceDetail model)
+        /// <param name="parentDn">The parent dn.</param>
+        public void UpdateHighdensityServer(string parentDn)
         {
             try
             {
+                var model = this.Session.GetServerDetails(parentDn);
                 var server = new HighdensityServer
                 {
-                    DN = model.DN,
+                    DN = parentDn,//查询高密服务器详情返回的是第一个子刀片的dn.因此此处需要以管理板dn为准
                     ServerName = model.Name,
                     Manufacturer = string.Empty,
                     ServerModel = model.Mode,
@@ -911,11 +913,11 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     Status = model.Status
                 };
                 server.MakeDetail(model, this.ESightIp);
-                HighdensityConnector.Instance.UpdateMainWithOutChildBlade(server);
+                this.QueryHighdensityDetial(server);
             }
             catch (Exception ex)
             {
-                this.OnNotifyError($"UpdateHighdensityServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
+                this.OnNotifyError($"UpdateHighdensityServer Error.eSight:{this.ESightIp} Dn:{parentDn}. ", ex);
             }
         }
 
@@ -970,6 +972,16 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     this.OnNotifyError($"UpdateSwitchBoard Error.eSight not support. eSight:{this.ESightIp} Dn:{dn}. ");
                     return;
                 }
+                if (serverType == ServerTypeEnum.ChildHighdensity)
+                {
+                    this.UpdateChildHighdensityServer(dn);
+                    return;
+                }
+                if (serverType == ServerTypeEnum.Highdensity)
+                {
+                    this.UpdateHighdensityServer(dn);
+                    return;
+                }
                 var device = this.Session.GetServerDetails(dn);
                 switch (serverType)
                 {
@@ -983,12 +995,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         //todo 暂不可以通过交换板的dn获取交换板的详情
                         //this.UpdateSwitchBoard(device);
                         break;
-                    case ServerTypeEnum.Highdensity:
-                        this.UpdateHighdensityServer(device);
-                        break;
-                    case ServerTypeEnum.ChildHighdensity:
-                        this.UpdateChildHighdensityServer(device);
-                        break;
+                    //case ServerTypeEnum.Highdensity:
+                    //    this.UpdateHighdensityServer(device);
+                    //    break;
+                    //case ServerTypeEnum.ChildHighdensity:
+                    //    this.UpdateChildHighdensityServer(device);
+                    //    break;
                     case ServerTypeEnum.Rack:
                         this.UpdateRackServer(device);
                         break;

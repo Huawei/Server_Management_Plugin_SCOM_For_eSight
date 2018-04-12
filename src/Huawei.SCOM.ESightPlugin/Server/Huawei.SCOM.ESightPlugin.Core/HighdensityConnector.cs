@@ -733,6 +733,32 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
+        /// Gets the parent dn.
+        /// </summary>
+        /// <param name="childDeviceId">The child device identifier.</param>
+        /// <returns>System.String.</returns>
+        /// <exception cref="System.Exception">
+        /// </exception>
+        public string GetParentDn(string childDeviceId)
+        {
+            var oldObject = this.GetObject($"DN = '{childDeviceId}'", this.ChildHighdensityClass);
+            if (oldObject == null)
+            {
+                throw new Exception($"Can not find the child blade server:{childDeviceId}");
+            }
+            var propertys = this.HighdensityClass.PropertyCollection; // 获取到class的属性
+
+            var parent = this.GetFullParentServer(oldObject);
+            if (parent == null)
+            {
+                throw new Exception($"Can not find the parent.the childServerDeviceId:{childDeviceId}");
+            }
+            var deviceId = parent[this.HuaweiServerKey].Value.ToString();
+            var esight = parent[propertys["eSight"]].Value.ToString();
+            return deviceId.Replace(esight + "-",string.Empty);
+        }
+
+        /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="eventData">The event data.</param>

@@ -214,9 +214,10 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         /// <param name="eSightIp">The e sight ip.</param>
         public void MakeDetail(HWDeviceDetail detail, string eSightIp)
         {
+            //高密服务器根据管理板Dn查询详情返回的是第一个子刀片的dn因此不等于deatial的dn
             var hmm = new HWHMM
             {
-                DN = detail.DN,
+                DN = this.DN,
                 IpAddress = detail.IpAddress,
                 Name = detail.Name,
                 Type = detail.Type,
@@ -227,8 +228,8 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
                 ProductSN = detail.ProductSN
             };
             this.ESight = eSightIp;
-            this.DN = detail.DN;
-            this.DeviceId = $"{eSightIp}-{ detail.DN}";
+            //this.DN = detail.DN;
+            this.DeviceId = $"{eSightIp}-{ this.DN}";
             this.HmmInfo = hmm;
             this.FanList = detail.FANList;
             this.PowerSupplyList = detail.PSUList;

@@ -536,6 +536,21 @@ namespace Huawei.SCOM.ESightPlugin.Core
             return null;
         }
 
+        protected MonitoringObject GetFullParentServer(MonitoringObject obj)
+        {
+            var group = obj.GetParentPartialMonitoringObjects();
+            if (group.Any())
+            {
+                var parent = group.First();
+                var t = parent.GetParentMonitoringObjects();
+                if (t.Any())
+                {
+                    return t.First();
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         /// Gets the object by device identifier.
         /// </summary>
