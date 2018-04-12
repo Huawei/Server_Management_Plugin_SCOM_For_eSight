@@ -863,6 +863,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 #region ChildBlade
 
                 var childBladeGroup = oldBlade.GetRelatedMonitoringObjects(this.ChildBladeGroupClass).First();
+                var childBladeGroupKey = childBladeGroup[this.PartGroupKey].Value.ToString();
                 discoveryData.Add(childBladeGroup);
 
                 var relatedChildBladeObjects = childBladeGroup.GetRelatedMonitoringObjects(this.ChildBladeClass);
@@ -873,14 +874,125 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 model.ChildBlades.ForEach(
                     x =>
                         {
-                            var oldChildServer = this.GetObject($"DN = '{model.DeviceId}'", this.ChildBladeClass);
+                            var oldChildServer = this.GetObject($"DN = '{x.DeviceId}'", this.ChildBladeClass);
                             if (oldChildServer == null)
                             {
+                                #region MyRegion
+
                                 var newChildBlade = this.CreateChildBlade(x, model.ServerName);
-                                newChildBlade[this.PartGroupKey].Value = childBladeGroup[this.PartGroupKey].Value;
+                                newChildBlade[this.PartGroupKey].Value = childBladeGroupKey;
                                 newChildBlade[this.ComputerKey].Value = model.DeviceId;
                                 newChildBlade[this.HuaweiServerKey].Value = model.DeviceId;
                                 discoveryData.Add(newChildBlade);
+                                var childBladeKey = this.ChildBladeClass.PropertyCollection["DN"];
+
+                                #region CPU
+
+                                var cpuGroup =
+                                    this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DeviceId);
+
+                                cpuGroup[childBladeKey].Value = x.DeviceId;
+                                cpuGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                discoveryData.Add(cpuGroup);
+
+                                x.CPUList.ForEach(
+                                    y =>
+                                        {
+                                            var cpu = this.CreateCpu(y);
+                                            cpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
+                                            cpu[childBladeKey].Value = x.DeviceId;
+                                            cpu[this.PartGroupKey].Value = childBladeGroupKey;
+                                            cpu[this.ComputerKey].Value = model.DeviceId;
+                                            cpu[this.HuaweiServerKey].Value = model.DeviceId;
+                                            discoveryData.Add(cpu);
+                                        });
+
+                                #endregion
+
+                                #region Memory
+
+                                var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DeviceId);
+                                memoryGroup[childBladeKey].Value = x.DeviceId;
+                                memoryGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                discoveryData.Add(memoryGroup);
+                                x.MemoryList.ForEach(
+                                    y =>
+                                        {
+                                            var memory = this.CreateMemory(y);
+                                            memory[this.PartChildGroupKey].Value =
+                                                memoryGroup[this.PartChildGroupKey].Value;
+                                            memory[childBladeKey].Value = x.DeviceId;
+                                            memory[this.PartGroupKey].Value = childBladeGroupKey;
+                                            memory[this.ComputerKey].Value = model.DeviceId;
+                                            memory[this.HuaweiServerKey].Value = model.DeviceId;
+                                            discoveryData.Add(memory);
+                                        });
+
+                                #endregion
+
+                                #region Disk
+
+                                var diskGroup =
+                                    this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DeviceId);
+                                diskGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                diskGroup[childBladeKey].Value = x.DeviceId;
+                                discoveryData.Add(diskGroup);
+                                x.DiskList.ForEach(
+                                    y =>
+                                        {
+                                            var disk = this.CreateDisk(y);
+                                            disk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
+                                            disk[childBladeKey].Value = x.DeviceId;
+                                            disk[this.PartGroupKey].Value = childBladeGroupKey;
+                                            disk[this.ComputerKey].Value = model.DeviceId;
+                                            disk[this.HuaweiServerKey].Value = model.DeviceId;
+                                            discoveryData.Add(disk);
+                                        });
+
+                                #endregion
+
+                                #region Mezz
+
+                                var mezzGroup =
+                                    this.CreateLogicalChildGroup(this.MezzGroupClass, model.DeviceId, x.DeviceId);
+                                mezzGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                mezzGroup[childBladeKey].Value = x.DeviceId;
+                                discoveryData.Add(mezzGroup);
+                                x.MezzList.ForEach(
+                                    y =>
+                                        {
+                                            var mezz = this.CreateMezz(y);
+                                            mezz[this.PartChildGroupKey].Value = mezzGroup[this.PartChildGroupKey].Value;
+                                            mezz[childBladeKey].Value = x.DeviceId;
+                                            mezz[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                            mezz[this.ComputerKey].Value = model.DeviceId;
+                                            mezz[this.HuaweiServerKey].Value = model.DeviceId;
+                                            discoveryData.Add(mezz);
+                                        });
+
+                                #endregion
+
+                                #region Raid
+
+                                var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DeviceId);
+                                raidGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                raidGroup[childBladeKey].Value = x.DeviceId;
+                                discoveryData.Add(raidGroup);
+                                x.RaidList.ForEach(
+                                    y =>
+                                        {
+                                            var raid = this.CreateRaidControl(y);
+                                            raid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
+                                            raid[childBladeKey].Value = x.DeviceId;
+                                            raid[this.PartGroupKey].Value = childBladeGroupKey;
+                                            raid[this.ComputerKey].Value = model.DeviceId;
+                                            raid[this.HuaweiServerKey].Value = model.DeviceId;
+                                            discoveryData.Add(raid);
+                                        });
+
+                                #endregion
+                                #endregion
                             }
                             else
                             {
