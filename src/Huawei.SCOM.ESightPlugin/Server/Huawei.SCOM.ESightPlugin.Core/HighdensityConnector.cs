@@ -286,7 +286,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 var newBaseComputer = this.CreateComputer(model.DeviceId);
                 discoveryData.Add(newBaseComputer);
             }
-         
+
             #region HighdensityServer
 
             var highdensityServer = this.CreateHighdensityServer(model);
@@ -705,6 +705,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         x => model.ChildHighdensitys.All(y => y.DeviceId != x[this.ChildHighdensityClass.PropertyCollection["DN"]].Value.ToString()))
                     .ToList();
                 deleteChildBlade.ForEach(x => { discoveryData.Remove(x); });
+                if (deleteChildBlade.Count > 0)
+                {
+                    HWLogger.SERVICE.Debug($"new child boards:{string.Join(",", model.ChildHighdensitys.Select(x => x.DeviceId))}");
+                    HWLogger.SERVICE.Debug($"old child boards:{string.Join(",", relatedChildBladeObjects.Select(x => x[this.ChildHighdensityClass.PropertyCollection["DN"]].Value.ToString()))}");
+                    HWLogger.SERVICE.Debug($"remove child board:{deleteChildBlade.Count }");
+                }
                 model.ChildHighdensitys.ForEach(
                     x =>
                         {
@@ -874,7 +880,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             }
             var deviceId = parent[this.HuaweiServerKey].Value.ToString();
             var esight = parent[propertys["eSight"]].Value.ToString();
-            return deviceId.Replace(esight + "-",string.Empty);
+            return deviceId.Replace(esight + "-", string.Empty);
         }
 
         /// <summary>

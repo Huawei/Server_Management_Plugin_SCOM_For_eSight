@@ -871,6 +871,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         x => model.ChildBlades.All(y => y.DeviceId != x[this.ChildBladeClass.PropertyCollection["DN"]].Value.ToString()))
                     .ToList();
                 deleteChildBlade.ForEach(x => { discoveryData.Remove(x); });
+                if (deleteChildBlade.Count > 0)
+                {
+                    HWLogger.SERVICE.Debug($"new child blades:{string.Join(",", model.ChildBlades.Select(x => x.DeviceId))}");
+                    HWLogger.SERVICE.Debug($"old child blades:{string.Join(",", relatedChildBladeObjects.Select(x => x[this.ChildBladeClass.PropertyCollection["DN"]].Value.ToString()))}");
+                    HWLogger.SERVICE.Debug($"remove child blades:{deleteChildBlade.Count }");
+                }
                 model.ChildBlades.ForEach(
                     x =>
                         {
