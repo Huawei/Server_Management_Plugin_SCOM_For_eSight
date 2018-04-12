@@ -275,15 +275,18 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var discoveryData = new IncrementalDiscoveryData();
 
             var baseComputer = this.GetComputerByDeviceId(model.DeviceId);
-            if (baseComputer == null)
+            // 存在则更新
+            if (baseComputer != null)
+            {
+                this.UpdateMainWithOutChildBlade(model, true);
+                return;
+            }
+            else
             {
                 var newBaseComputer = this.CreateComputer(model.DeviceId);
                 discoveryData.Add(newBaseComputer);
             }
-            else
-            {
-                discoveryData.Add(baseComputer);
-            }
+         
             #region HighdensityServer
 
             var highdensityServer = this.CreateHighdensityServer(model);
@@ -605,10 +608,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Updates the main with out related.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        public void UpdateMainWithOutChildBlade(HighdensityServer model)
+        /// <param name="model">The model.</param>
+        /// <param name="isUpdateChildServer">if set to <c>true</c> [is update child server].</param>
+        /// <exception cref="System.Exception"></exception>
+        public void UpdateMainWithOutChildBlade(HighdensityServer model, bool isUpdateChildServer = false)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateHighdensity WithOut ChildBoard");
             var oldBlade = this.GetHighdensityServer(model.DeviceId);
@@ -688,6 +691,38 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     });
 
             #endregion
+
+            if (isUpdateChildServer)
+            {
+                #region ChildBlade
+
+                var childBladeGroup = oldBlade.GetRelatedMonitoringObjects(this.ChildHighdensityGroupClass).First();
+                discoveryData.Add(childBladeGroup);
+
+                var relatedChildBladeObjects = childBladeGroup.GetRelatedMonitoringObjects(this.ChildHighdensityClass);
+                var deleteChildBlade = relatedChildBladeObjects.Where(
+                        x => model.ChildHighdensitys.All(y => y.UUID != x[this.ChildHighdensityClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteChildBlade.ForEach(x => { discoveryData.Remove(x); });
+                model.ChildHighdensitys.ForEach(
+                    x =>
+                        {
+                            var oldChildServer = this.GetObject($"DN = '{model.DeviceId}'", this.ChildHighdensityClass);
+                            if (oldChildServer == null)
+                            {
+                                var newChildBlade = this.CreateChildHighdensity(x, model.ServerName);
+                                newChildBlade[this.PartGroupKey].Value = childBladeGroup[this.PartGroupKey].Value;
+                                newChildBlade[this.ComputerKey].Value = model.DeviceId;
+                                newChildBlade[this.HuaweiServerKey].Value = model.DeviceId;
+                                discoveryData.Add(newChildBlade);
+                            }
+                            else
+                            {
+                                this.UpdateChildBoard(x);
+                            }
+                        });
+                #endregion
+            }
 
             // var relatedObjects = oldBlade.GetRelatedMonitoringObjects(ChildHighdensityClass);
             // relatedObjects.ToList().ForEach(x => discoveryData.Add(x));

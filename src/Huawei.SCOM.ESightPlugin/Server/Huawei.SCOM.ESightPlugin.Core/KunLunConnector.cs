@@ -210,14 +210,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var discoveryData = new IncrementalDiscoveryData();
 
             var baseComputer = this.GetComputerByDeviceId(model.DeviceId);
-            if (baseComputer == null)
+            // 存在则更新
+            if (baseComputer != null)
             {
-                var newBaseComputer = this.CreateComputer(model.DeviceId);
-                discoveryData.Add(newBaseComputer);
+                this.UpdateKunLun(model);
+                return;
             }
             else
             {
-                discoveryData.Add(baseComputer);
+                var newBaseComputer = this.CreateComputer(model.DeviceId);
+                discoveryData.Add(newBaseComputer);
             }
 
             #region KunLunServer

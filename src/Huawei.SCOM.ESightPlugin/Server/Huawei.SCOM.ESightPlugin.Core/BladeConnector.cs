@@ -431,14 +431,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var discoveryData = new IncrementalDiscoveryData();
 
             var baseComputer = this.GetComputerByDeviceId(model.DeviceId);
-            if (baseComputer == null)
+            // 存在则更新
+            if (baseComputer != null)
             {
-                var newBaseComputer = this.CreateComputer(model.DeviceId);
-                discoveryData.Add(newBaseComputer);
+                this.UpdateMainWithOutChildBlade(model, true);
+                return;
             }
             else
             {
-                discoveryData.Add(baseComputer);
+                var newBaseComputer = this.CreateComputer(model.DeviceId);
+                discoveryData.Add(newBaseComputer);
             }
 
             #region BladeServer
@@ -729,10 +731,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Updates the main with out related.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        public void UpdateMainWithOutChildBlade(BladeServer model)
+        /// <param name="model">The model.</param>
+        /// <param name="isUpdateChildServer">if set to <c>true</c> [is update child server].</param>
+        /// <exception cref="System.Exception">e</exception>
+        public void UpdateMainWithOutChildBlade(BladeServer model, bool isUpdateChildServer = false)
         {
             HWLogger.NOTIFICATION_PROCESS.Debug($"Start UpdateMainWithOutChildBlade {model.DeviceId}");
             var oldBlade = this.GetBladeServer(model.DeviceId);
@@ -855,6 +857,38 @@ namespace Huawei.SCOM.ESightPlugin.Core
             discoveryData.Add(hmm);
 
             #endregion
+
+            if (isUpdateChildServer)
+            {
+                #region ChildBlade
+
+                var childBladeGroup = oldBlade.GetRelatedMonitoringObjects(this.ChildBladeGroupClass).First();
+                discoveryData.Add(childBladeGroup);
+
+                var relatedChildBladeObjects = childBladeGroup.GetRelatedMonitoringObjects(this.ChildBladeClass);
+                var deleteChildBlade = relatedChildBladeObjects.Where(
+                        x => model.ChildBlades.All(y => y.UUID != x[this.ChildBladeClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteChildBlade.ForEach(x => { discoveryData.Remove(x); });
+                model.ChildBlades.ForEach(
+                    x =>
+                        {
+                            var oldChildServer = this.GetObject($"DN = '{model.DeviceId}'", this.ChildBladeClass);
+                            if (oldChildServer == null)
+                            {
+                                var newChildBlade = this.CreateChildBlade(x, model.ServerName);
+                                newChildBlade[this.PartGroupKey].Value = childBladeGroup[this.PartGroupKey].Value;
+                                newChildBlade[this.ComputerKey].Value = model.DeviceId;
+                                newChildBlade[this.HuaweiServerKey].Value = model.DeviceId;
+                                discoveryData.Add(newChildBlade);
+                            }
+                            else
+                            {
+                                this.UpdateChildBlade(x);
+                            }
+                        });
+                #endregion
+            }
 
             // var relatedObjects = oldBlade.GetRelatedMonitoringObjects(ChildBladeClass);
             // relatedObjects.ToList().ForEach(x => discoveryData.Add(x));
