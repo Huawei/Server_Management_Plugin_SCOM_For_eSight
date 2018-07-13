@@ -45,10 +45,12 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         private List<HWRAID> raidList;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChildHighdensity"/> class.
+        /// Initializes a new instance of the <see cref="ChildHighdensity" /> class.
         /// </summary>
-        public ChildHighdensity()
+        /// <param name="eSight">The e sight.</param>
+        public ChildHighdensity(string eSight)
         {
+            this.ESight = eSight;
             this.CPUList = new List<HWCPU>();
             this.MemoryList = new List<HWMemory>();
             this.DiskList = new List<HWDisk>();
@@ -56,16 +58,15 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChildHighdensity"/> class.
+        /// Initializes a new instance of the <see cref="ChildHighdensity" /> class.
         /// </summary>
-        /// <param name="m">
-        /// The m.
-        /// </param>
-        public ChildHighdensity(Blade m)
+        /// <param name="m">The m.</param>
+        /// <param name="eSight">The e sight.</param>
+        public ChildHighdensity(Blade m, string eSight)
         {
+            this.DeviceId = $"{eSight}-{ m.DN}";
             this.DN = m.DN;
-            this.Name = m.Name;
-            this.IpAddress = m.IpAddress;
+            this.ESight = eSight;
             this.CPUList = new List<HWCPU>();
             this.MemoryList = new List<HWMemory>();
             this.DiskList = new List<HWDisk>();
@@ -105,10 +106,22 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         }
 
         /// <summary>
-        ///     服务器唯一标识，例如：
-        ///     "NE=xxx"
+        /// 服务器唯一标识，格式为eSightIp-Dn
+        /// "192.168.1.1-NE=xxx"
+        /// </summary>
+        public string DeviceId { get; set; }
+
+        /// <summary>
+        ///  服务器唯一标识，例如：
+        ///  "NE=xxx"
         /// </summary>
         public string DN { get; set; }
+
+        /// <summary>
+        /// Gets or sets the e sight.
+        /// </summary>
+        /// <value>The e sight.</value>
+        public string ESight { get; set; }
 
         /// <summary>
         ///     服务器IP地址
@@ -198,6 +211,10 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         /// </param>
         public void MakeChildBladeDetail(HWDeviceDetail detail)
         {
+            this.Name = detail.Name;
+            this.IpAddress = detail.IpAddress;
+            this.DN = detail.DN;
+            this.DeviceId = $"{this.ESight}-{ detail.DN}";
             this.CPUList = detail.CPUList;
             this.DiskList = detail.DiskList;
             this.MemoryList = detail.MemoryList;

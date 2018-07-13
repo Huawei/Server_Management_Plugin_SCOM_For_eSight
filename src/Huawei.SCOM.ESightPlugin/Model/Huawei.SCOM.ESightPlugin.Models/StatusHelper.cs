@@ -14,48 +14,39 @@ namespace Huawei.SCOM.ESightPlugin.Models
     /// </summary>
     public class StatusHelper
     {
-        /// <summary>
-        /// The convert mezz health status.
-        /// </summary>
-        /// <param name="status">
-        /// The status.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
-        public static string ConvertMezzHealthStatus(string status)
-        {
-            switch (status)
-            {
-                case "1": return "0";
-                case "-2":
-                case "5": return "-1";
-                default: return "-2";
-            }
-        }
 
         /// <summary>
-        /// The convert status.
+        /// 20180625 统一健康状态
+        /// Success  0
+        /// Warnning  2 / 3 / 5
+        /// Critical  4 / 6 / 7 / 8
+        /// 与上次状态等级保持一致  -1 / -2 / Others
         /// </summary>
-        /// <param name="status">
-        /// The status.
-        /// </param>
-        /// <returns>
-        /// The <see cref="string"/>.
-        /// </returns>
+        /// <param name="status">The status.</param>
+        /// <returns>The <see cref="string" />.</returns>
         public static string ConvertStatus(string status)
         {
             switch (status)
             {
-                case "0": return "0";
-                case "-1":
-                case "-2": return "-1";
-                default: return "-2";
+                case "0":
+                    return "0";
+                case "2":
+                case "3":
+                case "5":
+                    return "-1";
+                case "4":
+                case "6":
+                case "7":
+                case "8":
+                    return "-2";
+                default://其他返回-3 标识健康状态本次不做更新
+                    return "-3";
             }
         }
 
         /// <summary>
-        /// The get present state.
+        /// The get present state. 
+        /// CPU、Memory、Disk、电源、风扇、Board六种部件的在位状态,按照0展示为不在位、-2和2位未知其余为在位 ，未知显示为： Unkown 
         /// </summary>
         /// <param name="presentState">
         /// The present state.
@@ -69,15 +60,15 @@ namespace Huawei.SCOM.ESightPlugin.Models
             {
                 return "Present";
             }
-            if (presentState == "1")
-            {
-                return "Present";
-            }
             if (presentState == "0")
             {
                 return "Absent";
             }
-            return presentState;
+            if (presentState == "-2" || presentState == "2")
+            {
+                return "Unkown";
+            }
+            return "Present";
         }
     }
 }

@@ -14,6 +14,7 @@
 namespace Huawei.SCOM.ESightPlugin.Core
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
 
     using Huawei.SCOM.ESightPlugin.Core.Const;
@@ -359,144 +360,117 @@ namespace Huawei.SCOM.ESightPlugin.Core
         #region Public Methods
 
         /// <summary>
-        /// The insert event.
+        /// Synchronizes the server.
         /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertEvent(EventData eventData)
+        /// <param name="model">The model.</param>
+        public void SyncServer(BladeServer model)
         {
-            this.InsertEvent(this.BladeClass, eventData);
-        }
-
-        /// <summary>
-        /// The insert child blade event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertChildBladeEvent(EventData eventData)
-        {
-            this.InsertEvent(this.ChildBladeClass, eventData);
-        }
-
-        /// <summary>
-        /// Inserts the device change event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertDeviceChangeEvent(DeviceChangeEventData eventData)
-        {
-            this.InsertDeviceChangeEvent(this.BladeClass, eventData);
-        }
-
-        /// <summary>
-        /// Inserts the child device change event.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public void InsertChildDeviceChangeEvent(DeviceChangeEventData eventData)
-        {
-            this.InsertDeviceChangeEvent(this.ChildBladeClass, eventData);
+            // 存在则更新
+            if (ExsitsBladeServer(model.DeviceId))
+            {
+                this.UpdateBlade(model, true);
+            }
+            else
+            {
+                this.InsertDetials(model);
+            }
         }
 
         /// <summary>
         /// The insert detials.
         /// </summary>
         /// <param name="model">The model.</param>
-        public void InsertDetials(BladeServer model)
+        private void InsertDetials(BladeServer model)
         {
-            var discoveryData = new IncrementalDiscoveryData();
-
-            var baseComputer = this.GetComputerByDn(model.DN);
-            if (baseComputer == null)
+            try
             {
-                var newBaseComputer = this.CreateComputer(model.DN);
-                discoveryData.Add(newBaseComputer);
-            }
-            else
-            {
-                discoveryData.Add(baseComputer);
-            }
+                HWLogger.GetESightSdkLogger(model.ESight).Debug($"Insert Blade:{model.DN}");
+                var discoveryData = new IncrementalDiscoveryData();
 
-            #region BladeServer
+                #region BladeServer
 
-            var bladeServer = this.CreateBladeServer(model);
-            bladeServer[this.HuaweiServerKey].Value = model.DN;
+                var bladeServer = this.CreateBladeServer(model);
+                bladeServer[this.HuaweiServerKey].Value = model.DeviceId;
 
-            discoveryData.Add(bladeServer);
+                discoveryData.Add(bladeServer);
 
-            #endregion
+                #endregion
 
-            #region Fan
+                #region Fan
 
-            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DN);
-            discoveryData.Add(fanGroup);
-            model.FanList.ForEach(
-                x =>
+                var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DeviceId);
+                discoveryData.Add(fanGroup);
+                model.FanList.ForEach(
+                    x =>
                     {
                         var fan = this.CreateFan(x);
                         fan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
-                        fan[this.ComputerKey].Value = model.DN;
-                        fan[this.HuaweiServerKey].Value = model.DN;
+
+                        fan[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(fan);
                     });
 
-            #endregion
+                #endregion
 
-            #region PSU
+                #region PSU
 
-            var psuGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DN);
-            discoveryData.Add(psuGroup);
-            model.PowerSupplyList.ForEach(
-                x =>
+                var psuGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DeviceId);
+                discoveryData.Add(psuGroup);
+                model.PowerSupplyList.ForEach(
+                    x =>
                     {
                         var powerSupply = this.CreatePowerSupply(x);
                         powerSupply[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
-                        powerSupply[this.ComputerKey].Value = model.DN;
-                        powerSupply[this.HuaweiServerKey].Value = model.DN;
+
+                        powerSupply[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(powerSupply);
                     });
 
-            #endregion
+                #endregion
 
-            #region Switch
+                #region Switch
 
-            var switchGroup = this.CreateLogicalGroup(this.SwitchGroupClass, model.DN);
-            discoveryData.Add(switchGroup);
-            model.SwitchList.ForEach(
-                x =>
+                var switchGroup = this.CreateLogicalGroup(this.SwitchGroupClass, model.DeviceId);
+                discoveryData.Add(switchGroup);
+                model.SwitchList.ForEach(
+                    x =>
                     {
-                        var switchObject = this.CreateSwitch(x);
+                        var switchObject = this.CreateSwitch(x, model.ServerName);
                         switchObject[this.PartGroupKey].Value = switchGroup[this.PartGroupKey].Value;
-                        switchObject[this.ComputerKey].Value = model.DN;
-                        switchObject[this.HuaweiServerKey].Value = model.DN;
+
+                        switchObject[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(switchObject);
                     });
 
-            #endregion
+                #endregion
 
-            #region HMM
+                #region HMM
 
-            var hmmGroup = this.CreateLogicalGroup(this.HmmGroupClass, model.DN);
-            discoveryData.Add(hmmGroup);
+                var hmmGroup = this.CreateLogicalGroup(this.HmmGroupClass, model.DeviceId);
+                discoveryData.Add(hmmGroup);
 
-            var hmm = this.CreateHmm(model.HmmInfo);
-            hmm[this.PartGroupKey].Value = hmmGroup[this.PartGroupKey].Value;
-            hmm[this.ComputerKey].Value = model.DN;
-            hmm[this.HuaweiServerKey].Value = model.DN;
-            discoveryData.Add(hmm);
+                var hmm = this.CreateHmm(model.HmmInfo);
+                hmm[this.PartGroupKey].Value = hmmGroup[this.PartGroupKey].Value;
 
-            #endregion
+                hmm[this.HuaweiServerKey].Value = model.DeviceId;
+                discoveryData.Add(hmm);
 
-            #region Child Blade
+                #endregion
 
-            var childBladeGroup =
-                this.CreateLogicalGroup(this.ChildBladeGroupClass, model.DN);
-            var childBladeGroupKey = childBladeGroup[this.PartGroupKey].Value.ToString();
-            discoveryData.Add(childBladeGroup);
+                #region Child Blade
 
-            model.ChildBlades.ForEach(
-                x =>
+                var childBladeGroup =
+                    this.CreateLogicalGroup(this.ChildBladeGroupClass, model.DeviceId);
+                var childBladeGroupKey = childBladeGroup[this.PartGroupKey].Value.ToString();
+                discoveryData.Add(childBladeGroup);
+
+                model.ChildBlades.ForEach(
+                    x =>
                     {
-                        var childBlade = this.CreateChildBlade(x);
+                        var childBlade = this.CreateChildBlade(x, model.ServerName);
                         childBlade[this.PartGroupKey].Value = childBladeGroupKey;
-                        childBlade[this.ComputerKey].Value = model.DN;
-                        childBlade[this.HuaweiServerKey].Value = model.DN;
+
+                        childBlade[this.HuaweiServerKey].Value = model.DeviceId;
                         discoveryData.Add(childBlade);
 
                         var childBladeKey = this.ChildBladeClass.PropertyCollection["DN"];
@@ -504,155 +478,893 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         #region CPU
 
                         var cpuGroup =
-                            this.CreateLogicalChildGroup(this.CpuGroupClass, model.DN, x.DN);
+                            this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DeviceId);
 
-                        cpuGroup[childBladeKey].Value = x.DN;
+                        cpuGroup[childBladeKey].Value = x.DeviceId;
                         cpuGroup[this.PartGroupKey].Value = childBladeGroupKey;
                         discoveryData.Add(cpuGroup);
 
                         x.CPUList.ForEach(
                             y =>
-                                {
-                                    var cpu = this.CreateCpu(y);
-                                    cpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
-                                    cpu[childBladeKey].Value = x.DN;
-                                    cpu[this.PartGroupKey].Value = childBladeGroupKey;
-                                    cpu[this.ComputerKey].Value = model.DN;
-                                    cpu[this.HuaweiServerKey].Value = model.DN;
-                                    discoveryData.Add(cpu);
-                                });
+                            {
+                                var cpu = this.CreateCpu(y);
+                                cpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
+                                cpu[childBladeKey].Value = x.DeviceId;
+                                cpu[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                cpu[this.HuaweiServerKey].Value = model.DeviceId;
+                                discoveryData.Add(cpu);
+                            });
 
                         #endregion
 
                         #region Memory
 
-                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DN, x.DN);
-                        memoryGroup[childBladeKey].Value = x.DN;
+                        var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DeviceId);
+                        memoryGroup[childBladeKey].Value = x.DeviceId;
                         memoryGroup[this.PartGroupKey].Value = childBladeGroupKey;
                         discoveryData.Add(memoryGroup);
                         x.MemoryList.ForEach(
                             y =>
-                                {
-                                    var memory = this.CreateMemory(y);
-                                    memory[this.PartChildGroupKey].Value =
-                                        memoryGroup[this.PartChildGroupKey].Value;
-                                    memory[childBladeKey].Value = x.DN;
-                                    memory[this.PartGroupKey].Value = childBladeGroupKey;
-                                    memory[this.ComputerKey].Value = model.DN;
-                                    memory[this.HuaweiServerKey].Value = model.DN;
-                                    discoveryData.Add(memory);
-                                });
+                            {
+                                var memory = this.CreateMemory(y);
+                                memory[this.PartChildGroupKey].Value =
+                                    memoryGroup[this.PartChildGroupKey].Value;
+                                memory[childBladeKey].Value = x.DeviceId;
+                                memory[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                memory[this.HuaweiServerKey].Value = model.DeviceId;
+                                discoveryData.Add(memory);
+                            });
 
                         #endregion
 
                         #region Disk
 
                         var diskGroup =
-                            this.CreateLogicalChildGroup(this.DiskGroupClass, model.DN, x.DN);
+                            this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DeviceId);
                         diskGroup[this.PartGroupKey].Value = childBladeGroupKey;
-                        diskGroup[childBladeKey].Value = x.DN;
+                        diskGroup[childBladeKey].Value = x.DeviceId;
                         discoveryData.Add(diskGroup);
                         x.DiskList.ForEach(
                             y =>
-                                {
-                                    var disk = this.CreateDisk(y);
-                                    disk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
-                                    disk[childBladeKey].Value = x.DN;
-                                    disk[this.PartGroupKey].Value = childBladeGroupKey;
-                                    disk[this.ComputerKey].Value = model.DN;
-                                    disk[this.HuaweiServerKey].Value = model.DN;
-                                    discoveryData.Add(disk);
-                                });
+                            {
+                                var disk = this.CreateDisk(y);
+                                disk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
+                                disk[childBladeKey].Value = x.DeviceId;
+                                disk[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                disk[this.HuaweiServerKey].Value = model.DeviceId;
+                                discoveryData.Add(disk);
+                            });
 
                         #endregion
 
                         #region Mezz
 
                         var mezzGroup =
-                            this.CreateLogicalChildGroup(this.MezzGroupClass, model.DN, x.DN);
+                            this.CreateLogicalChildGroup(this.MezzGroupClass, model.DeviceId, x.DeviceId);
                         mezzGroup[this.PartGroupKey].Value = childBladeGroupKey;
-                        mezzGroup[childBladeKey].Value = x.DN;
+                        mezzGroup[childBladeKey].Value = x.DeviceId;
                         discoveryData.Add(mezzGroup);
                         x.MezzList.ForEach(
                             y =>
-                                {
-                                    var mezz = this.CreateMezz(y);
-                                    mezz[this.PartChildGroupKey].Value = mezzGroup[this.PartChildGroupKey].Value;
-                                    mezz[childBladeKey].Value = x.DN;
-                                    mezz[this.PartGroupKey].Value = childBladeGroupKey;
+                            {
+                                var mezz = this.CreateMezz(y);
+                                mezz[this.PartChildGroupKey].Value = mezzGroup[this.PartChildGroupKey].Value;
+                                mezz[childBladeKey].Value = x.DeviceId;
+                                mezz[this.PartGroupKey].Value = childBladeGroupKey;
 
-                                    mezz[this.ComputerKey].Value = model.DN;
-                                    mezz[this.HuaweiServerKey].Value = model.DN;
-                                    discoveryData.Add(mezz);
-                                });
+
+                                mezz[this.HuaweiServerKey].Value = model.DeviceId;
+                                discoveryData.Add(mezz);
+                            });
 
                         #endregion
 
                         #region Raid
 
-                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DN, x.DN);
+                        var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DeviceId);
                         raidGroup[this.PartGroupKey].Value = childBladeGroupKey;
-                        raidGroup[childBladeKey].Value = x.DN;
+                        raidGroup[childBladeKey].Value = x.DeviceId;
                         discoveryData.Add(raidGroup);
                         x.RaidList.ForEach(
                             y =>
-                                {
-                                    var raid = this.CreateRaidControl(y);
-                                    raid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
-                                    raid[childBladeKey].Value = x.DN;
-                                    raid[this.PartGroupKey].Value = childBladeGroupKey;
-                                    raid[this.ComputerKey].Value = model.DN;
-                                    raid[this.HuaweiServerKey].Value = model.DN;
-                                    discoveryData.Add(raid);
-                                });
+                            {
+                                var raid = this.CreateRaidControl(y);
+                                raid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
+                                raid[childBladeKey].Value = x.DeviceId;
+                                raid[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                raid[this.HuaweiServerKey].Value = model.DeviceId;
+                                discoveryData.Add(raid);
+                            });
 
                         #endregion
                     });
 
-            #endregion
+                #endregion
 
-            if (!this.ExsitsBladeServer(model.DN))
-            {
                 discoveryData.Commit(this.MontioringConnector);
             }
-            else
+            catch (Exception e)
             {
+                HWLogger.GetESightSdkLogger(model.ESight).Error($"Insert Blade Error:{model.DN}", e);
+            }
+        }
+
+        /// <summary>
+        /// Updates the main with out related.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="isPolling">是否是轮询</param>
+        /// <exception cref="System.Exception">e</exception>
+        public void UpdateBlade(BladeServer model, bool isPolling)
+        {
+            try
+            {
+                HWLogger.GetESightSdkLogger(model.ESight).Debug($"Start UpdateBlade.[{model.DN}] [isPolling:{isPolling}]");
+                var oldBlade = this.GetBladeServer(model.DeviceId);
+                if (oldBlade == null)
+                {
+                    throw new Exception($"Can not find the server:{model.DN}");
+                }
+
+                var propertys = this.BladeClass.PropertyCollection; // 获取到class的属性
+                var discoveryData = new IncrementalDiscoveryData();
+
+                oldBlade[propertys["eSight"]].Value = model.ESight;
+                if (model.Status != "-3")
+                {
+                    oldBlade[propertys["Status"]].Value = model.Status;
+                }
+                oldBlade[propertys["IPAddress"]].Value = model.IpAddress;
+                oldBlade[propertys["Location"]].Value = model.Location;
+
+                if (isPolling)
+                {
+                    oldBlade[propertys["Manufacturer"]].Value = model.Manufacturer;
+                }
+
+                // oldBlade[propertys["Vendor"]].Value = "HUAWEI";
+                oldBlade[propertys["SystemPowerState"]].Value = string.Empty;
+                oldBlade[propertys["ServerModel"]].Value = model.ServerModel;
+                oldBlade[this.DisplayNameField].Value = model.ServerName;
+                discoveryData.Add(oldBlade);
+                #region Fan
+
+                var fanGroup = oldBlade.GetRelatedMonitoringObjects(this.FanGroupClass).First();
+                discoveryData.Add(fanGroup);
+
+                var relatedFanObjects = fanGroup.GetRelatedMonitoringObjects(this.FanClass);
+                var deleteFan = relatedFanObjects.Where(
+                        x => model.FanList.All(y => y.UUID != x[this.FanClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteFan.ForEach(x => { discoveryData.Remove(x); });
+                model.FanList.ForEach(
+                    x =>
+                    {
+                        var oldFan = relatedFanObjects.FirstOrDefault(y => y[this.FanClass.PropertyCollection["UUID"]].Value.ToString() == x.UUID);
+                        if (oldFan == null)
+                        {
+                            var newFan = this.CreateFan(x);
+                            newFan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
+                            newFan[this.HuaweiServerKey].Value = model.DeviceId;
+                            discoveryData.Add(newFan);
+                        }
+                        else
+                        {
+                            this.UpdateFan(x, oldFan);
+                            discoveryData.Add(oldFan);
+                        }
+                    });
+
+                #endregion
+
+                #region Switch
+
+                var switchGroup = oldBlade.GetRelatedMonitoringObjects(this.SwitchGroupClass).First();
+                discoveryData.Add(switchGroup);
+
+                var relatedSwitchObjects = switchGroup.GetRelatedMonitoringObjects(this.SwitchClass);
+                var deleteSwitch = relatedSwitchObjects.Where(
+                    x => model.SwitchList.All(
+                        y => y.UUID != x[this.SwitchClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
+                deleteSwitch.ForEach(x => { discoveryData.Remove(x); });
+                model.SwitchList.ForEach(
+                    x =>
+                    {
+                        var oldSwitch = relatedSwitchObjects.FirstOrDefault(y => y[this.SwitchClass.PropertyCollection["UUID"]].Value.ToString() == x.UUID);
+                        if (oldSwitch == null)
+                        {
+                            var newSwitch = this.CreateSwitch(x, model.ServerName);
+                            newSwitch[this.PartGroupKey].Value = switchGroup[this.PartGroupKey].Value;
+                            newSwitch[this.HuaweiServerKey].Value = model.DeviceId;
+                            discoveryData.Add(newSwitch);
+                        }
+                        else
+                        {
+                            this.UpdateSwitch(x, oldSwitch, model.ServerName);
+                            discoveryData.Add(oldSwitch);
+                        }
+                    });
+
+                #endregion
+
+                #region PSU
+
+                var psuGroup = oldBlade.GetRelatedMonitoringObjects(this.PowerSupplyGroupClass).First();
+                discoveryData.Add(psuGroup);
+
+                var relatedPsuObjects = psuGroup.GetRelatedMonitoringObjects(this.PowerSupplyClass);
+                var deletePsu = relatedPsuObjects.Where(
+                    x => model.PowerSupplyList.All(
+                        y => y.UUID != x[this.PowerSupplyClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
+                deletePsu.ForEach(x => { discoveryData.Remove(x); });
+
+                model.PowerSupplyList.ForEach(
+                    x =>
+                    {
+                        var oldPsu = relatedPsuObjects.FirstOrDefault(y => y[this.PowerSupplyClass.PropertyCollection["UUID"]].Value.ToString() == x.UUID);
+                        if (oldPsu == null)
+                        {
+                            var newpsu = this.CreatePowerSupply(x);
+                            newpsu[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
+                            newpsu[this.HuaweiServerKey].Value = model.DeviceId;
+                            discoveryData.Add(newpsu);
+                        }
+                        else
+                        {
+                            this.UpdatePowerSupply(x, oldPsu);
+                            discoveryData.Add(oldPsu);
+                        }
+                    });
+
+                #endregion
+
+                #region Hmm
+
+                var hmmGroup = oldBlade.GetRelatedMonitoringObjects(this.HmmGroupClass).First();
+                discoveryData.Add(hmmGroup);
+
+                var relatedHmmObjects = hmmGroup.GetRelatedMonitoringObjects(this.HmmClass);
+                //Hmm板只会有一个
+                var oldHmm = relatedHmmObjects.FirstOrDefault();
+                if (oldHmm != null)
+                {
+                    this.UpdateHmm(model.HmmInfo, oldHmm);
+                    discoveryData.Add(oldHmm);
+                }
+
+                #endregion
+
+                if (isPolling)
+                {
+                    #region ChildBlade
+
+                    var childBladeGroup = oldBlade.GetRelatedMonitoringObjects(this.ChildBladeGroupClass).First();
+                    var childBladeGroupKey = childBladeGroup[this.PartGroupKey].Value.ToString();
+                    discoveryData.Add(childBladeGroup);
+
+                    var relatedChildBladeObjects = childBladeGroup.GetRelatedMonitoringObjects(this.ChildBladeClass);
+                    var deleteChildBlade = relatedChildBladeObjects.Where(
+                            x => model.ChildBlades.All(y => y.DeviceId != x[this.ChildBladeClass.PropertyCollection["DN"]].Value.ToString()))
+                        .ToList();
+                    deleteChildBlade.ForEach(x => { discoveryData.Remove(x); });
+                    if (deleteChildBlade.Count > 0)
+                    {
+                        HWLogger.GetESightSdkLogger(model.ESight).Debug($"new child blades:{string.Join(",", model.ChildBlades.Select(x => x.DeviceId))}");
+                        HWLogger.GetESightSdkLogger(model.ESight).Debug($"old child blades:{string.Join(",", relatedChildBladeObjects.Select(x => x[this.ChildBladeClass.PropertyCollection["DN"]].Value.ToString()))}");
+                        HWLogger.GetESightSdkLogger(model.ESight).Debug($"remove child blades:{deleteChildBlade.Count }");
+                    }
+                    model.ChildBlades.ForEach(
+                        x =>
+                        {
+                            var oldChildServer = relatedChildBladeObjects.FirstOrDefault(y => y[this.ChildBladeClass.PropertyCollection["DN"]].Value.ToString() == x.DeviceId);
+                            if (oldChildServer == null)
+                            {
+                                #region MyRegion
+
+                                var newChildBlade = this.CreateChildBlade(x, model.ServerName);
+                                newChildBlade[this.PartGroupKey].Value = childBladeGroupKey;
+                                newChildBlade[this.HuaweiServerKey].Value = model.DeviceId;
+                                discoveryData.Add(newChildBlade);
+                                var childBladeKey = this.ChildBladeClass.PropertyCollection["DN"];
+
+                                #region CPU
+
+                                var cpuGroup =
+                                        this.CreateLogicalChildGroup(this.CpuGroupClass, model.DeviceId, x.DeviceId);
+
+                                cpuGroup[childBladeKey].Value = x.DeviceId;
+                                cpuGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                discoveryData.Add(cpuGroup);
+
+                                x.CPUList.ForEach(
+                                    y =>
+                                    {
+                                        var cpu = this.CreateCpu(y);
+                                        cpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
+                                        cpu[childBladeKey].Value = x.DeviceId;
+                                        cpu[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                        cpu[this.HuaweiServerKey].Value = model.DeviceId;
+                                        discoveryData.Add(cpu);
+                                    });
+
+                                #endregion
+
+                                #region Memory
+
+                                var memoryGroup = this.CreateLogicalChildGroup(this.MemoryGroupClass, model.DeviceId, x.DeviceId);
+                                memoryGroup[childBladeKey].Value = x.DeviceId;
+                                memoryGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                discoveryData.Add(memoryGroup);
+                                x.MemoryList.ForEach(
+                                    y =>
+                                    {
+                                        var memory = this.CreateMemory(y);
+                                        memory[this.PartChildGroupKey].Value =
+                                                memoryGroup[this.PartChildGroupKey].Value;
+                                        memory[childBladeKey].Value = x.DeviceId;
+                                        memory[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                        memory[this.HuaweiServerKey].Value = model.DeviceId;
+                                        discoveryData.Add(memory);
+                                    });
+
+                                #endregion
+
+                                #region Disk
+
+                                var diskGroup =
+                                        this.CreateLogicalChildGroup(this.DiskGroupClass, model.DeviceId, x.DeviceId);
+                                diskGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                diskGroup[childBladeKey].Value = x.DeviceId;
+                                discoveryData.Add(diskGroup);
+                                x.DiskList.ForEach(
+                                    y =>
+                                    {
+                                        var disk = this.CreateDisk(y);
+                                        disk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
+                                        disk[childBladeKey].Value = x.DeviceId;
+                                        disk[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                        disk[this.HuaweiServerKey].Value = model.DeviceId;
+                                        discoveryData.Add(disk);
+                                    });
+
+                                #endregion
+
+                                #region Mezz
+
+                                var mezzGroup =
+                                        this.CreateLogicalChildGroup(this.MezzGroupClass, model.DeviceId, x.DeviceId);
+                                mezzGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                mezzGroup[childBladeKey].Value = x.DeviceId;
+                                discoveryData.Add(mezzGroup);
+                                x.MezzList.ForEach(
+                                    y =>
+                                    {
+                                        var mezz = this.CreateMezz(y);
+                                        mezz[this.PartChildGroupKey].Value = mezzGroup[this.PartChildGroupKey].Value;
+                                        mezz[childBladeKey].Value = x.DeviceId;
+                                        mezz[this.PartGroupKey].Value = childBladeGroupKey;
+
+
+                                        mezz[this.HuaweiServerKey].Value = model.DeviceId;
+                                        discoveryData.Add(mezz);
+                                    });
+
+                                #endregion
+
+                                #region Raid
+
+                                var raidGroup = this.CreateLogicalChildGroup(this.RaidGroupClass, model.DeviceId, x.DeviceId);
+                                raidGroup[this.PartGroupKey].Value = childBladeGroupKey;
+                                raidGroup[childBladeKey].Value = x.DeviceId;
+                                discoveryData.Add(raidGroup);
+                                x.RaidList.ForEach(
+                                    y =>
+                                    {
+                                        var raid = this.CreateRaidControl(y);
+                                        raid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
+                                        raid[childBladeKey].Value = x.DeviceId;
+                                        raid[this.PartGroupKey].Value = childBladeGroupKey;
+
+                                        raid[this.HuaweiServerKey].Value = model.DeviceId;
+                                        discoveryData.Add(raid);
+                                    });
+
+                                #endregion
+                                #endregion
+                            }
+                            else
+                            {
+                                this.UpdateChildBlade(x, true);
+                            }
+                        });
+                    #endregion
+                }
+
+                // var relatedObjects = oldBlade.GetRelatedMonitoringObjects(ChildBladeClass);
+                // relatedObjects.ToList().ForEach(x => discoveryData.Add(x));
                 discoveryData.Overwrite(this.MontioringConnector);
             }
+            catch (Exception e)
+            {
+                HWLogger.GetESightSdkLogger(model.ESight).Error($"Update Blade Error.[{model.DN}] [isPolling:{isPolling}]", e);
+            }
+        }
+
+        /// <summary>
+        /// Updates the child blade.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="isPolling">if set to <c>true</c> [is polling].</param>
+        /// <exception cref="System.Exception"></exception>
+        public void UpdateChildBlade(ChildBlade model, bool isPolling)
+        {
+            try
+            {
+                HWLogger.GetESightSdkLogger(model.ESight).Debug($"Start Update ChildBlade. [{model.DN}] [isPolling:{isPolling}]");
+                var oldObject = this.GetObject($"DN = '{model.DeviceId}'", this.ChildBladeClass);
+                if (oldObject == null)
+                {
+                    throw new Exception($"Can not find the child blade server:{model.DN}");
+                }
+
+                var propertys = this.ChildBladeClass.PropertyCollection; // 获取到class的属性
+                var discoveryData = new IncrementalDiscoveryData();
+
+                var childServerKey = this.ChildBladeClass.PropertyCollection["DN"];
+
+                oldObject[propertys["UUID"]].Value = model.UUID;
+                oldObject[propertys["eSight"]].Value = model.ESight;
+
+                if (model.Status != "-3")
+                {
+                    oldObject[propertys["Status"]].Value = model.Status;
+                }
+                oldObject[propertys["PresentState"]].Value = "Present";
+                oldObject[propertys["BmcIP"]].Value = model.IpAddress;
+                oldObject[propertys["BmcMask"]].Value = string.Empty;
+                oldObject[propertys["ProductName"]].Value = model.Mode;
+                oldObject[propertys["BladeVersion"]].Value = string.Empty;
+                oldObject[propertys["BoardSerialNumber"]].Value = string.Empty;
+                oldObject[propertys["BoardManufacturerDate"]].Value = string.Empty;
+                oldObject[propertys["ProductDescription"]].Value = string.Empty;
+                oldObject[propertys["ProductSerialNumber"]].Value = string.Empty;
+                oldObject[propertys["SystemCPUUsage"]].Value = string.Empty;
+                var parent = this.GetParentServer(oldObject);
+                if (parent != null)
+                {
+                    oldObject[this.DisplayNameField].Value = $"{parent.DisplayName}-{model.Name}";
+                }
+                discoveryData.Add(oldObject);
+
+                #region CPU
+
+                var cpuGroup = oldObject.GetRelatedMonitoringObjects(this.CpuGroupClass).First();
+                discoveryData.Add(cpuGroup);
+
+                var relatedCpuObjects = cpuGroup.GetRelatedMonitoringObjects(this.CpuClass);
+                var deleteCpu = relatedCpuObjects.Where(
+                        x => model.CPUList.All(y => y.UUID != x[this.CpuClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteCpu.ForEach(x => { discoveryData.Remove(x); });
+                model.CPUList.ForEach(
+                    y =>
+                    {
+                        var oldCpu = relatedCpuObjects.FirstOrDefault(z => z[this.CpuClass.PropertyCollection["UUID"]].Value.ToString() == y.UUID);
+                        if (oldCpu == null)
+                        {
+                            var newCpu = this.CreateCpu(y);
+                            newCpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
+                            newCpu[childServerKey].Value = model.DeviceId;
+                            newCpu[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
+                            newCpu[this.HuaweiServerKey].Value = oldObject[this.HuaweiServerKey].Value;
+                            discoveryData.Add(newCpu);
+                        }
+                        else
+                        {
+                            this.UpdateCpu(y, oldCpu);
+                            discoveryData.Add(oldCpu);
+                        }
+                    });
+
+                #endregion
+
+                #region Memory
+
+                var memoryGroup = oldObject.GetRelatedMonitoringObjects(this.MemoryGroupClass).First();
+                discoveryData.Add(memoryGroup);
+
+                var relatedMemoryObjects = memoryGroup.GetRelatedMonitoringObjects(this.MemoryClass);
+                var deleteMemory = relatedMemoryObjects.Where(
+                    x => model.MemoryList.All(
+                        y => y.UUID != x[this.MemoryClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
+                deleteMemory.ForEach(x => { discoveryData.Remove(x); });
+                model.MemoryList.ForEach(
+                    y =>
+                    {
+                        var oldMemory = relatedMemoryObjects.FirstOrDefault(z => z[this.MemoryClass.PropertyCollection["UUID"]].Value.ToString() == y.UUID);
+                        if (oldMemory == null)
+                        {
+                            var newMemory = this.CreateMemory(y);
+                            newMemory[this.PartChildGroupKey].Value = memoryGroup[this.PartChildGroupKey].Value;
+                            newMemory[childServerKey].Value = model.DeviceId;
+                            newMemory[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
+                            newMemory[this.HuaweiServerKey].Value = oldObject[this.HuaweiServerKey].Value;
+                            discoveryData.Add(newMemory);
+                        }
+                        else
+                        {
+                            this.UpdateMemory(y, oldMemory);
+                            discoveryData.Add(oldMemory);
+                        }
+                    });
+
+                #endregion
+
+                #region Disk
+
+                var diskGroup = oldObject.GetRelatedMonitoringObjects(this.DiskGroupClass).First();
+                discoveryData.Add(diskGroup);
+
+                var relatedDiskObjects = diskGroup.GetRelatedMonitoringObjects(this.DiskClass);
+                var deleteDisk = relatedDiskObjects.Where(
+                        x => model.DiskList.All(
+                            y => y.UUID != x[this.DiskClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteDisk.ForEach(x => { discoveryData.Remove(x); });
+                model.DiskList.ForEach(
+                    y =>
+                    {
+                        var oldDisk = relatedDiskObjects.FirstOrDefault(z => z[this.DiskClass.PropertyCollection["UUID"]].Value.ToString() == y.UUID);
+                        if (oldDisk == null)
+                        {
+                            var newDisk = this.CreateDisk(y);
+                            newDisk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
+                            newDisk[childServerKey].Value = model.DeviceId;
+                            newDisk[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
+                            newDisk[this.HuaweiServerKey].Value = oldObject[this.HuaweiServerKey].Value;
+                            discoveryData.Add(newDisk);
+                        }
+                        else
+                        {
+                            this.UpdateDisk(y, oldDisk);
+                            discoveryData.Add(oldDisk);
+                        }
+                    });
+
+                #endregion
+
+                #region Mezz
+
+                var mezzGroup = oldObject.GetRelatedMonitoringObjects(this.MezzGroupClass).First();
+                discoveryData.Add(mezzGroup);
+
+                var relatedMezzObjects = mezzGroup.GetRelatedMonitoringObjects(this.MezzClass);
+                var deleteMezz = relatedMezzObjects.Where(
+                        x => model.MezzList.All(
+                            y => y.UUID != x[this.MezzClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteMezz.ForEach(x => { discoveryData.Remove(x); });
+                model.MezzList.ForEach(
+                    y =>
+                    {
+                        var oldMezz = relatedMezzObjects.FirstOrDefault(z => z[this.MezzClass.PropertyCollection["UUID"]].Value.ToString() == y.UUID);
+                        if (oldMezz == null)
+                        {
+                            var newMezz = this.CreateMezz(y);
+                            newMezz[this.PartChildGroupKey].Value = mezzGroup[this.PartChildGroupKey].Value;
+                            newMezz[childServerKey].Value = model.DeviceId;
+                            newMezz[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
+                            newMezz[this.HuaweiServerKey].Value = oldObject[this.HuaweiServerKey].Value;
+                            discoveryData.Add(newMezz);
+                        }
+                        else
+                        {
+                            this.UpdateMezz(y, oldMezz);
+                            discoveryData.Add(oldMezz);
+                        }
+                    });
+
+                #endregion
+
+                #region Raid
+
+                var raidGroup = oldObject.GetRelatedMonitoringObjects(this.RaidGroupClass).First();
+                discoveryData.Add(raidGroup);
+
+                var relatedRaidObjects = oldObject.GetRelatedMonitoringObjects(this.RaidClass);
+                var deleteRaid = relatedRaidObjects.Where(
+                        x => model.RaidList.All(
+                            y => y.UUID != x[this.RaidClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteRaid.ForEach(x => { discoveryData.Remove(x); });
+                model.RaidList.ForEach(
+                    y =>
+                    {
+                        var oldRaid = relatedRaidObjects.FirstOrDefault(z => z[this.RaidClass.PropertyCollection["UUID"]].Value.ToString() == y.UUID);
+                        if (oldRaid == null)
+                        {
+                            var newRaid = this.CreateRaidControl(y);
+                            newRaid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
+                            newRaid[childServerKey].Value = model.DeviceId;
+                            newRaid[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
+                            newRaid[this.HuaweiServerKey].Value = oldObject[this.HuaweiServerKey].Value;
+                            discoveryData.Add(newRaid);
+                        }
+                        else
+                        {
+                            this.UpdateRaidControl(y, oldRaid);
+                            discoveryData.Add(oldRaid);
+                        }
+                    });
+
+                #endregion
+
+                discoveryData.Overwrite(this.MontioringConnector);
+            }
+            catch (Exception e)
+            {
+                HWLogger.GetESightSdkLogger(model.ESight).Error($"Update ChildBlade Error.[{model.DN}] [isPolling:{isPolling}]", e);
+            }
+        }
+
+        /// <summary>
+        /// 只更新Swith板
+        /// 暂无用
+        /// </summary>
+        /// <param name="model">The model.</param>
+        public void UpdateSwitchBoard(HWBoard model)
+        {
+            //HWLogger.GetESightSdkLogger(model.ESight).Debug("Start UpdateSwitch");
+            var oldObject = this.GetObject($"DN = '{model.DN}'", this.SwitchClass);
+            if (oldObject == null)
+            {
+                throw new Exception($"Can not find the Switch board:{model.DN}");
+            }
+
+            var propertys = this.ChildBladeClass.PropertyCollection; // 获取到class的属性
+            var discoveryData = new IncrementalDiscoveryData();
+
+            oldObject[propertys["DN"]].Value = model.DN;
+            oldObject[propertys["ParentDN"]].Value = model.ParentDN;
+            oldObject[propertys["IpAddress"]].Value = model.IpAddress;
+            oldObject[propertys["BoardType"]].Value = model.BoardType;
+            oldObject[propertys["SerialNumber"]].Value = model.SN;
+            oldObject[propertys["PartNumber"]].Value = model.PartNumber;
+            oldObject[propertys["Manufacturer"]].Value = model.Manufacturer;
+            oldObject[propertys["ManufacturerDate"]].Value = model.ManuTime;
+            oldObject[propertys["PresentState"]].Value = model.PresentState;
+            oldObject[propertys["AssertTag"]].Value = model.AssertTag;
+            oldObject[propertys["MoId"]].Value = model.MoId;
+            oldObject[propertys["UUID"]].Value = model.UUID;
+            if (model.HealthState != "-3") { oldObject[propertys["Status"]].Value = model.HealthState; }
+
+            var parent = this.GetParentServer(oldObject);
+            if (parent != null)
+            {
+                oldObject[this.DisplayNameField].Value = $"{parent.DisplayName}-{model.Name}";
+            }
+            discoveryData.Add(oldObject);
+
+            discoveryData.Overwrite(this.MontioringConnector);
+            //HWLogger.GetESightSdkLogger(model.ESight).Debug("End UpdateSwitch");
         }
 
         /// <summary>
         /// The get blade server.
         /// </summary>
-        /// <param name="dn">The dn.</param>
+        /// <param name="deviceId">The device identifier.</param>
         /// <returns>The <see cref="MonitoringObject" />.</returns>
-        public MonitoringObject GetBladeServer(string dn)
+        public MonitoringObject GetBladeServer(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}'", this.BladeClass);
+            return this.GetObject($"DN = '{deviceId}'", this.BladeClass);
         }
 
         /// <summary>
         /// The get child blade server.
         /// </summary>
-        /// <param name="dn">The dn.</param>
+        /// <param name="deviceId">The device identifier.</param>
         /// <returns>The <see cref="MonitoringObject" />.</returns>
-        public MonitoringObject GetChildBladeServer(string dn)
+        public MonitoringObject GetChildBladeServer(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}'", this.ChildBladeClass);
+            return this.GetObject($"DN = '{deviceId}'", this.ChildBladeClass);
         }
 
         /// <summary>
+        /// Gets the switch board.
+        /// </summary>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>Microsoft.EnterpriseManagement.Monitoring.MonitoringObject.</returns>
+        public MonitoringObject GetSwitchBoard(string deviceId)
+        {
+            return this.GetObject($"DN = '{deviceId}'", this.SwitchClass);
+        }
+
+        /// <summary>
+        /// Gets the parent dn.
+        /// </summary>
+        /// <param name="childDeviceId">The child device identifier.</param>
+        /// <returns>System.String.</returns>
+        /// <exception cref="System.Exception">
+        /// </exception>
+        public string GetParentDn(string childDeviceId)
+        {
+            var oldObject = this.GetObject($"DN = '{childDeviceId}'", this.ChildBladeClass);
+            if (oldObject == null)
+            {
+                throw new Exception($"Can not find the child blade server:{childDeviceId}");
+            }
+            var propertys = this.BladeClass.PropertyCollection; // 获取到class的属性
+
+            var parent = this.GetFullParentServer(oldObject);
+            if (parent == null)
+            {
+                throw new Exception($"Can not find the parent.The childServerDeviceId:{childDeviceId}");
+            }
+            var deviceId = parent[this.HuaweiServerKey].Value.ToString();
+            var esight = parent[propertys["eSight"]].Value.ToString();
+            return deviceId.Replace(esight + "-", string.Empty);
+        }
+
+        /// <summary>
+        /// Gets the switch parent dn.
+        /// </summary>
+        /// <param name="childDeviceId">The child device identifier.</param>
+        /// <returns>System.String.</returns>
+        /// <exception cref="System.Exception">
+        /// </exception>
+        public string GetSwitchParentDn(string childDeviceId)
+        {
+            var oldObject = this.GetObject($"DN = '{childDeviceId}'", this.SwitchClass);
+            if (oldObject == null)
+            {
+                throw new Exception($"Can not find the child blade server:{childDeviceId}");
+            }
+            var propertys = this.BladeClass.PropertyCollection; // 获取到class的属性
+
+            var parent = this.GetFullParentServer(oldObject);
+            if (parent == null)
+            {
+                throw new Exception($"Can not find the parent.the childServerDeviceId:{childDeviceId}");
+            }
+            var deviceId = parent[this.HuaweiServerKey].Value.ToString();
+            var esight = parent[propertys["eSight"]].Value.ToString();
+            return deviceId.Replace(esight + "-", string.Empty);
+        }
+
+        /// <summary>
+        /// The exsits blade server.
+        /// </summary>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="bool" />.</returns>
+        private bool ExsitsBladeServer(string deviceId)
+        {
+            return this.ExsitsDeviceId(deviceId, this.BladeClass);
+        }
+
+        #endregion
+
+        #region Event
+
+        /// <summary>
+        /// The insert event.
+        /// </summary>
+        /// <param name="eventData">The event data.</param>
+        /// <param name="serverType">Type of the server.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        public void InsertEvent(EventData eventData, ServerTypeEnum serverType, string eSightIp)
+        {
+            switch (serverType)
+            {
+                case ServerTypeEnum.Blade:
+                    this.InsertEvent(this.BladeClass, eventData, eSightIp);
+                    break;
+                case ServerTypeEnum.ChildBlade:
+                    this.InsertEvent(this.ChildBladeClass, eventData, eSightIp);
+                    break;
+                case ServerTypeEnum.Switch:
+                    this.InsertEvent(this.SwitchClass, eventData, eSightIp);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        /// <param name="serverType">Type of the server.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas, ServerTypeEnum serverType, string eSightIp)
+        {
+            switch (serverType)
+            {
+                case ServerTypeEnum.Blade:
+                    this.InsertHistoryEvent(this.BladeClass, eventDatas, eSightIp);
+                    break;
+                case ServerTypeEnum.ChildBlade:
+                    this.InsertHistoryEvent(this.ChildBladeClass, eventDatas, eSightIp);
+                    break;
+                case ServerTypeEnum.Switch:
+                    this.InsertHistoryEvent(this.SwitchClass, eventDatas, eSightIp);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Inserts the device change event.
+        /// </summary>
+        /// <param name="eventData">The event data.</param>
+        /// <param name="serverType">Type of the server.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        public void InsertDeviceChangeEvent(DeviceChangeEventData eventData, ServerTypeEnum serverType, string eSightIp)
+        {
+            switch (serverType)
+            {
+                case ServerTypeEnum.Blade:
+                    this.InsertDeviceChangeEvent(this.BladeClass, eventData, eSightIp);
+                    break;
+                case ServerTypeEnum.ChildBlade:
+                    this.InsertDeviceChangeEvent(this.ChildBladeClass, eventData, eSightIp);
+                    break;
+                case ServerTypeEnum.Switch:
+                    this.InsertDeviceChangeEvent(this.SwitchClass, eventData, eSightIp);
+                    break;
+            }
+        }
+        #endregion
+
+        #region Remove
+        /// <summary>
         /// The remove child blade.
         /// </summary>
-        /// <param name="dn">The dn.</param>
-        public void RemoveChildBlade(string dn)
+        /// <param name="eSightIp">The e sight ip.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        public void RemoveChildBlade(string eSightIp, string deviceId)
         {
-            var existingObject = this.GetChildBladeServer(dn);
-            if (existingObject != null)
+            try
             {
-                var discovery = new IncrementalDiscoveryData();
-                discovery.Remove(existingObject);
-                discovery.Commit(this.MontioringConnector);
+                HWLogger.GetESightSdkLogger(eSightIp).Info($"Remove ChildBlade.[deviceId:{deviceId}]");
+                var existingObject = this.GetChildBladeServer(deviceId);
+                if (existingObject != null)
+                {
+                    var discovery = new IncrementalDiscoveryData();
+                    discovery.Remove(existingObject);
+                    discovery.Commit(this.MontioringConnector);
+                }
+            }
+            catch (Exception e)
+            {
+                HWLogger.GetESightSdkLogger(eSightIp).Error($"Remove ChildBlade.[deviceId:{deviceId}]", e);
+            }
+        }
+
+        /// <summary>
+        /// The remove child Switch.
+        /// </summary>
+        /// <param name="eSightIp">The e sight ip.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        public void RemoveChildSwitch(string eSightIp, string deviceId)
+        {
+            try
+            {
+                HWLogger.GetESightSdkLogger(eSightIp).Info($"Remove ChildSwitch.[deviceId:{deviceId}]");
+                var existingObject = this.GetSwitchBoard(deviceId);
+                if (existingObject != null)
+                {
+                    var discovery = new IncrementalDiscoveryData();
+                    discovery.Remove(existingObject);
+                    discovery.Commit(this.MontioringConnector);
+                }
+            }
+            catch (Exception e)
+            {
+                HWLogger.GetESightSdkLogger(eSightIp).Error($"RemoveChildSwitch.[deviceId:{deviceId}]", e);
             }
         }
 
@@ -662,7 +1374,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="esightIp">The e sight ip.</param>
         public void RemoveServerFromMGroup(string esightIp)
         {
-            this.RemoverServers(this.BladeClass, esightIp);
+            this.RemoverServersByESight(this.BladeClass, esightIp);
         }
 
         /// <summary>
@@ -674,356 +1386,14 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Updates the main with out related.
+        /// Removes the blade on synchronize.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        public void UpdateMainWithOutChildBlade(BladeServer model)
+        /// <param name="eSightIp">The e sight ip.</param>
+        /// <param name="newDeviceIds">The new device ids.</param>
+        public void RemoveBladeOnSync(string eSightIp, List<string> newDeviceIds)
         {
-            HWLogger.NOTIFICATION_PROCESS.Debug($"Start UpdateMainWithOutChildBlade {model.DN}");
-            var oldBlade = this.GetBladeServer(model.DN);
-            if (oldBlade == null)
-            {
-                throw new Exception($"Can not find the server:{model.DN}");
-            }
-
-            var propertys = this.BladeClass.PropertyCollection; // 获取到class的属性
-            var discoveryData = new IncrementalDiscoveryData();
-
-            oldBlade[propertys["eSight"]].Value = model.ESight;
-            oldBlade[propertys["Status"]].Value = model.Status;
-            oldBlade[propertys["IPAddress"]].Value = model.IpAddress;
-            oldBlade[propertys["Location"]].Value = model.Location;
-
-            // oldBlade[propertys["Vendor"]].Value = "HUAWEI";
-            oldBlade[propertys["Manufacturer"]].Value = model.Manufacturer;
-            oldBlade[propertys["SystemPowerState"]].Value = string.Empty;
-            oldBlade[propertys["ServerModel"]].Value = model.ServerModel;
-            oldBlade[this.DisplayNameField].Value = model.ServerName;
-            discoveryData.Add(oldBlade);
-            #region Fan
-
-            var fanGroup = oldBlade.GetRelatedMonitoringObjects(this.FanGroupClass).First();
-            discoveryData.Add(fanGroup);
-
-            var relatedFanObjects = fanGroup.GetRelatedMonitoringObjects(this.FanClass);
-            var deleteFan = relatedFanObjects.Where(
-                    x => model.FanList.All(y => y.UUID != x[this.FanClass.PropertyCollection["UUID"]].Value.ToString()))
-                .ToList();
-            deleteFan.ForEach(x => { discoveryData.Remove(x); });
-            model.FanList.ForEach(
-                x =>
-                    {
-                        var fan = this.UpdateFan(x);
-                        if (fan == null)
-                        {
-                            var newFan = this.CreateFan(x);
-                            newFan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
-                            newFan[this.ComputerKey].Value = model.DN;
-                            newFan[this.HuaweiServerKey].Value = model.DN;
-                            discoveryData.Add(newFan);
-                        }
-                        else
-                        {
-                            discoveryData.Add(fan);
-                        }
-                    });
-
-            #endregion
-
-            #region Switch
-
-            var switchGroup = oldBlade.GetRelatedMonitoringObjects(this.SwitchGroupClass).First();
-            discoveryData.Add(switchGroup);
-
-            var relatedSwitchObjects = switchGroup.GetRelatedMonitoringObjects(this.SwitchClass);
-            var deleteSwitch = relatedSwitchObjects.Where(
-                x => model.SwitchList.All(
-                    y => y.UUID != x[this.SwitchClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
-            deleteSwitch.ForEach(x => { discoveryData.Remove(x); });
-            model.SwitchList.ForEach(
-                x =>
-                    {
-                        var switchObj = this.UpdateSwitch(x);
-                        if (switchObj == null)
-                        {
-                            var newSwitch = this.CreateSwitch(x);
-                            newSwitch[this.PartGroupKey].Value = switchGroup[this.PartGroupKey].Value;
-                            newSwitch[this.ComputerKey].Value = model.DN;
-                            newSwitch[this.HuaweiServerKey].Value = model.DN;
-                            discoveryData.Add(newSwitch);
-                        }
-                        else
-                        {
-                            discoveryData.Add(switchObj);
-                        }
-                    });
-
-            #endregion
-
-            #region PSU
-
-            var psuGroup = oldBlade.GetRelatedMonitoringObjects(this.PowerSupplyGroupClass).First();
-            discoveryData.Add(psuGroup);
-
-            var relatedPsuObjects = psuGroup.GetRelatedMonitoringObjects(this.PowerSupplyClass);
-            var deletePsu = relatedPsuObjects.Where(
-                x => model.PowerSupplyList.All(
-                    y => y.UUID != x[this.PowerSupplyClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
-            deletePsu.ForEach(x => { discoveryData.Remove(x); });
-
-            model.PowerSupplyList.ForEach(
-                x =>
-                    {
-                        var psu = this.UpdatePowerSupply(x);
-                        if (psu == null)
-                        {
-                            var newpsu = this.CreatePowerSupply(x);
-                            newpsu[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
-                            newpsu[this.ComputerKey].Value = model.DN;
-                            newpsu[this.HuaweiServerKey].Value = model.DN;
-                            discoveryData.Add(newpsu);
-                        }
-                        else
-                        {
-                            discoveryData.Add(psu);
-                        }
-                    });
-
-            #endregion
-
-            #region Hmm
-
-            var hmmGroup = oldBlade.GetRelatedMonitoringObjects(this.PowerSupplyGroupClass).First();
-            discoveryData.Add(hmmGroup);
-
-            var hmm = this.UpdateHmm(model.HmmInfo);
-            discoveryData.Add(hmm);
-
-            #endregion
-
-            // var relatedObjects = oldBlade.GetRelatedMonitoringObjects(ChildBladeClass);
-            // relatedObjects.ToList().ForEach(x => discoveryData.Add(x));
-            discoveryData.Overwrite(this.MontioringConnector);
-            HWLogger.NOTIFICATION_PROCESS.Debug($"End UpdateMainWithOutChildBlade {model.DN}");
+            this.RemoveServersOnSync(eSightIp, newDeviceIds, this.BladeClass);
         }
-
-        /// <summary>
-        /// Updates the child blade.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateChildBlade(ChildBlade model)
-        {
-            HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateChildBlade");
-            var oldObject = this.GetObject($"DN = '{model.DN}'", this.ChildBladeClass);
-            if (oldObject == null)
-            {
-                throw new Exception($"Can not find the child blade server:{model.DN}");
-            }
-
-            var propertys = this.ChildBladeClass.PropertyCollection; // 获取到class的属性
-            var discoveryData = new IncrementalDiscoveryData();
-
-            var childHighdensityKey = this.ChildBladeClass.PropertyCollection["DN"];
-
-            oldObject[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.Status;
-            oldObject[propertys["PresentState"]].Value = "Present";
-            oldObject[propertys["BmcIP"]].Value = model.IpAddress;
-            oldObject[propertys["BmcMask"]].Value = string.Empty;
-            oldObject[propertys["ProductName"]].Value = model.Mode;
-            oldObject[propertys["BladeVersion"]].Value = string.Empty;
-            oldObject[propertys["BoardSerialNumber"]].Value = string.Empty;
-            oldObject[propertys["BoardManufacturerDate"]].Value = string.Empty;
-            oldObject[propertys["ProductDescription"]].Value = string.Empty;
-            oldObject[propertys["ProductSerialNumber"]].Value = string.Empty;
-            oldObject[propertys["SystemCPUUsage"]].Value = string.Empty;
-
-            oldObject[this.DisplayNameField].Value = model.Name;
-            discoveryData.Add(oldObject);
-
-            #region CPU
-
-            var cpuGroup = oldObject.GetRelatedMonitoringObjects(this.CpuGroupClass).First();
-            discoveryData.Add(cpuGroup);
-
-            var relatedCpuObjects = cpuGroup.GetRelatedMonitoringObjects(this.CpuClass);
-            var deleteCpu = relatedCpuObjects.Where(
-                    x => model.CPUList.All(y => y.UUID != x[this.CpuClass.PropertyCollection["UUID"]].Value.ToString()))
-                .ToList();
-            deleteCpu.ForEach(x => { discoveryData.Remove(x); });
-            model.CPUList.ForEach(
-                y =>
-                    {
-                        var cpu = this.UpdateCpu(y);
-                        if (cpu == null)
-                        {
-                            var newCpu = this.CreateCpu(y);
-                            newCpu[this.PartChildGroupKey].Value = cpuGroup[this.PartChildGroupKey].Value;
-                            newCpu[childHighdensityKey].Value = model.DN;
-                            newCpu[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newCpu[this.ComputerKey].Value = model.DN;
-                            newCpu[this.HuaweiServerKey].Value = model.DN;
-                            discoveryData.Add(newCpu);
-                        }
-                        else
-                        {
-                            discoveryData.Add(cpu);
-                        }
-                    });
-
-            #endregion
-
-            #region Memory
-
-            var memoryGroup = oldObject.GetRelatedMonitoringObjects(this.MemoryGroupClass).First();
-            discoveryData.Add(memoryGroup);
-
-            var relatedMemoryObjects = memoryGroup.GetRelatedMonitoringObjects(this.MemoryClass);
-            var deleteMemory = relatedMemoryObjects.Where(
-                x => model.MemoryList.All(
-                    y => y.UUID != x[this.MemoryClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
-            deleteMemory.ForEach(x => { discoveryData.Remove(x); });
-            model.MemoryList.ForEach(
-                y =>
-                    {
-                        var memory = this.UpdateMemory(y);
-                        if (memory == null)
-                        {
-                            var newMemory = this.CreateMemory(y);
-                            newMemory[this.PartChildGroupKey].Value = memoryGroup[this.PartChildGroupKey].Value;
-                            newMemory[childHighdensityKey].Value = model.DN;
-                            newMemory[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newMemory[this.ComputerKey].Value = model.DN;
-                            newMemory[this.HuaweiServerKey].Value = model.DN;
-                            discoveryData.Add(newMemory);
-                        }
-                        else
-                        {
-                            discoveryData.Add(memory);
-                        }
-                    });
-
-            #endregion
-
-            #region Disk
-
-            var diskGroup = oldObject.GetRelatedMonitoringObjects(this.DiskGroupClass).First();
-            discoveryData.Add(diskGroup);
-
-            var relatedDiskObjects = diskGroup.GetRelatedMonitoringObjects(this.DiskClass);
-            var deleteDisk = relatedDiskObjects.Where(
-                    x => model.DiskList.All(
-                        y => y.UUID != x[this.DiskClass.PropertyCollection["UUID"]].Value.ToString()))
-                .ToList();
-            deleteDisk.ForEach(x => { discoveryData.Remove(x); });
-            model.DiskList.ForEach(
-                y =>
-                    {
-                        var disk = this.UpdateDisk(y);
-                        if (disk == null)
-                        {
-                            var newDisk = this.CreateDisk(y);
-                            newDisk[this.PartChildGroupKey].Value = diskGroup[this.PartChildGroupKey].Value;
-                            newDisk[childHighdensityKey].Value = model.DN;
-                            newDisk[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newDisk[this.ComputerKey].Value = model.DN;
-                            newDisk[this.HuaweiServerKey].Value = model.DN;
-                            discoveryData.Add(newDisk);
-                        }
-                        else
-                        {
-                            discoveryData.Add(disk);
-                        }
-                    });
-
-            #endregion
-
-            #region Mezz
-
-            var mezzGroup = oldObject.GetRelatedMonitoringObjects(this.MemoryGroupClass).First();
-            discoveryData.Add(mezzGroup);
-
-            var relatedMezzObjects = mezzGroup.GetRelatedMonitoringObjects(this.MezzClass);
-            var deleteMezz = relatedMezzObjects.Where(
-                    x => model.MezzList.All(
-                        y => y.UUID != x[this.MezzClass.PropertyCollection["UUID"]].Value.ToString()))
-                .ToList();
-            deleteMezz.ForEach(x => { discoveryData.Remove(x); });
-            model.MezzList.ForEach(
-                y =>
-                    {
-                        var mezz = this.UpdateMezz(y);
-                        if (mezz == null)
-                        {
-                            var newMezz = this.CreateMezz(y);
-                            newMezz[this.PartChildGroupKey].Value = mezzGroup[this.PartChildGroupKey].Value;
-                            newMezz[childHighdensityKey].Value = model.DN;
-                            newMezz[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newMezz[this.ComputerKey].Value = model.DN;
-                            newMezz[this.HuaweiServerKey].Value = model.DN;
-                            discoveryData.Add(newMezz);
-                        }
-                        else
-                        {
-                            discoveryData.Add(mezz);
-                        }
-                    });
-
-            #endregion
-
-            #region Raid
-
-            var raidGroup = oldObject.GetRelatedMonitoringObjects(this.RaidGroupClass).First();
-            discoveryData.Add(raidGroup);
-
-            var relatedRaidObjects = oldObject.GetRelatedMonitoringObjects(this.RaidClass);
-            var deleteRaid = relatedRaidObjects.Where(
-                    x => model.RaidList.All(
-                        y => y.UUID != x[this.RaidClass.PropertyCollection["UUID"]].Value.ToString()))
-                .ToList();
-            deleteRaid.ForEach(x => { discoveryData.Remove(x); });
-            model.RaidList.ForEach(
-                y =>
-                    {
-                        var raid = this.UpdateRaidControl(y);
-                        if (raid == null)
-                        {
-                            var newRaid = this.CreateRaidControl(y);
-                            newRaid[this.PartChildGroupKey].Value = raidGroup[this.PartChildGroupKey].Value;
-                            newRaid[childHighdensityKey].Value = model.DN;
-                            newRaid[this.PartGroupKey].Value = oldObject[this.PartGroupKey].Value;
-                            newRaid[this.ComputerKey].Value = model.DN;
-                            newRaid[this.HuaweiServerKey].Value = model.DN;
-                            discoveryData.Add(newRaid);
-                        }
-                        else
-                        {
-                            discoveryData.Add(raid);
-                        }
-                    });
-
-            #endregion
-
-            discoveryData.Overwrite(this.MontioringConnector);
-            HWLogger.NOTIFICATION_PROCESS.Debug("End UpdateChildBlade");
-        }
-
-        /// <summary>
-        /// The exsits blade server.
-        /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        private bool ExsitsBladeServer(string dn)
-        {
-            return this.ExsitsDn(dn, this.BladeClass);
-        }
-
         #endregion
 
         #region Create Methods
@@ -1042,9 +1412,9 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.BladeClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.BladeClass); // 实例化一个class
 
-            obj[this.ComputerKey].Value = model.DN;
+
             obj[propertys["eSight"]].Value = model.ESight;
-            obj[propertys["Status"]].Value = model.Status;
+            obj[propertys["Status"]].Value = model.Status == "-3" ? "0" : model.Status;
             obj[propertys["IPAddress"]].Value = model.IpAddress;
             obj[propertys["Location"]].Value = model.Location;
             obj[propertys["Vendor"]].Value = "HUAWEI";
@@ -1060,16 +1430,18 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// Creates the child blade .
         /// </summary>
         /// <param name="model">The Child model.</param>
+        /// <param name="parentName">Name of the parent.</param>
         /// <returns>Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject.</returns>
-        private MPObject CreateChildBlade(ChildBlade model)
+        private MPObject CreateChildBlade(ChildBlade model, string parentName)
         {
             var propertys = this.ChildBladeClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.ChildBladeClass); // 实例化一个class
 
-            obj[propertys["DN"]].Value = model.DN;
+            obj[propertys["DN"]].Value = model.DeviceId;
             obj[propertys["UUID"]].Value = model.UUID;
+            obj[propertys["eSight"]].Value = model.ESight;
 
-            obj[propertys["Status"]].Value = model.Status;
+            obj[propertys["Status"]].Value = model.Status == "-3" ? "0" : model.Status;
             obj[propertys["PresentState"]].Value = "Present";
             obj[propertys["BmcIP"]].Value = model.IpAddress;
             obj[propertys["BmcMask"]].Value = string.Empty;
@@ -1081,7 +1453,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             obj[propertys["ProductSerialNumber"]].Value = string.Empty;
             obj[propertys["SystemCPUUsage"]].Value = string.Empty;
 
-            obj[this.DisplayNameField].Value = model.Name;
+            obj[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
 
             return obj;
         }
@@ -1101,7 +1473,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.CpuClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["CPUInfo"]].Value = model.Model;
 
@@ -1124,7 +1496,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.DiskClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["DiskLocation"]].Value = model.Location;
             obj[propertys["DiskSerialNumber"]].Value = string.Empty;
@@ -1151,7 +1523,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.FanClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["ControlModel"]].Value = model.ControlModel;
             obj[propertys["RotatePercent"]].Value = model.RotatePercent;
@@ -1175,7 +1547,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.HmmClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.HmmClass); // 实例化一个class
 
-            obj[propertys["Status"]].Value = model.Status;
+            obj[propertys["Status"]].Value = model.Status == "-3" ? "0" : model.Status;
             obj[propertys["UUID"]].Value = model.UUID;
 
             obj[propertys["ProductName"]].Value = model.Type;
@@ -1210,7 +1582,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.MemoryClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
 
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["Manufacturer"]].Value = model.Manufacturer;
@@ -1236,7 +1608,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.MezzClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.MezzHealthStatus;
+            obj[propertys["Status"]].Value = model.MezzHealthStatus == "-3" ? "0" : model.MezzHealthStatus;
 
             obj[propertys["MezzInfo"]].Value = model.MezzInfo;
             obj[propertys["PresentState"]].Value = model.PresentState;
@@ -1263,7 +1635,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             obj[propertys["UUID"]].Value = model.UUID;
 
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["PowerMode"]].Value = model.InputMode;
             obj[propertys["PowerRating"]].Value = model.RatePower;
@@ -1288,7 +1660,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.RaidClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
 
             obj[propertys["Type"]].Value = model.RaidType;
             obj[propertys["DeviceInterface"]].Value = model.InterfaceType;
@@ -1302,30 +1674,32 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Creates the raid control.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MPObject"/>.
-        /// </returns>
-        private MPObject CreateSwitch(HWBoard model)
+        /// <param name="model">The model.</param>
+        /// <param name="parentName">Name of the parent.</param>
+        /// <returns>The <see cref="MPObject" />.</returns>
+        private MPObject CreateSwitch(ChildSwithBoard model, string parentName)
         {
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.SwitchClass); // 实例化一个class
 
+            obj[propertys["DN"]].Value = model.DeviceId;
+            obj[propertys["eSight"]].Value = model.ESight;
+            obj[propertys["ParentDN"]].Value = model.ParentDN;
+            obj[propertys["IpAddress"]].Value = model.IpAddress;
+            obj[propertys["BoardType"]].Value = model.BoardType;
+            obj[propertys["SerialNumber"]].Value = model.SN;
+            obj[propertys["PartNumber"]].Value = model.PartNumber;
+            obj[propertys["Manufacturer"]].Value = model.Manufacturer;
+            obj[propertys["ManufacturerDate"]].Value = model.ManuTime;
+            obj[propertys["PresentState"]].Value = model.PresentState;
+            obj[propertys["AssertTag"]].Value = model.AssertTag;
+            obj[propertys["MoId"]].Value = model.MoId;
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState;
-            obj[propertys["BladeVersion"]].Value = string.Empty;
-            obj[propertys["SwitchType"]].Value = string.Empty;
-            obj[propertys["ProductName"]].Value = string.Empty;
-            obj[propertys["BoardManufacturer"]].Value = model.Manufacturer;
-            obj[propertys["BoardPartNumber"]].Value = model.PartNumber;
-            obj[propertys["BoardSerialNumber"]].Value = model.SN;
-            obj[propertys["BoardManufacturerDate"]].Value = model.ManuTime;
-
-            obj[this.DisplayNameField].Value = model.Name;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
             return obj;
         }
+
         #endregion
 
         #region Update Methods
@@ -1333,51 +1707,38 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Updates the cpu.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        private MonitoringObject UpdateCpu(HWCPU model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        private void UpdateCpu(HWCPU model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.CpuClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
-
             var propertys = this.CpuClass.PropertyCollection; // 获取到class的属性
 
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["CPUInfo"]].Value = model.Model;
 
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the disk.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        private MonitoringObject UpdateDisk(HWDisk model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        private void UpdateDisk(HWDisk model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.DiskClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
             var propertys = this.DiskClass.PropertyCollection; // 获取到class的属性
 
             // obj[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
 
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["DiskLocation"]].Value = model.Location;
@@ -1387,26 +1748,23 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["DiskManufacturer"]].Value = string.Empty;
 
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the fan.
         /// </summary>
         /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
         /// <returns>MPObject.</returns>
-        private MonitoringObject UpdateFan(HWFAN model)
+        private void UpdateFan(HWFAN model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.FanClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
             var propertys = this.FanClass.PropertyCollection; // 获取到class的属性
 
             // oldObject[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
 
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["ControlModel"]].Value = model.ControlModel;
@@ -1414,29 +1772,22 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["FanSpeed"]].Value = model.Rotate;
 
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the raid control.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        private MonitoringObject UpdateHmm(HWHMM model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        private void UpdateHmm(HWHMM model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.HmmClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
             var propertys = this.HmmClass.PropertyCollection; // 获取到class的属性
 
-            oldObject[propertys["Status"]].Value = model.Status;
+            if (model.Status != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.Status;
+            }
 
             // oldObject[propertys["UUID"]].Value = model.UUID;
             oldObject[propertys["ProductName"]].Value = model.Type;
@@ -1454,31 +1805,23 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["SmmRedunancy"]].Value = string.Empty;
 
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the memory.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        private MonitoringObject UpdateMemory(HWMemory model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        private void UpdateMemory(HWMemory model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.MemoryClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
-
             var propertys = this.MemoryClass.PropertyCollection; // 获取到class的属性
 
             // oldObject[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
 
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["Manufacturer"]].Value = model.Manufacturer;
@@ -1486,31 +1829,23 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["Capacity"]].Value = model.Capacity;
 
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the mezz.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        private MonitoringObject UpdateMezz(HWMezz model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        private void UpdateMezz(HWMezz model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.MezzClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
-
             var propertys = this.MezzClass.PropertyCollection; // 获取到class的属性
 
             // oldObject[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.MezzHealthStatus;
+            if (model.MezzHealthStatus != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.MezzHealthStatus;
+            }
 
             oldObject[propertys["MezzInfo"]].Value = model.MezzInfo;
             oldObject[propertys["PresentState"]].Value = model.PresentState;
@@ -1518,61 +1853,45 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["MezzMac"]].Value = model.MezzMac;
 
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the power supply.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// MPObject.
-        /// </returns>
-        private MonitoringObject UpdatePowerSupply(HWPSU model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>MPObject.</returns>
+        private void UpdatePowerSupply(HWPSU model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.PowerSupplyClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
-
             var propertys = this.PowerSupplyClass.PropertyCollection; // 获取到class的属性
 
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["PowerMode"]].Value = model.InputMode;
             oldObject[propertys["PowerRating"]].Value = model.RatePower;
             oldObject[propertys["RuntimePower"]].Value = model.InputPower;
 
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the raid control.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        private MonitoringObject UpdateRaidControl(HWRAID model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        private void UpdateRaidControl(HWRAID model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.RaidClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
-
             var propertys = this.RaidClass.PropertyCollection; // 获取到class的属性
 
             // obj[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
 
             oldObject[propertys["Type"]].Value = model.RaidType;
             oldObject[propertys["DeviceInterface"]].Value = model.InterfaceType;
@@ -1580,42 +1899,38 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["BBUPresence"]].Value = "Present";
 
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
-        /// Updates the fan.
+        /// Updates the Switch.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// MPObject.
-        /// </returns>
-        private MonitoringObject UpdateSwitch(HWBoard model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <param name="parentName">Name of the parent.</param>
+        /// <returns>MPObject.</returns>
+        private void UpdateSwitch(ChildSwithBoard model, MonitoringObject oldObject, string parentName)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.SwitchClass);
-            if (oldObject == null)
+            var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
+            oldObject[propertys["eSight"]].Value = model.ESight;
+            oldObject[propertys["ParentDN"]].Value = model.ParentDN;
+            oldObject[propertys["IpAddress"]].Value = model.IpAddress;
+            oldObject[propertys["BoardType"]].Value = model.BoardType;
+            oldObject[propertys["SerialNumber"]].Value = model.SN;
+            oldObject[propertys["PartNumber"]].Value = model.PartNumber;
+            oldObject[propertys["Manufacturer"]].Value = model.Manufacturer;
+            oldObject[propertys["ManufacturerDate"]].Value = model.ManuTime;
+            oldObject[propertys["PresentState"]].Value = model.PresentState;
+            oldObject[propertys["AssertTag"]].Value = model.AssertTag;
+            oldObject[propertys["MoId"]].Value = model.MoId;
+            oldObject[propertys["UUID"]].Value = model.UUID;
+            if (model.HealthState != "-3")
             {
-                return null;
+                oldObject[propertys["Status"]].Value = model.HealthState;
             }
 
-            var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
-
-            oldObject[propertys["Status"]].Value = model.HealthState;
-            oldObject[propertys["BladeVersion"]].Value = string.Empty;
-            oldObject[propertys["SwitchType"]].Value = string.Empty;
-            oldObject[propertys["ProductName"]].Value = string.Empty;
-            oldObject[propertys["BoardManufacturer"]].Value = model.Manufacturer;
-            oldObject[propertys["BoardPartNumber"]].Value = model.PartNumber;
-            oldObject[propertys["BoardSerialNumber"]].Value = model.SN;
-            oldObject[propertys["BoardManufacturerDate"]].Value = model.ManuTime;
-
-            oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
+            oldObject[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
         }
+
         #endregion
     }
 }

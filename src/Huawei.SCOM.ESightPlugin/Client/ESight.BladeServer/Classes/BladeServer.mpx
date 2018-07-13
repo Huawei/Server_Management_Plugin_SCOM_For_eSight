@@ -2,7 +2,7 @@
   <TypeDefinitions>
     <EntityTypes>
       <ClassTypes>
-        <ClassType ID="ESight.BladeServer" Base="EVL!ESight.HuaweiServer" Accessibility="Public" Abstract="false" Hosted="true" Singleton="false">
+        <ClassType ID="ESight.BladeServer" Base="EVL!ESight.HuaweiServer" Accessibility="Public" Abstract="false" Hosted="false" Singleton="false">
           <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：ipAddress-->
           <Property ID="IPAddress" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />

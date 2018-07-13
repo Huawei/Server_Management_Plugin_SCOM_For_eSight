@@ -6,7 +6,7 @@ Var /GLOBAL IC_SCOM #SCOM Server
 ; HM NIS Edit Wizard helper defines
 !define SOURCEDIR "..\Release"
 !define PRODUCT_NAME "Huawei SCOM Plugin For eSight"
-!define PRODUCT_VERSION "1.0"
+!define PRODUCT_VERSION "1.1"
 !define PRODUCT_PUBLISHER "Huawei Technologies Co., Ltd."
 !define PRODUCT_WEB_SITE "http://www.huawei.com"
 ;!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\Huawei.SCOM.ESightPlugin.Service.exe"

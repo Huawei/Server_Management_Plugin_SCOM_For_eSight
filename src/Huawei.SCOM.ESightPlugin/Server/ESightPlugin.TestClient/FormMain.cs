@@ -13,6 +13,9 @@
 // ***********************************************************************
 
 // ReSharper disable All
+
+using System.Collections.Generic;
+
 namespace ESightPlugin.TestClient
 {
     using System;
@@ -73,6 +76,8 @@ namespace ESightPlugin.TestClient
 
         public EventData ChildBladeEventData { get; set; }
 
+        public EventData SwitchEventData { get; set; }
+
         public EventData HighEventData { get; set; }
 
         public EventData ChildHighEventData { get; set; }
@@ -82,6 +87,8 @@ namespace ESightPlugin.TestClient
         public EventData RackEventData { get; set; }
 
         public DeviceChangeEventData DeviceChangeEventData { get; set; }
+
+        public string ESightIp => "192.168" + ".1.13";
         #endregion
 
         #region Methods
@@ -159,43 +166,44 @@ namespace ESightPlugin.TestClient
             bladeMain.ChildBlades.ForEach(
                 m =>
                     {
-                        var childBlade = new ChildBlade(m);
+                        var childBlade = new ChildBlade(m, this.ESightIp);
                         childBlade.MakeChildBladeDetail(bladeChildDetial);
                         this.BladeTest.ChildBlades.Add(childBlade);
                     });
-            this.BladeTest.MakeDetail(bladeDetial);
+            this.BladeTest.MakeDetail(bladeDetial, ESightIp);
 
             this.HighTest = new HighdensityServer(highdensityMain);
             highdensityMain.ChildBlades.ForEach(
                 m =>
                     {
-                        var childHighdensity = new ChildHighdensity(m);
+                        var childHighdensity = new ChildHighdensity(m, this.ESightIp);
                         childHighdensity.MakeChildBladeDetail(highdensityChildDetial);
                         this.HighTest.ChildHighdensitys.Add(childHighdensity);
                     });
-            this.HighTest.MakeDetail(highdensityDetial);
+            this.HighTest.MakeDetail(highdensityDetial, ESightIp);
 
             this.RackTest = new RackServer();
-            this.RackTest.MakeDetail(rackDetail);
+            this.RackTest.MakeDetail(rackDetail, ESightIp);
 
             this.KunLunTest = new KunLunServer();
-            this.KunLunTest.MakeDetail(kunLunDetail);
+            this.KunLunTest.MakeDetail(kunLunDetail, ESightIp);
 
             #region MyRegion
             var path = Application.StartupPath + "//..//..//..//..//..//..//..//..//mockNew//alarmData//alarmData.js";
             var data = File.ReadAllText(path).Replace("module.exports =", string.Empty);
 
-            this.BladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "blade")));
-            this.ChildBladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "childeblade")));
-            this.HighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "high")));
-            this.ChildHighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "childhigh")));
-            this.KunLunEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "kunlun")));
-            this.RackEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("rack", "rack")));
+            this.BladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "Blade")), ESightIp, ServerTypeEnum.Blade);
+            this.ChildBladeEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "ChildBlade")), ESightIp, ServerTypeEnum.ChildBlade);
+            this.SwitchEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "Switch")), ESightIp, ServerTypeEnum.Switch);
+            this.HighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "High")), ESightIp, ServerTypeEnum.Highdensity);
+            this.ChildHighEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "ChildHigh")), ESightIp, ServerTypeEnum.ChildHighdensity);
+            this.KunLunEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "KunLun")), ESightIp, ServerTypeEnum.KunLun);
+            this.RackEventData = new EventData(JsonUtil.DeserializeObject<AlarmData>(data.Replace("Rack", "Rack")), ESightIp, ServerTypeEnum.Rack);
 
             path = Application.StartupPath + "//..//..//..//..//..//..//..//..//mockNew//alarmData//deviceChangeData.js";
             data = File.ReadAllText(path).Replace("module.exports =", string.Empty);
             var daTemp = JsonUtil.DeserializeObject<NedeviceData>(data);
-            this.DeviceChangeEventData = new DeviceChangeEventData(daTemp);
+            this.DeviceChangeEventData = new DeviceChangeEventData(daTemp, "192.168" + "0.1", ServerTypeEnum.Blade);
 
             #endregion
         }
@@ -209,8 +217,8 @@ namespace ESightPlugin.TestClient
         /// <param name="e">The e.</param>
         private void btnDeleteBladeServer_Click(object sender, EventArgs e)
         {
-            var dn = "NE=346039091x";
-            BladeConnector.Instance.RemoveComputerByDn(dn);
+            var dn = ESightIp + "-NE=346039091x";
+            BladeConnector.Instance.RemoveServerByDeviceId(this.ESightIp, dn);
         }
 
         /// <summary>
@@ -221,7 +229,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteChildBlade_Click(object sender, EventArgs e)
         {
             var dn = "NE=34603911";
-            BladeConnector.Instance.RemoveChildBlade(dn);
+            BladeConnector.Instance.RemoveChildBlade(this.ESightIp, $"{this.ESightIp}-{ dn}");
         }
 
 
@@ -236,7 +244,7 @@ namespace ESightPlugin.TestClient
         /// </param>
         private void btnInsertBladeServer_Click(object sender, EventArgs e)
         {
-            BladeConnector.Instance.InsertDetials(this.BladeTest);
+            BladeConnector.Instance.SyncServer(this.BladeTest);
         }
 
         /// <summary>
@@ -248,10 +256,11 @@ namespace ESightPlugin.TestClient
         /// <param name="e">
         /// The e.
         /// </param>
-        private void btnInsertChildBlade_Click(object sender, EventArgs e)
+        private void btnUpdateChildBlade_Click(object sender, EventArgs e)
         {
             var childBlade = this.BladeTest.ChildBlades.First();
-            BladeConnector.Instance.UpdateChildBlade(childBlade);
+            childBlade.Name += new Random().Next(0, 100) +childBlade.Name;
+            BladeConnector.Instance.UpdateChildBlade(childBlade, false);
         }
         /// <summary>
         /// The btn insert main blade_ click.
@@ -262,9 +271,10 @@ namespace ESightPlugin.TestClient
         /// <param name="e">
         /// The e.
         /// </param>
-        private void btnInsertMainBlade_Click(object sender, EventArgs e)
+        private void btnUpdateMainBlade_Click(object sender, EventArgs e)
         {
-            BladeConnector.Instance.UpdateMainWithOutChildBlade(this.BladeTest);
+            this.BladeTest.Location = new Random().Next(0, 100) + this.BladeTest.Location;
+            BladeConnector.Instance.UpdateBlade(this.BladeTest, false);
         }
 
 
@@ -284,7 +294,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteChildHighDensity_Click(object sender, EventArgs e)
         {
             var dn = string.Empty;
-            HighdensityConnector.Instance.RemoveChildHighDensityServer(dn);
+            HighdensityConnector.Instance.RemoveChildHighDensityServer(this.ESightIp, $"{this.ESightIp}-{ dn}");
         }
 
         /// <summary>
@@ -299,7 +309,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteHighDensityServer_Click(object sender, EventArgs e)
         {
             var dn = string.Empty;
-            HighdensityConnector.Instance.RemoveComputerByDn(dn);
+            HighdensityConnector.Instance.RemoveServerByDeviceId(this.ESightIp, dn);
         }
 
         /// <summary>
@@ -311,10 +321,11 @@ namespace ESightPlugin.TestClient
         /// <param name="e">
         /// The e.
         /// </param>
-        private void btnInsertChildHigh_Click(object sender, EventArgs e)
+        private void btnUpdateChildHigh_Click(object sender, EventArgs e)
         {
             var childBlade = this.HighTest.ChildHighdensitys.First();
-            HighdensityConnector.Instance.UpdateChildBoard(childBlade);
+            childBlade.Name += new Random().Next(0, 100) +childBlade.Name;
+            HighdensityConnector.Instance.UpdateChildBoard(childBlade, false);
         }
 
         /// <summary>
@@ -328,7 +339,7 @@ namespace ESightPlugin.TestClient
         /// </param>
         private void btnInsertHighDensityServer_Click(object sender, EventArgs e)
         {
-            HighdensityConnector.Instance.InsertDetials(this.HighTest);
+            HighdensityConnector.Instance.SyncServer(this.HighTest);
         }
 
         /// <summary>
@@ -340,9 +351,10 @@ namespace ESightPlugin.TestClient
         /// <param name="e">
         /// The e.
         /// </param>
-        private void btnInsertMainHigh_Click(object sender, EventArgs e)
+        private void btnUpdateMainHigh_Click(object sender, EventArgs e)
         {
-            HighdensityConnector.Instance.UpdateMainWithOutChildBlade(this.HighTest);
+            this.HighTest.Location = new Random().Next(0, 100) + this.HighTest.Location;
+            HighdensityConnector.Instance.UpdateMain(this.HighTest, false);
         }
         #endregion
 
@@ -359,7 +371,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteRack_Click(object sender, EventArgs e)
         {
             var dn = string.Empty;
-            RackConnector.Instance.RemoveComputerByDn(dn);
+            RackConnector.Instance.RemoveServerByDeviceId(this.ESightIp, dn);
         }
 
 
@@ -372,9 +384,10 @@ namespace ESightPlugin.TestClient
         /// <param name="e">
         /// The e.
         /// </param>
-        private void btnInsertRack_Click(object sender, EventArgs e)
+        private void btnUpdateRack_Click(object sender, EventArgs e)
         {
-            RackConnector.Instance.UpdateRack(this.RackTest);
+            this.RackTest.IpAddress = new Random().Next(0, 100) + this.RackTest.IpAddress;
+            RackConnector.Instance.UpdateRack(this.RackTest, false);
         }
 
 
@@ -389,7 +402,7 @@ namespace ESightPlugin.TestClient
         /// </param>
         private void btnInsertRackServer_Click(object sender, EventArgs e)
         {
-            RackConnector.Instance.InsertDetials(this.RackTest);
+            RackConnector.Instance.SyncServer(this.RackTest);
         }
 
         #endregion
@@ -408,7 +421,7 @@ namespace ESightPlugin.TestClient
         private void btnDeleteKunLunServer_Click(object sender, EventArgs e)
         {
             var dn = string.Empty;
-            KunLunConnector.Instance.RemoveComputerByDn(dn);
+            KunLunConnector.Instance.RemoveServerByDeviceId(this.ESightIp, dn);
         }
 
         /// <summary>
@@ -422,7 +435,7 @@ namespace ESightPlugin.TestClient
         /// </param>
         private void btnInsertKunLunServer_Click(object sender, EventArgs e)
         {
-            KunLunConnector.Instance.InsertDetials(this.KunLunTest);
+            KunLunConnector.Instance.SyncServer(this.KunLunTest);
         }
 
         /// <summary>
@@ -436,7 +449,8 @@ namespace ESightPlugin.TestClient
         /// </param>
         private void btnUpdateKunLunServer_Click(object sender, EventArgs e)
         {
-            KunLunConnector.Instance.UpdateKunLun(this.KunLunTest);
+            this.KunLunTest.IpAddress = new Random().Next(0, 10) + this.KunLunTest.IpAddress;
+            KunLunConnector.Instance.UpdateKunLun(this.KunLunTest, false);
         }
         #endregion
 
@@ -491,32 +505,45 @@ namespace ESightPlugin.TestClient
             BladeEventData.OptType = 1;
             HighEventData.OptType = 1;
             ChildBladeEventData.OptType = 1;
+            SwitchEventData.OptType = 1;
             ChildHighEventData.OptType = 1;
             KunLunEventData.OptType = 1;
             RackEventData.OptType = 1;
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    BladeConnector.Instance.InsertSwitchEvent(SwitchEventData);
+            //    SwitchEventData.AlarmSn += 1;
+            //}
 
-            BladeConnector.Instance.InsertEvent(BladeEventData);
-            HighdensityConnector.Instance.InsertEvent(HighEventData);
-            BladeConnector.Instance.InsertChildBladeEvent(ChildBladeEventData);
-            HighdensityConnector.Instance.InsertChildBladeEvent(ChildHighEventData);
-            KunLunConnector.Instance.InsertEvent(KunLunEventData);
-            RackConnector.Instance.InsertEvent(RackEventData);
+            //SwitchEventData.LevelId = 2;
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    BladeConnector.Instance.InsertSwitchEvent(SwitchEventData);
+            //    SwitchEventData.AlarmSn += 1;
+            //}
+
+            BladeConnector.Instance.InsertHistoryEvent(new List<EventData>() { BladeEventData }, ServerTypeEnum.Blade, this.ESightIp);
+            //HighdensityConnector.Instance.InsertEvent(HighEventData);
+            //BladeConnector.Instance.InsertChildBladeEvent(ChildBladeEventData);
+            //HighdensityConnector.Instance.InsertChildBladeEvent(ChildHighEventData);
+            //KunLunConnector.Instance.InsertEvent(KunLunEventData);
+            //RackConnector.Instance.InsertEvent(RackEventData);
         }
 
         private void btnUpdateAlert_Click(object sender, EventArgs e)
         {
             RackEventData.OptType = 5;
-            RackConnector.Instance.InsertEvent(RackEventData);
+            RackConnector.Instance.InsertEvent(RackEventData, this.ESightIp);
         }
 
         private void btnCloseAlert_Click(object sender, EventArgs e)
         {
             RackEventData.OptType = 2;
-            RackConnector.Instance.InsertEvent(RackEventData);
+            RackConnector.Instance.InsertEvent(RackEventData, this.ESightIp);
         }
         private void btnInsertDeviceChange_Click(object sender, EventArgs e)
         {
-            RackConnector.Instance.InsertDeviceChangeEvent(DeviceChangeEventData);
+            RackConnector.Instance.InsertDeviceChangeEvent(DeviceChangeEventData, this.ESightIp);
         }
 
         #endregion

@@ -58,6 +58,20 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// -1 出错，0-未订阅 1-订阅成功
         /// </summary>
         /// <value>The subscription alarm status.</value>
+        [JsonProperty(PropertyName = "subKeepAliveStatus")]
+        public int SubKeepAliveStatus { get; set; }
+
+        /// <summary>
+        /// 订阅保活错误信息
+        /// </summary>
+        /// <value>The subscripe alarm error.</value>
+        [JsonProperty(PropertyName = "subKeepAliveError")]
+        public string SubKeepAliveError { get; set; }
+
+        /// <summary>
+        /// -1 出错，0-未订阅 1-订阅成功
+        /// </summary>
+        /// <value>The subscription alarm status.</value>
         [JsonProperty(PropertyName = "subscriptionAlarmStatus")]
         public int SubscriptionAlarmStatus { get; set; }
 
@@ -81,7 +95,6 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// <value>The subscripe alarm error.</value>
         [JsonProperty(PropertyName = "subscripeNeDeviceError")]
         public string SubscripeNeDeviceError { get; set; }
-
 
         /// <summary>
         /// Gets or sets the subscribe identifier.

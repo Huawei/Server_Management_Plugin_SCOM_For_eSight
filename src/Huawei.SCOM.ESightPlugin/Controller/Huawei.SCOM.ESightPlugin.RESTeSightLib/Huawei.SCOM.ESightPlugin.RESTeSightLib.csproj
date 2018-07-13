@@ -93,14 +93,11 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommonUtil, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\src_bin\CommonUtil.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NLog, Version=3.2.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -112,6 +109,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ESightEngine.cs" />
     <Compile Include="Exceptions\BaseException.cs" />
     <Compile Include="Exceptions\ESSessionExpceion.cs" />
     <Compile Include="Helper\ConfigHelper.cs" />
@@ -123,6 +121,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Util\LogUtil\Huawei.SCOM.ESightPlugin.LogUtil.csproj">
+      <Project>{951D9438-9E64-4CA7-B793-033DC536B9B6}</Project>
+      <Name>Huawei.SCOM.ESightPlugin.LogUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Util\CommonUtil\CommonUtil.csproj">
+      <Project>{c79a21bf-e869-4b93-a787-67b1d4231c02}</Project>
+      <Name>CommonUtil</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Model\Huawei.SCOM.ESightPlugin.Const\Huawei.SCOM.ESightPlugin.Const.csproj">
       <Project>{74c9b977-a729-47d0-8e18-5d00b3b6b553}</Project>
       <Name>Huawei.SCOM.ESightPlugin.Const</Name>
@@ -130,10 +136,6 @@
     <ProjectReference Include="..\..\Model\Huawei.SCOM.ESightPlugin.Models\Huawei.SCOM.ESightPlugin.Models.csproj">
       <Project>{e8b06327-7335-4d9d-93a7-7b95c0d35979}</Project>
       <Name>Huawei.SCOM.ESightPlugin.Models</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Util\LogUtil\LogUtil.csproj">
-      <Project>{56bbfa4a-2de0-46c5-87d7-6e6f14d81916}</Project>
-      <Name>LogUtil</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

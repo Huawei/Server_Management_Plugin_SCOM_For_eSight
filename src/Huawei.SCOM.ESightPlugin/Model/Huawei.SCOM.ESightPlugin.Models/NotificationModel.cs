@@ -62,6 +62,45 @@ namespace Huawei.SCOM.ESightPlugin.Models
     /// </summary>
     public class AlarmData
     {
+        public AlarmData()
+        {
+            
+        }
+
+        public AlarmData(AlarmHistory data)
+        {
+            this.OptType = 1;
+            this.SystemID = string.Empty;
+            this.AckTime = data.AckTime ?? 0;
+            this.AckUser = data.AckUser;
+            this.Acked = data.Acked;
+            this.AdditionalInformation = data.AdditionalInformation;
+            this.AdditionalText = data.AdditionalText;
+            this.AlarmId = data.AlarmId;
+            this.AlarmName = data.AlarmName;
+            this.AlarmSN = data.AlarmSn;
+            this.ArrivedTime = data.ArrivedTime;
+            this.ClearUser = data.ClearUser;
+            this.Cleared = data.Cleared;
+            this.ClearedTime = data.ClearedTime ?? 0;
+            this.ClearedType = data.ClearedType;
+            this.CommentTime = data.CommentTime;
+            this.CommentUser = data.CommentUser;
+            this.Comments = data.Comments;
+            this.DevCsn = data.DevCsn ?? 0;
+            this.EventTime = data.EventTime;
+            this.EventType = data.EventType;
+            this.MoDN = data.MoDn;
+            this.MoName = data.MoName;
+            this.NeDN = data.NeDn;
+            this.NeName = data.NeName;
+            this.NeType = data.NeType;
+            this.ObjectInstance = data.ObjectInstance;
+            this.PerceivedSeverity = data.PerceivedSeverity;
+            this.ProbableCause = data.ProbableCause ?? 0;
+            this.ProposedRepairActions = data.ProposedRepairActions;
+        }
+
         /// <summary>
         /// 1-新增告警 2-清除告警 3-确认告警 4-反确认告警 5-变更告警 6-新增事件
         /// </summary>
@@ -241,17 +280,6 @@ namespace Huawei.SCOM.ESightPlugin.Models
         [JsonProperty("proposedRepairActions")]
         public string ProposedRepairActions { get; set; }
 
-
-
-
-
-
-
-
-
-
-
-
     }
 
     /// <summary>
@@ -259,6 +287,10 @@ namespace Huawei.SCOM.ESightPlugin.Models
     /// </summary>
     public class NedeviceData
     {
+        public NedeviceData()
+        {
+
+        }
         /// <summary>
         /// 设备唯一标识（DN）。
         /// </summary>
@@ -365,6 +397,33 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// <value></value>
         public string Description { get; set; }
     }
-    
+
+
+    /// <summary>
+    /// Class KeepAliveData.
+    /// </summary>
+    public class KeepAliveData
+    {
+        /// <summary>
+        /// 心跳保活消息发送间隔，单位分钟。
+        /// 每周期系统检查如果消息缓存为空，则发送保活消息。间隔可以在配置文件中配置，见使用OpenAPI接口前期准备章节。
+        /// </summary>
+        [JsonProperty("heartBeatInterval")]
+        public int HeartBeatInterval { get; set; }
+
+        /// <summary>
+        /// eSight 系统名称。
+        ///  eSight 系统名称可以在配置文件中配置，见使用OpenAPI接口前期准备章节。
+        /// </summary>
+        [JsonProperty("systemName")]
+        public string SystemName { get; set; }
+
+        /// <summary>
+        /// eSight 系统唯一标识。
+        /// eSight 系统唯一标识可以在配置文件中配置，见使用OpenAPI接口前期准备章节。
+        /// </summary>
+        [JsonProperty("systemID")]
+        public string SystemID { get; set; }
+    }
 
 }

@@ -28,6 +28,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
     using Microsoft.EnterpriseManagement.ConnectorFramework;
     using Microsoft.EnterpriseManagement.Monitoring;
     using MPObject = Microsoft.EnterpriseManagement.Common.CreatableEnterpriseManagementObject;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The kun lun connector.
@@ -199,106 +200,112 @@ namespace Huawei.SCOM.ESightPlugin.Core
         #region Public Methods
 
         /// <summary>
+        /// Synchronizes the server.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        public void SyncServer(KunLunServer model)
+        {
+            // 存在则更新
+            if (ExsitsKunLunServer(model.DeviceId))
+            {
+                this.UpdateKunLun(model, true);
+            }
+            else
+            {
+                this.InsertDetials(model);
+            }
+        }
+
+        /// <summary>
         /// The insert detials.
         /// </summary>
         /// <param name="model">
         /// The model.
         /// </param>
-        public void InsertDetials(KunLunServer model)
+        private void InsertDetials(KunLunServer model)
         {
-            var discoveryData = new IncrementalDiscoveryData();
-
-            var baseComputer = this.GetComputerByDn(model.DN);
-            if (baseComputer == null)
+            try
             {
-                var newBaseComputer = this.CreateComputer(model.DN);
-                discoveryData.Add(newBaseComputer);
-            }
-            else
-            {
-                discoveryData.Add(baseComputer);
-            }
+                HWLogger.GetESightSdkLogger(model.ESight).Debug($"Insert KunLun:{model.DN}");
+                var discoveryData = new IncrementalDiscoveryData();
 
-            #region KunLunServer
+                #region KunLunServer
 
-            var kunLunServer = this.CreateKunLunServer(model);
-            kunLunServer[this.ComputerKey].Value = model.DN;
-            discoveryData.Add(kunLunServer);
+                var kunLunServer = this.CreateKunLunServer(model);
+                discoveryData.Add(kunLunServer);
 
-            #endregion
+                #endregion
 
-            #region Fan
+                #region Fan
 
-            var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DN);
-            discoveryData.Add(fanGroup);
-            model.FanList.ForEach(
-                x =>
+                var fanGroup = this.CreateLogicalGroup(this.FanGroupClass, model.DeviceId);
+                discoveryData.Add(fanGroup);
+                model.FanList.ForEach(
+                    x =>
                     {
                         var fan = this.CreateFan(x);
                         fan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
 
-                        fan[this.HuaweiServerKey].Value = model.DN;
-                        fan[this.ComputerKey].Value = model.DN;
+                        fan[this.HuaweiServerKey].Value = model.DeviceId;
+
                         discoveryData.Add(fan);
                     });
 
-            #endregion
+                #endregion
 
-            #region PSU
+                #region PSU
 
-            var powerSupplyGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DN);
-            discoveryData.Add(powerSupplyGroup);
-            model.PowerSupplyList.ForEach(
-                x =>
+                var powerSupplyGroup = this.CreateLogicalGroup(this.PowerSupplyGroupClass, model.DeviceId);
+                discoveryData.Add(powerSupplyGroup);
+                model.PowerSupplyList.ForEach(
+                    x =>
                     {
                         var powerSupply = this.CreatePowerSupply(x);
                         powerSupply[this.PartGroupKey].Value = powerSupplyGroup[this.PartGroupKey].Value;
-                        powerSupply[this.HuaweiServerKey].Value = model.DN;
-                        powerSupply[this.ComputerKey].Value = model.DN;
+                        powerSupply[this.HuaweiServerKey].Value = model.DeviceId;
+
                         discoveryData.Add(powerSupply);
                     });
 
-            #endregion
+                #endregion
 
-            #region Raid
+                #region Raid
 
-            var raidGroup = this.CreateLogicalGroup(this.RaidGroupClass, model.DN);
-            discoveryData.Add(raidGroup);
-            model.RaidList.ForEach(
-                y =>
+                var raidGroup = this.CreateLogicalGroup(this.RaidGroupClass, model.DeviceId);
+                discoveryData.Add(raidGroup);
+                model.RaidList.ForEach(
+                    y =>
                     {
                         var raid = this.CreateRaidControl(y);
                         raid[this.PartGroupKey].Value = raidGroup[this.PartGroupKey].Value;
-                        raid[this.HuaweiServerKey].Value = model.DN;
-                        raid[this.ComputerKey].Value = model.DN;
+                        raid[this.HuaweiServerKey].Value = model.DeviceId;
+
                         discoveryData.Add(raid);
                     });
 
-            #endregion
+                #endregion
 
-            #region Disk
+                #region Disk
 
-            var diskGroup = this.CreateLogicalGroup(this.PhysicalDiskGroupClass, model.DN);
-            discoveryData.Add(diskGroup);
-            model.DiskList.ForEach(
-                x =>
+                var diskGroup = this.CreateLogicalGroup(this.PhysicalDiskGroupClass, model.DeviceId);
+                discoveryData.Add(diskGroup);
+                model.DiskList.ForEach(
+                    x =>
                     {
                         var disk = this.CreateDisk(x);
                         disk[this.PartGroupKey].Value = diskGroup[this.PartGroupKey].Value;
-                        disk[this.HuaweiServerKey].Value = model.DN;
-                        disk[this.ComputerKey].Value = model.DN;
+                        disk[this.HuaweiServerKey].Value = model.DeviceId;
+
                         discoveryData.Add(disk);
                     });
 
-            #endregion
+                #endregion
 
-            if (!this.ExsitsKunLunServer(model.DN))
-            {
                 discoveryData.Commit(this.MontioringConnector);
             }
-            else
+            catch (Exception e)
             {
-                discoveryData.Overwrite(this.MontioringConnector);
+                HWLogger.GetESightSdkLogger(model.ESight).Error($"Insert KunLun Error:{model.DN}", e);
             }
         }
 
@@ -306,204 +313,227 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// The update kun lun.
         /// </summary>
         /// <param name="model">The model.</param>
+        /// <param name="isPolling">是否是轮询</param>
+        /// <exception cref="System.Exception"></exception>
         /// <exception cref="Exception">Can not find the server</exception>
-        public void UpdateKunLun(KunLunServer model)
+        public void UpdateKunLun(KunLunServer model, bool isPolling)
         {
-            HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateKunLun");
-            var oldServer = this.GetKunLunServer(model.DN);
-            if (oldServer == null)
+            try
             {
-                throw new Exception($"Can not find the server:{model.DN}");
-            }
-            var propertys = this.KunLunClass.PropertyCollection; // 获取到class的属性
-            var discoveryData = new IncrementalDiscoveryData();
-            oldServer[this.DisplayNameField].Value = model.Name;
-            oldServer[propertys["Status"]].Value = model.Status;
-            oldServer[propertys["Vendor"]].Value = "HUAWEI";
-            oldServer[propertys["Manufacturer"]].Value = model.Manufacturer;
-            oldServer[propertys["UUID"]].Value = model.UUID;
-            oldServer[propertys["IPAddress"]].Value = model.IpAddress;
+                HWLogger.GetESightSdkLogger(model.ESight).Debug($"Start UpdateKunLun.[{model.DN}] [isPolling:{isPolling}]");
+                var oldServer = this.GetKunLunServer(model.DeviceId);
+                if (oldServer == null)
+                {
+                    throw new Exception($"Can not find the server:{model.DN}");
+                }
+                var propertys = this.KunLunClass.PropertyCollection; // 获取到class的属性
+                var discoveryData = new IncrementalDiscoveryData();
+                oldServer[this.DisplayNameField].Value = model.Name;
+                if (model.Status != "-3")
+                {
+                    oldServer[propertys["Status"]].Value = model.Status;
+                }
+                oldServer[propertys["Vendor"]].Value = "HUAWEI";
+                oldServer[propertys["UUID"]].Value = model.UUID;
+                oldServer[propertys["IPAddress"]].Value = model.IpAddress;
+                if (isPolling)
+                {
+                    oldServer[propertys["Manufacturer"]].Value = model.Manufacturer;
+                }
+                // oldBlade[propertys["iBMCVersion"]].Value = model.Version;
+                oldServer[propertys["CPLDVersion"]].Value = string.Empty;
+                oldServer[propertys["UbootVersion"]].Value = string.Empty;
+                oldServer[propertys["ProductSn"]].Value = model.ProductSN;
+                oldServer[propertys["MemoryCapacity"]].Value = model.MemoryCapacity;
+                oldServer[propertys["CPUNums"]].Value = model.CPUNums;
+                oldServer[propertys["CPUCores"]].Value = model.CPUCores;
 
-            // oldBlade[propertys["iBMCVersion"]].Value = model.Version;
-            oldServer[propertys["CPLDVersion"]].Value = string.Empty;
-            oldServer[propertys["UbootVersion"]].Value = string.Empty;
-            oldServer[propertys["ProductSn"]].Value = model.ProductSN;
-            oldServer[propertys["MemoryCapacity"]].Value = model.MemoryCapacity;
-            oldServer[propertys["CPUNums"]].Value = model.CPUNums;
-            oldServer[propertys["CPUCores"]].Value = model.CPUCores;
+                // oldBlade[propertys["ServerName"]].Value = model.ServerName;
+                oldServer[propertys["BMCMacAddr"]].Value = model.BmcMacAddr;
+                oldServer[propertys["eSight"]].Value = model.ESight;
+                discoveryData.Add(oldServer);
 
-            // oldBlade[propertys["ServerName"]].Value = model.ServerName;
-            oldServer[propertys["BMCMacAddr"]].Value = model.BmcMacAddr;
-            oldServer[propertys["eSight"]].Value = model.ESight;
-            discoveryData.Add(oldServer);
+                var fanGroup = oldServer.GetRelatedMonitoringObjects(this.FanGroupClass).First();
+                discoveryData.Add(fanGroup);
 
-            var fanGroup = oldServer.GetRelatedMonitoringObjects(this.FanGroupClass).First();
-            discoveryData.Add(fanGroup);
+                var relatedFanObjects = fanGroup.GetRelatedMonitoringObjects(this.FanClass);
+                var deleteFan = relatedFanObjects.Where(
+                        x => model.FanList.All(y => y.UUID != x[this.FanClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteFan.ForEach(x => { discoveryData.Remove(x); });
 
-            var relatedFanObjects = fanGroup.GetRelatedMonitoringObjects(this.FanClass);
-            var deleteFan = relatedFanObjects.Where(
-                    x => model.FanList.All(y => y.UUID != x[this.FanClass.PropertyCollection["UUID"]].Value.ToString()))
-                .ToList();
-            deleteFan.ForEach(x => { discoveryData.Remove(x); });
-
-            model.FanList.ForEach(
-                x =>
+                model.FanList.ForEach(
+                    x =>
                     {
-                        var fan = this.UpdateFan(x);
-                        if (fan == null)
+                        var oldFan = relatedFanObjects.FirstOrDefault(y => y[this.FanClass.PropertyCollection["UUID"]].Value.ToString() == x.UUID);
+                        if (oldFan == null)
                         {
                             var newFan = this.CreateFan(x);
-                            newFan[this.ComputerKey].Value = model.DN;
-                            newFan[this.HuaweiServerKey].Value = model.DN;
                             newFan[this.PartGroupKey].Value = fanGroup[this.PartGroupKey].Value;
+                            newFan[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newFan);
                         }
                         else
                         {
-                            discoveryData.Add(fan);
+                            this.UpdateFan(x, oldFan);
+                            discoveryData.Add(oldFan);
                         }
                     });
 
-            #region PSU
+                #region PSU
 
-            var psuGroup = oldServer.GetRelatedMonitoringObjects(this.PowerSupplyGroupClass).First();
-            discoveryData.Add(psuGroup);
+                var psuGroup = oldServer.GetRelatedMonitoringObjects(this.PowerSupplyGroupClass).First();
+                discoveryData.Add(psuGroup);
 
-            var relatedPsuObjects = psuGroup.GetRelatedMonitoringObjects(this.PowerSupplyClass);
-            var deletePsu = relatedPsuObjects.Where(
-                x => model.PowerSupplyList.All(
-                    y => y.UUID != x[this.PowerSupplyClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
-            deletePsu.ForEach(x => { discoveryData.Remove(x); });
-            model.PowerSupplyList.ForEach(
-                x =>
+                var relatedPsuObjects = psuGroup.GetRelatedMonitoringObjects(this.PowerSupplyClass);
+                var deletePsu = relatedPsuObjects.Where(
+                    x => model.PowerSupplyList.All(
+                        y => y.UUID != x[this.PowerSupplyClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
+                deletePsu.ForEach(x => { discoveryData.Remove(x); });
+                model.PowerSupplyList.ForEach(
+                    x =>
                     {
-                        var psu = this.UpdatePowerSupply(x);
-                        if (psu == null)
+                        var oldPsu = relatedPsuObjects.FirstOrDefault(y => y[this.PowerSupplyClass.PropertyCollection["UUID"]].Value.ToString() == x.UUID);
+                        if (oldPsu == null)
                         {
                             var newpsu = this.CreatePowerSupply(x);
-                            newpsu[this.ComputerKey].Value = model.DN;
-                            newpsu[this.HuaweiServerKey].Value = model.DN;
                             newpsu[this.PartGroupKey].Value = psuGroup[this.PartGroupKey].Value;
+                            newpsu[this.HuaweiServerKey].Value = model.DeviceId;
                             discoveryData.Add(newpsu);
                         }
                         else
                         {
-                            discoveryData.Add(psu);
+                            this.UpdatePowerSupply(x, oldPsu);
+                            discoveryData.Add(oldPsu);
                         }
                     });
 
-            #endregion
+                #endregion
 
-            #region Disk
+                #region Disk
 
-            var diskGroup = oldServer.GetRelatedMonitoringObjects(this.PhysicalDiskGroupClass).First();
-            discoveryData.Add(diskGroup);
+                var diskGroup = oldServer.GetRelatedMonitoringObjects(this.PhysicalDiskGroupClass).First();
+                discoveryData.Add(diskGroup);
 
-            var relatedDiskObjects = diskGroup.GetRelatedMonitoringObjects(this.PhysicalDiskClass);
-            var deleteDisk = relatedDiskObjects.Where(
-                x => model.DiskList.All(
-                    y => y.UUID != x[this.PhysicalDiskClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
-            deleteDisk.ForEach(x => { discoveryData.Remove(x); });
-            model.DiskList.ForEach(
-                y =>
+                var relatedDiskObjects = diskGroup.GetRelatedMonitoringObjects(this.PhysicalDiskClass);
+                var deleteDisk = relatedDiskObjects.Where(
+                    x => model.DiskList.All(
+                        y => y.UUID != x[this.PhysicalDiskClass.PropertyCollection["UUID"]].Value.ToString())).ToList();
+                deleteDisk.ForEach(x => { discoveryData.Remove(x); });
+                model.DiskList.ForEach(
+                    y =>
                     {
-                        var disk = this.UpdateDisk(y);
-                        if (disk == null)
+                        var oldDisk = relatedDiskObjects.FirstOrDefault(z => z[this.PhysicalDiskClass.PropertyCollection["UUID"]].Value.ToString() == y.UUID);
+                        if (oldDisk == null)
                         {
                             var newDisk = this.CreateDisk(y);
-                            newDisk[this.ComputerKey].Value = model.DN;
-                            newDisk[this.HuaweiServerKey].Value = model.DN;
+                            newDisk[this.HuaweiServerKey].Value = model.DeviceId;
                             newDisk[this.PartGroupKey].Value = diskGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newDisk);
                         }
                         else
                         {
-                            discoveryData.Add(disk);
+                            this.UpdateDisk(y, oldDisk);
+                            discoveryData.Add(oldDisk);
                         }
                     });
 
-            #endregion
+                #endregion
 
-            #region Raid
+                #region Raid
 
-            var raidGroup = oldServer.GetRelatedMonitoringObjects(this.RaidGroupClass).First();
-            discoveryData.Add(raidGroup);
+                var raidGroup = oldServer.GetRelatedMonitoringObjects(this.RaidGroupClass).First();
+                discoveryData.Add(raidGroup);
 
-            var relatedRaidObjects = raidGroup.GetRelatedMonitoringObjects(this.RaidClass);
-            var deleteRaid = relatedRaidObjects.Where(
-                    x => model.RaidList.All(
-                        y => y.UUID != x[this.RaidClass.PropertyCollection["UUID"]].Value.ToString()))
-                .ToList();
-            deleteRaid.ForEach(x => { discoveryData.Remove(x); });
-            model.RaidList.ForEach(
-                y =>
+                var relatedRaidObjects = raidGroup.GetRelatedMonitoringObjects(this.RaidClass);
+                var deleteRaid = relatedRaidObjects.Where(
+                        x => model.RaidList.All(
+                            y => y.UUID != x[this.RaidClass.PropertyCollection["UUID"]].Value.ToString()))
+                    .ToList();
+                deleteRaid.ForEach(x => { discoveryData.Remove(x); });
+                model.RaidList.ForEach(
+                    y =>
                     {
-                        var raid = this.UpdateRaidControl(y);
-                        if (raid == null)
+                        var oldRaid = relatedRaidObjects.FirstOrDefault(z => z[this.RaidClass.PropertyCollection["UUID"]].Value.ToString() == y.UUID);
+                        if (oldRaid == null)
                         {
                             var newRaid = this.CreateRaidControl(y);
-                            newRaid[this.ComputerKey].Value = model.DN;
-                            newRaid[this.HuaweiServerKey].Value = model.DN;
+                            newRaid[this.HuaweiServerKey].Value = model.DeviceId;
                             newRaid[this.PartGroupKey].Value = raidGroup[this.PartGroupKey].Value;
                             discoveryData.Add(newRaid);
                         }
                         else
                         {
-                            discoveryData.Add(raid);
+                            this.UpdateRaidControl(y, oldRaid);
+                            discoveryData.Add(oldRaid);
                         }
                     });
 
-            #endregion
+                #endregion
 
-            discoveryData.Overwrite(this.MontioringConnector);
-            HWLogger.NOTIFICATION_PROCESS.Debug("Start UpdateKunLun");
+                discoveryData.Overwrite(this.MontioringConnector);
+            }
+            catch (Exception e)
+            {
+                HWLogger.GetESightSdkLogger(model.ESight).Error($"Update KunLun Error.[{model.DN}] [isPolling:{isPolling}]", e);
+            }
         }
 
         /// <summary>
         /// The exsits kun lun server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="bool"/>.
-        /// </returns>
-        public bool ExsitsKunLunServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="bool" />.</returns>
+        public bool ExsitsKunLunServer(string deviceId)
         {
-            return this.ExsitsDn(dn, this.KunLunClass);
+            return this.ExsitsDeviceId(deviceId, this.KunLunClass);
         }
 
         /// <summary>
         /// The get kun lun server.
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        public MonitoringObject GetKunLunServer(string dn)
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        public MonitoringObject GetKunLunServer(string deviceId)
         {
-            return this.GetObject($"DN = '{dn}'", this.KunLunClass);
+            return this.GetObject($"DN = '{deviceId}'", this.KunLunClass);
         }
+        #endregion
+
+        #region Event
 
         /// <summary>
         /// The insert event.
         /// </summary>
         /// <param name="eventData">The event data.</param>
-        public void InsertEvent(EventData eventData)
+        /// <param name="eSightIp">The e sight ip.</param>
+        public void InsertEvent(EventData eventData, string eSightIp)
         {
-            this.InsertEvent(this.KunLunClass, eventData);
+            this.InsertEvent(this.KunLunClass, eventData, eSightIp);
+        }
+
+        /// <summary>
+        /// Inserts the history event.
+        /// </summary>
+        /// <param name="eventDatas">The event datas.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        public void InsertHistoryEvent(List<EventData> eventDatas, string eSightIp)
+        {
+            this.InsertHistoryEvent(this.KunLunClass, eventDatas, eSightIp);
         }
 
         /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="deviceChangeEventData">The device change event data.</param>
-        public void InsertDeviceChangeEvent(DeviceChangeEventData deviceChangeEventData)
+        /// <param name="eSightIp">The e sight ip.</param>
+        public void InsertDeviceChangeEvent(DeviceChangeEventData deviceChangeEventData, string eSightIp)
         {
-            this.InsertDeviceChangeEvent(this.KunLunClass, deviceChangeEventData);
+            this.InsertDeviceChangeEvent(this.KunLunClass, deviceChangeEventData, eSightIp);
         }
+        #endregion
+
+        #region Remove
 
         /// <summary>
         /// Removes the e sight kunLun.
@@ -513,7 +543,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// </param>
         public void RemoveServerFromMGroup(string eSightIp)
         {
-            this.RemoverServers(this.KunLunClass, eSightIp);
+            this.RemoverServersByESight(this.KunLunClass, eSightIp);
         }
 
         /// <summary>
@@ -522,6 +552,16 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void RemoverAllKunLun()
         {
             this.RemoverServers(this.KunLunClass);
+        }
+
+        /// <summary>
+        /// Deletes the kun lun on synchronize.
+        /// </summary>
+        /// <param name="eSightIp">The e sight ip.</param>
+        /// <param name="newDeviceIds">The new device ids.</param>
+        public void RemoveKunLunOnSync(string eSightIp, List<string> newDeviceIds)
+        {
+            this.RemoveServersOnSync(eSightIp, newDeviceIds, this.KunLunClass);
         }
 
         #endregion
@@ -541,8 +581,8 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var propertys = this.KunLunClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.KunLunClass); // 实例化一个class
-            obj[this.HuaweiServerKey].Value = model.DN;
-            obj[propertys["Status"]].Value = model.Status;
+            obj[this.HuaweiServerKey].Value = model.DeviceId;
+            obj[propertys["Status"]].Value = model.Status == "-3" ? "0" : model.Status;
             obj[propertys["Vendor"]].Value = "HUAWEI";
             obj[propertys["Manufacturer"]].Value = model.Manufacturer;
             obj[propertys["UUID"]].Value = model.UUID;
@@ -562,6 +602,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             return obj;
         }
 
+
         /// <summary>
         /// Creates the disk.
         /// </summary>
@@ -577,7 +618,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.PhysicalDiskClass); // 实例化一个class
             obj[propertys["UUID"]].Value = model.UUID;
 
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
             obj[propertys["Locator"]].Value = model.Location;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["Diskcapacity"]].Value = string.Empty;
@@ -599,7 +640,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var propertys = this.FanClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.FanClass); // 实例化一个class
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
             obj[propertys["UUID"]].Value = model.UUID;
 
             obj[propertys["PresentState"]].Value = model.PresentState;
@@ -624,7 +665,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.PowerSupplyClass); // 实例化一个class
             obj[propertys["UUID"]].Value = model.UUID;
 
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
             obj[propertys["Manufacturer"]].Value = model.Manufacturer;
             obj[propertys["InputMode"]].Value = model.InputMode;
             obj[propertys["Model"]].Value = model.Model;
@@ -650,7 +691,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.RaidClass); // 实例化一个class
             obj[propertys["UUID"]].Value = model.UUID;
 
-            obj[propertys["Status"]].Value = model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
             obj[propertys["Type"]].Value = model.RaidType;
             obj[propertys["DeviceInterface"]].Value = model.InterfaceType;
             obj[propertys["BBUType"]].Value = model.BbuType;
@@ -665,76 +706,57 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Updates the disk.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        private MonitoringObject UpdateDisk(HWDisk model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        private void UpdateDisk(HWDisk model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.PhysicalDiskClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
             var propertys = this.PhysicalDiskClass.PropertyCollection; // 获取到class的属性
             // oldObject[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
             oldObject[propertys["Locator"]].Value = model.Location;
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["Diskcapacity"]].Value = string.Empty;
             oldObject[propertys["IndterfaceType"]].Value = string.Empty;
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the fan.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// MPObject.
-        /// </returns>
-        private MonitoringObject UpdateFan(HWFAN model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>MPObject.</returns>
+        private void UpdateFan(HWFAN model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.FanClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
             var propertys = this.FanClass.PropertyCollection; // 获取到class的属性
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["Speed"]].Value = model.Rotate;
             oldObject[propertys["RotatePercent"]].Value = model.RotatePercent;
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the power supply.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// MPObject.
-        /// </returns>
-        private MonitoringObject UpdatePowerSupply(HWPSU model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>MPObject.</returns>
+        private void UpdatePowerSupply(HWPSU model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.PowerSupplyClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
             var propertys = this.PowerSupplyClass.PropertyCollection; // 获取到class的属性
             // oldObject[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
             oldObject[propertys["Manufacturer"]].Value = model.Manufacturer;
             oldObject[propertys["InputMode"]].Value = model.InputMode;
             oldObject[propertys["Model"]].Value = model.Model;
@@ -743,37 +765,28 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
 
         /// <summary>
         /// Updates the raid control.
         /// </summary>
-        /// <param name="model">
-        /// The model.
-        /// </param>
-        /// <returns>
-        /// The <see cref="MonitoringObject"/>.
-        /// </returns>
-        private MonitoringObject UpdateRaidControl(HWRAID model)
+        /// <param name="model">The model.</param>
+        /// <param name="oldObject">The old object.</param>
+        /// <returns>The <see cref="MonitoringObject" />.</returns>
+        private void UpdateRaidControl(HWRAID model, MonitoringObject oldObject)
         {
-            var oldObject = this.GetObject($"UUID = '{model.UUID}'", this.RaidClass);
-            if (oldObject == null)
-            {
-                return null;
-            }
             var propertys = this.RaidClass.PropertyCollection; // 获取到class的属性
             // oldObject[propertys["UUID"]].Value = model.UUID;
-            oldObject[propertys["Status"]].Value = model.HealthState;
+            if (model.HealthState != "-3")
+            {
+                oldObject[propertys["Status"]].Value = model.HealthState;
+            }
             oldObject[propertys["Type"]].Value = model.RaidType;
             oldObject[propertys["DeviceInterface"]].Value = model.InterfaceType;
             oldObject[propertys["BBUType"]].Value = model.BbuType;
             oldObject[propertys["FirmwareVersion"]].Value = string.Empty;
             oldObject[propertys["DirverVersion"]].Value = string.Empty;
             oldObject[this.DisplayNameField].Value = model.Name;
-
-            return oldObject;
         }
         #endregion
     }

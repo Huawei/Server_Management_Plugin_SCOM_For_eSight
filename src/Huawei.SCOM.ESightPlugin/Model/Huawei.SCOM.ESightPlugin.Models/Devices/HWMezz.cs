@@ -15,29 +15,17 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
-
-
-        private string _mezzHealthStatus;
+        /// <summary>
+        /// 原始状态
+        /// </summary>
+        /// <value>The ori status.</value>
+        [JsonProperty(PropertyName = "mezzHealthStatus")]
+        public string OriStatus { get; set; }
 
         /// <summary>
         /// 健康状态（1：:正常；-2、5：未知;其他故障；PresentState为-2时健康状态是为未知）
         /// </summary>
-        [JsonProperty(PropertyName = "mezzHealthStatus")]
-        public string MezzHealthStatus
-        {
-            get { return _mezzHealthStatus; }
-            set
-            {
-                if (PresentState == "-2")
-                {
-                    _mezzHealthStatus = "-2";
-                }
-                else
-                {
-                    _mezzHealthStatus = StatusHelper.ConvertMezzHealthStatus(value);
-                }
-            }
-        }
+        public string MezzHealthStatus => StatusHelper.ConvertStatus(OriStatus);
 
         private string _presentState { get; set; }
 

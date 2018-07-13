@@ -22,6 +22,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
 
     using Huawei.SCOM.ESightPlugin.Const;
     using Huawei.SCOM.ESightPlugin.Models;
+    using Huawei.SCOM.ESightPlugin.RESTeSightLib;
     using Huawei.SCOM.ESightPlugin.WebServer.Helper;
     using Huawei.SCOM.ESightPlugin.WebServer.Model;
 
@@ -79,6 +80,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
                     addModel.LoginPd = context.Request.Form["LoginPd"];
                     addModel.SubscripeNeDeviceError = string.Empty;
                     addModel.SubscripeAlarmError = string.Empty;
+                    addModel.SubKeepAliveError = string.Empty;
                     context.Response.Write(JsonUtil.SerializeObject(ESightHelper.Add(addModel)));
                     break;
                 case "update":

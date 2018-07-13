@@ -41,8 +41,12 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         [JsonProperty(PropertyName = "uuid")]
         public string UUID { get; set; }
 
-
-        private string _status;
+        /// <summary>
+        /// 原始状态
+        /// </summary>
+        /// <value>The ori status.</value>
+        [JsonProperty(PropertyName = "status")]
+        public string OriStatus { get; set; }
 
         /// <summary>
         /// 服务器状态，含义如下：
@@ -51,8 +55,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         ///	“-2”：未知
         ///	其他：故障
         /// </summary>
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get { return _status; } set { _status = StatusHelper.ConvertStatus(value); } }
+        public string Status => StatusHelper.ConvertStatus(OriStatus);
 
         /// <summary>
         /// Gets or sets the SMM mac addr.

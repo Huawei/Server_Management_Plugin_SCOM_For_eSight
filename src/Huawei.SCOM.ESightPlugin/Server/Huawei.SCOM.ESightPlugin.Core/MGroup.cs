@@ -73,11 +73,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 if (instance == null)
                 {
 #if DEBUG
-                    var settings = new ManagementGroupConnectionSettings("192.168" + ".10.83")
+                    var settings = new ManagementGroupConnectionSettings("192.168" + ".8.236")
                     {
-                        UserName = "Administrator",
-                        Domain = "ADTEST",//"MOSAI",
-                        Password = ConvertToSecureString("Simple.0"),//Mosai@520
+                        UserName = "scom",
+                        Domain = "MOSAI",//"MOSAI",
+                        Password = ConvertToSecureString("Mosai@520"),//Mosai@520
                     };
                     instance = new MGroup(settings);
 #else
@@ -148,7 +148,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     }
                     catch (Exception ex)
                     {
-                        HWLogger.SERVICE.Error("keep Management Group Connection error", ex);
+                        HWLogger.Service.Error("keep Management Group Connection error", ex);
                         this.Reconnect();
                     }
                 };
@@ -244,7 +244,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             if (oldMp != null)
             {
                 // 已安装则跳过
-                HWLogger.UPDATER.Warn($"Skip install：{oldMp.Name}-{oldMp.Version} has Installed.");
+                HWLogger.Install.Warn($"Skip install：{oldMp.Name}-{oldMp.Version} has Installed.");
                 //// 已安装
                 // if (oldMp.Version != newMp.Version)
                 // {
@@ -255,13 +255,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 // }
                 // else
                 // {
-                // HWLogger.UPDATER.Warn($"Skip install：{newMp.Name}-{newMp.Version} has Installed.");
+                // HwLogger.Install.Warn($"Skip install：{newMp.Name}-{newMp.Version} has Installed.");
                 // }
             }
             else
             {
                 this.ManagementPacks.ImportManagementPack(newMp);
-                HWLogger.UPDATER.Warn($"Install {newMp.Name} Finish.");
+                HWLogger.Install.Warn($"Install {newMp.Name} Finish.");
             }
         }
 
@@ -280,7 +280,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var newMp = bundle.ManagementPacks.FirstOrDefault();
             if (newMp == null)
             {
-                HWLogger.UPDATER.Warn($"Install faild. can not find ManagementPack in the path :{path}");
+                HWLogger.Install.Warn($"Install faild. can not find ManagementPack in the path :{path}");
                 return;
             }
 
@@ -288,12 +288,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var oldMp = this.ManagementPacks.GetManagementPacks(criteria).FirstOrDefault();
             if (oldMp != null)
             {
-                HWLogger.UPDATER.Warn($"Skip install：{oldMp.Name}-{oldMp.Version} has Installed.");
+                HWLogger.Install.Warn($"Skip install：{oldMp.Name}-{oldMp.Version} has Installed.");
             }
             else
             {
                 this.ManagementPacks.ImportBundle(bundle);
-                HWLogger.UPDATER.Warn($"Install {newMp.Name} Finish.");
+                HWLogger.Install.Warn($"Install {newMp.Name} Finish.");
             }
         }
 
@@ -306,7 +306,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var montioringConnector = this.GetConnector(connectorGuid);
             Console.WriteLine($"Start Uninstall connector: {connectorGuid}");
-            HWLogger.SERVICE.Info($"Start Uninstall connector {connectorGuid}");
+            HWLogger.Service.Info($"Start Uninstall connector {connectorGuid}");
             try
             {
                 if (montioringConnector != null)
@@ -326,7 +326,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     }
                     catch (Exception ex)
                     {
-                        HWLogger.SERVICE.Error($"Error on {connectorName} Uninitialize.", ex);
+                        HWLogger.Service.Error($"Error on {connectorName} Uninitialize.", ex);
                         Console.WriteLine($" Error on {connectorName} Uninitialize", ex);
                     }
 
@@ -334,13 +334,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 }
                 else
                 {
-                    HWLogger.SERVICE.Info($"Error uninstalling : Can not find connector: {connectorGuid}");
+                    HWLogger.Service.Info($"Error uninstalling : Can not find connector: {connectorGuid}");
                     Console.WriteLine($"Error uninstalling :Can not find connector: {connectorGuid} ");
                 }
             }
             catch (Exception ex)
             {
-                HWLogger.SERVICE.Error("Error uninstalling connector...", ex);
+                HWLogger.Service.Error("Error uninstalling connector...", ex);
                 Console.WriteLine($" Error uninstalling {connectorGuid} ", ex);
                 throw;
             }
@@ -376,7 +376,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             if (!this.IsConnected)
             {
-                HWLogger.SERVICE.Info("Reconnect");
+                HWLogger.Service.Info("Reconnect");
                 this.Reconnect();
             }
         }

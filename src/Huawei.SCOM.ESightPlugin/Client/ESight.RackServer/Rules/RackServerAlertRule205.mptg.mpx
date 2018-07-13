@@ -25,7 +25,7 @@
               <Expression>
                 <SimpleExpression>
                   <ValueExpression>
-                    <XPathQuery>Params/Param[1]$</XPathQuery>
+                    <XPathQuery>Params/Param[1]</XPathQuery>
                   </ValueExpression>
                   <Operator>Equal</Operator>
                   <ValueExpression>

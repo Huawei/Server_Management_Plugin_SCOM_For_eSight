@@ -7,6 +7,8 @@
           <!--DisplayName = ESight：name 继承 System.LogicalEntity -->
           <!--ESight：dn-->
           <Property ID="DN" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：eSightIp-->
+          <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：uuid-->
           <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
            <!--ESight：presentState-->
@@ -57,6 +59,10 @@
         <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="DN">
           <Name>DN</Name>
           <Description>DN</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="eSight">
+          <Name>eSight</Name>
+          <Description>eSight</Description>
         </DisplayString>
         <DisplayString ElementID="ESight.BladeServer.Blade" SubElementID="UUID">
           <Name>UUID</Name>

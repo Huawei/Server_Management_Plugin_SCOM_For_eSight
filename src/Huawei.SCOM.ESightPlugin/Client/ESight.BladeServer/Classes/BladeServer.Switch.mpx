@@ -5,24 +5,33 @@
 
         <ClassType ID="ESight.BladeServer.Switch" Base="System!System.PhysicalEntity" Accessibility="Internal" Abstract="false" Hosted="true" Singleton="false">
 
-          <!--ESight：UUID-->
-          <Property ID="UUID" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：需增加-->
-          <Property ID="BladeVersion" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
-          <!--ESight：需增加-->
-          <Property ID="SwitchType" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
-          <!--ESight：需增加-->
-          <Property ID="ProductName" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
-          <!--ESight：manufacture-->
-          <Property ID="BoardManufacturer" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
-          <!--ESight：partNumber-->
-          <Property ID="BoardPartNumber" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
+          <Property ID="DN" Type="string" Key="true" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：eSightIp-->
+          <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：parentDn-->
+          <Property ID="ParentDN" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：ipAddress-->
+          <Property ID="IpAddress" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：type-->
+          <Property ID="BoardType" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：sn-->
-          <Property ID="BoardSerialNumber" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
+          <Property ID="SerialNumber" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：partNumber-->
+          <Property ID="PartNumber" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：manufacture-->
+          <Property ID="Manufacturer" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：manuTime-->
-          <Property ID="BoardManufacturerDate" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
+          <Property ID="ManufacturerDate" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：presentState-->
+          <Property ID="PresentState" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：assertTag-->
+          <Property ID="AssertTag" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：moId-->
+          <Property ID="MoId" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：uuid-->
+          <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：status-->
-          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
+          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
         </ClassType>
       </ClassTypes>
       <RelationshipTypes>
@@ -46,6 +55,10 @@
           <Name>Switch Board</Name>
           <Description>Switch Board</Description>
         </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="eSight">
+          <Name>eSight</Name>
+          <Description>eSight</Description>
+        </DisplayString>
         <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="Status">
           <Name>Status</Name>
           <Description>Status</Description>
@@ -54,34 +67,47 @@
           <Name>UUID</Name>
           <Description>UUID</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="BladeVersion">
-          <Name>BladeVersion</Name>
-          <Description>BladeVersion</Description>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="ParentDN">
+          <Name>ParentDN</Name>
+          <Description>ParentDN</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="SwitchType">
-          <Name>SwitchType</Name>
-          <Description>SwitchType</Description>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="IpAddress">
+          <Name>IpAddress</Name>
+          <Description>IpAddress</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="ProductName">
-          <Name>ProductName</Name>
-          <Description>ProductName</Description>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="BoardType">
+          <Name>BoardType</Name>
+          <Description>BoardType</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="BoardPartNumber">
-          <Name>BoardPartNumber</Name>
-          <Description>BoardPartNumber</Description>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="SerialNumber">
+          <Name>SerialNumber</Name>
+          <Description>SerialNumber</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="BoardManufacturer">
-          <Name>BoardManufacturer</Name>
-          <Description>BoardManufacturer</Description>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="PartNumber">
+          <Name>PartNumber</Name>
+          <Description>PartNumber</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="BoardSerialNumber">
-          <Name>BoardSerialNumber</Name>
-          <Description>BoardSerialNumber</Description>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="Manufacturer">
+          <Name>Manufacturer</Name>
+          <Description>Manufacturer</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="BoardManufacturerDate">
-          <Name>BoardManufacturerDate</Name>
-          <Description>BoardManufacturerDate</Description>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="ManufacturerDate">
+          <Name>ManufacturerDate</Name>
+          <Description>ManufacturerDate</Description>
         </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="PresentState">
+          <Name>PresentState</Name>
+          <Description>PresentState</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="AssertTag">
+          <Name>AssertTag</Name>
+          <Description>AssertTag</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.BladeServer.Switch" SubElementID="MoId">
+          <Name>MoId</Name>
+          <Description>MoId</Description>
+        </DisplayString>
+
       </DisplayStrings>
     </LanguagePack>
   </LanguagePacks>

@@ -70,22 +70,22 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
                 {
                     throw new Exception($"alarmData is null");
                 }
-                HWLogger.NOTIFICATION.Info($"url :{url},msgType{msgType}, data:{JsonUtil.SerializeObject(alarmData)}");
+                HWLogger.NotifyRecv.Info($"url :{url},[msgType:{msgType}], data:{JsonUtil.SerializeObject(alarmData)}");
                 if (string.IsNullOrWhiteSpace(alarmData.NeDN))
                 {
                     throw new Exception($"The message do not contain DN param.");
                 }
-                if (alarmData.OptType == 3 && alarmData.OptType == 4)
+                if (alarmData.OptType == 3 || alarmData.OptType == 4 || alarmData.OptType == 6)
                 {
-                    // 过滤掉3：确认告警4：反确认告警
-                    HWLogger.NOTIFICATION.Info($"OptType is{alarmData.OptType}, Do not handle");
+                    // 过滤掉3：确认告警4：反确认告警 6：新增事件，
+                    HWLogger.NotifyRecv.Info($"alarmData OptType is {alarmData.OptType}. Do not need handle");
                 }
                 else
                 {
                     var eSight = ESightDal.Instance.GetEntityBySubscribeId(subscribeId);
                     if (eSight == null)
                     {
-                        HWLogger.NOTIFICATION.Warn($"can not find the eSight,subscribeID:{subscribeId}");
+                        HWLogger.NotifyRecv.Warn($"can not find the eSight,subscribeID:{subscribeId}");
                     }
                     else
                     {
@@ -110,7 +110,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
             }
             catch (Exception ex)
             {
-                HWLogger.NOTIFICATION.Error($"Alarm Notification Error:{url} formData:{formData}", ex);
+                HWLogger.NotifyRecv.Error($"Alarm Notification Error:{url} formData:{formData}", ex);
                 context.Response.Write($"Alarm Notification Error: { ex }");
             }
             context.Response.End();

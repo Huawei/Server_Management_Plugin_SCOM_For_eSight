@@ -86,8 +86,14 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         public List<HWDisk> DiskList { get; set; }
 
         /// <summary>
-        ///     服务器唯一标识，例如：
-        ///     "NE=xxx"
+        /// 服务器唯一标识，格式为eSightIp-Dn
+        /// "192.168.1.1-NE=xxx"
+        /// </summary>
+        public string DeviceId { get; set; }
+
+        /// <summary>
+        /// 服务器唯一标识，例如：
+        /// "NE=xxx"
         /// </summary>
         public string DN { get; set; }
 
@@ -187,20 +193,21 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         public string Version { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="KunLunServer"/> class.
+        /// Initializes a new instance of the <see cref="KunLunServer" /> class.
         /// </summary>
-        /// <param name="x">
-        /// The x.
-        /// </param>
-        public void MakeDetail(HWDeviceDetail x)
+        /// <param name="x">The x.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        public void MakeDetail(HWDeviceDetail x, string eSightIp)
         {
+            this.ESight = eSightIp;
             this.CPUNums = x.CPUNums;
             this.Description = x.Description;
             this.DN = x.DN;
+            this.DeviceId = $"{eSightIp}-{ x.DN}";
             this.IpAddress = x.IpAddress;
             this.MemoryCapacity = x.MemoryCapacity;
             this.Mode = x.Mode;
-            this.Name = x.Name;
+            this.Name = $"{eSightIp}-{ x.Name}";
             this.ProductSN = x.ProductSN;
 
             this.Status = x.Status;

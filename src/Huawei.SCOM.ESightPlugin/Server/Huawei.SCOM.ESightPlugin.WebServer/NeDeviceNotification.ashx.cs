@@ -69,7 +69,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
                 {
                     throw new Exception($"alarmData is null");
                 }
-                HWLogger.NOTIFICATION.Info($"url :{url},msgType{msgType}, data:{JsonUtil.SerializeObject(alarmData)}");
+                HWLogger.NotifyRecv.Info($"url :{url},[msgType:{msgType}], data:{JsonUtil.SerializeObject(alarmData)}");
                 if (string.IsNullOrWhiteSpace(alarmData.DeviceId))
                 {
                     throw new Exception($"The message do not contain \"DeviceId\" param.");
@@ -77,7 +77,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
                 var eSight = ESightDal.Instance.GetEntityBySubscribeId(subscribeId);
                 if (eSight == null)
                 {
-                    HWLogger.NOTIFICATION.Warn($"can not find the eSight,subscribeID:{subscribeId}");
+                    HWLogger.NotifyRecv.Warn($"can not find the eSight,subscribeID:{subscribeId}");
                 }
                 else
                 {
@@ -100,7 +100,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
             }
             catch (Exception ex)
             {
-                HWLogger.NOTIFICATION.Error($"NeDevice Notification Error:{url} formData:{formData}", ex);
+                HWLogger.NotifyRecv.Error($"NeDevice Notification Error:{url} formData:{formData}", ex);
                 context.Response.Write($"NeDevice Notification Error:{ ex } ");
             }
             context.Response.End();

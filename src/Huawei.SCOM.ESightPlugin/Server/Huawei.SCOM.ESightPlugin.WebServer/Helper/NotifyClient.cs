@@ -72,7 +72,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
         /// </summary>
         public void Init()
         {
-            HWLogger.NOTIFICATION.Info($"Init NotifyClient");
+            HWLogger.NotifyRecv.Info($"Init NotifyClient");
             this.MessageQueue = new Queue<ITcpMessage>();
             var worker = new Thread(this.DoJob);
             worker.Start();
@@ -103,7 +103,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                         {
                             var msg = this.MessageQueue.Dequeue(); // 有任务时，出列任务
                             var json = JsonUtil.SerializeObject(msg);
-                            HWLogger.NOTIFICATION.Info($"SendMsg :{json}");
+                            HWLogger.NotifyRecv.Debug($"SendTcpMsg :{json}");
                             if (client == null || !client.Connected)
                             {
                                 client = new TcpClient("127.0" + ".0.1", this.RemoteTcpPort);
@@ -117,12 +117,12 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                                 var bytes = ns.Read(resData, 0, resData.Length);
                                 var result = Encoding.UTF8.GetString(resData, 0, bytes);
 
-                                HWLogger.NOTIFICATION.Info($"SendMsgResult Id:{msg.Id} result:{result}");
+                                //HwLogger.NotifyRecv.Debug($"SendMsgResult Id:{msg.Id} result:{result}");
                             }
                         }
                         catch (Exception ex)
                         {
-                            HWLogger.NOTIFICATION.Error($"SendMsgResult Error", ex);
+                            HWLogger.NotifyRecv.Error($"SendMsgResult Error", ex);
                         }
                     }
                 }

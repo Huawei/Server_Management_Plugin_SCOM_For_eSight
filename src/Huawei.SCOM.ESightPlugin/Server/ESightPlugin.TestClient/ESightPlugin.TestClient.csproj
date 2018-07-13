@@ -73,10 +73,6 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommonUtil, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\src_bin\CommonUtil.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.EnterpriseManagement.Core, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -137,6 +133,10 @@
     <ProjectReference Include="..\Huawei.SCOM.ESightPlugin.Core\Huawei.SCOM.ESightPlugin.Core.csproj">
       <Project>{a7fe7211-8d01-49d4-88e5-16c0a9abf9b5}</Project>
       <Name>Huawei.SCOM.ESightPlugin.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Util\CommonUtil\CommonUtil.csproj">
+      <Project>{C79A21BF-E869-4B93-A787-67B1D4231C02}</Project>
+      <Name>CommonUtil</Name>
     </ProjectReference>
     <ProjectReference Include="..\Huawei.SCOM.ESightPlugin.Service\Huawei.SCOM.ESightPlugin.Service.csproj">
       <Project>{997f9589-52d3-4124-8319-cb47e5bd8f55}</Project>

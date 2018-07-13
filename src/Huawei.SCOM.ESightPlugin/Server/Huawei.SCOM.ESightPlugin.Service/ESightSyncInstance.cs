@@ -16,6 +16,8 @@ namespace Huawei.SCOM.ESightPlugin.Service
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
     using System.Management.Instrumentation;
     using System.Threading;
     using System.Threading.Tasks;
@@ -30,9 +32,8 @@ namespace Huawei.SCOM.ESightPlugin.Service
     using Huawei.SCOM.ESightPlugin.RESTeSightLib;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper;
 
-    using LogUtil;
-
     using Timer = System.Timers.Timer;
+    using LogUtil;
 
     /// <summary>
     ///     Class ESightSyncInstance.
@@ -41,19 +42,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
     {
         #region field
         /// <summary>
-        /// 为保证线程安全，使用一个锁来保护_task的访问
-        /// </summary>
-        private readonly object locker = new object();
-
-        /// <summary>
-        /// The _wh.
-        /// </summary>
-        private readonly EventWaitHandle waitHandle = new AutoResetEvent(false);
-
-        /// <summary>
         ///     The task list.
         /// </summary>
         private readonly List<Task> taskList = new List<Task>();
+
+        private ESightLogger logger;
+
         #endregion
 
         #region Constuctor
@@ -65,14 +59,17 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// </param>
         public ESightSyncInstance(HWESightHost eSight)
         {
+            logger = new ESightLogger(eSight.HostIP);
+            this.IsRunning = true;
             this.Session = new ESightSession(eSight);
-            this.NeedUpdateDnQueue = new Queue<string>();
-            var worker = new Thread(this.DoJob);
-            worker.Start();
+            this.UpdateDnTasks = new List<UpdateDnTask>();
+            this.LastAliveTime = DateTime.Now;
+            this.StartKeepAliveJob();
         }
         #endregion
 
         #region Property
+
 
         /// <summary>
         /// Gets or sets the session.
@@ -119,9 +116,29 @@ namespace Huawei.SCOM.ESightPlugin.Service
         public bool NeedSubscribeDeviceChange => this.Session.ESight.SubscriptionNeDeviceStatus != 1;
 
         /// <summary>
-        /// Gets or sets the dn queue.
+        /// 是否需要订阅保活
         /// </summary>
-        public Queue<string> NeedUpdateDnQueue { get; set; }
+        /// <value><c>true</c> if [need subscribe keep alive]; otherwise, <c>false</c>.</value>
+        public bool NeedSubscribeKeepAlive => this.Session.ESight.SubKeepAliveStatus != 1;
+
+        public List<UpdateDnTask> UpdateDnTasks { get; set; }
+
+        /// <summary>
+        /// 上次保活时间
+        /// </summary>
+        /// <value>The last alive time.</value>
+        public DateTime LastAliveTime { get; set; }
+
+        /// <summary>
+        /// 是否需要保活（订阅保活成功后改为true,保活超时后改为false）
+        /// </summary>
+        /// <value><c>true</c> if this instance is need keep alive; otherwise, <c>false</c>.</value>
+        public bool IsNeedKeepAlive { get; set; }
+
+        /// <summary>
+        /// 是否允许
+        /// </summary>
+        public bool IsRunning { get; set; }
 
         #endregion
 
@@ -135,86 +152,20 @@ namespace Huawei.SCOM.ESightPlugin.Service
         }
 
         /// <summary>
-        /// Subscribes the eSight.
-        /// </summary>
-        public void Subscribe()
-        {
-            this.OnLog($"Start Subscribe");
-            // 如果没有订阅，则订阅
-            Task.Run(async () =>
-            {
-                await Task.Delay(3 * 1000);
-                try
-                {
-                    if (this.NeedSubscribeAlarm)
-                    {
-                        var result = this.Session.SubscribeAlarm();
-
-                        var status = 0;
-                        if (result.Code != 0)
-                        {
-                            status = -1;
-                            this.OnNotifyError($"Subscription Alarm faild.");
-                            this.OnNotifyError($"{JsonUtil.SerializeObject(result)}");
-                        }
-                        else
-                        {
-                            status = 1;
-                            this.OnNotifyLog($"Subscription Alarm Success:{JsonUtil.SerializeObject(result)}");
-                        }
-                        this.Session.ESight.SubscriptionAlarmStatus = status;
-                        this.Session.ESight.SubscripeAlarmError = result.Description;
-                        // 订阅后更新实体
-                        ESightDal.Instance.UpdateESightAlarm(this.ESightIp, status, result.Description);
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.OnError($"Subscription Alarm error: {this.ESightIp}", e);
-                }
-                try
-                {
-                    if (this.NeedSubscribeDeviceChange)
-                    {
-                        var result = this.Session.SubscribeNeDevice();
-                        var status = 0;
-                        if (result.Code != 0)
-                        {
-                            status = -1;
-                            this.OnNotifyError($"Subscription DeviceChange faild.");
-                            this.OnNotifyError($"{JsonUtil.SerializeObject(result)}");
-                        }
-                        else
-                        {
-                            status = 1;
-                            this.OnNotifyLog($"Subscription DeviceChange Success:{JsonUtil.SerializeObject(result)}");
-                        }
-                        this.Session.ESight.SubscriptionNeDeviceStatus = status;
-                        this.Session.ESight.SubscripeNeDeviceError = result.Description;
-                        // 订阅后更新实体
-                        ESightDal.Instance.UpdateESightNeDevice(this.ESightIp, status, result.Description);
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.OnError($"Subscription DeviceChange error: {this.ESightIp}", e);
-                }
-            });
-        }
-
-        /// <summary>
         /// Synchronizes this instance.
         /// </summary>
         public void Sync()
         {
+            logger.Polling.Info("Start Polling Task.");
+            logger.Sdk.Info("Start Polling Task.");
             if (!this.IsComplete)
             {
-                this.OnLog("The last task was not completed, and the task was given up.");
+                logger.Polling.Warn("The last task was not completed, and the task was given up.");
                 return;
             }
             if (!this.Session.IsCanConnect())
             {
-                this.OnError($"Can not connect the esight {this.ESightIp}, and the task was given up.");
+                OnPollingError($"Can not connect the esight {this.ESightIp}, and the task was given up.");
                 return;
             }
             // 清除完成的任务
@@ -223,16 +174,16 @@ namespace Huawei.SCOM.ESightPlugin.Service
             this.SyncHighdensityList();
             this.SyncRackList();
             this.SyncKunLunList();
-            if (this.NeedSubscribeAlarm || this.NeedSubscribeDeviceChange)
+            if (this.NeedSubscribeAlarm || this.NeedSubscribeDeviceChange || this.NeedSubscribeKeepAlive)
             {
-                this.OnLog("Need Subscribe");
-                // 开启一个timer来监听本次任务是否执行完
+                OnPollingInfo("Need Subscribe");
+                // 开启一个timer来监听本次轮询任务是否执行完
                 Timer timer = new Timer(1000);
                 timer.Elapsed += (sender, e) =>
                 {
                     if (this.IsComplete)
                     {
-                        this.Subscribe();
+                        this.SyncHistoryAlarm();
                         timer.Stop();
                     }
                 };
@@ -241,55 +192,229 @@ namespace Huawei.SCOM.ESightPlugin.Service
         }
 
         /// <summary>
-        /// The do job.
+        /// Synchronizes the history alarm.
         /// </summary>
-        public void DoJob()
+        public void SyncHistoryAlarm()
         {
-            while (this.NeedUpdateDnQueue.Count > 0 || this.waitHandle.WaitOne())
+            Task.Run(async () =>
             {
-                lock (this.locker)
+                logger.Polling.Debug($"Start Sync History Alarm");
+                await Task.Delay(3 * 1000);
+
+                int totalPage = 1;
+                int startPage = 0;
+                var historyAlarms = new List<AlarmData>();
+                while (startPage < totalPage)
                 {
-                    if (this.NeedUpdateDnQueue.Count > 0)
+                    try
                     {
-                        try
+                        startPage++;
+                        var result = this.Session.GetAlarmHistory(startPage);
+                        totalPage = result.TotalPage;
+                        if (result.Code != 0)
                         {
-                            var dn = this.NeedUpdateDnQueue.Dequeue(); // 有任务时，出列任务
-                            HWLogger.NOTIFICATION_PROCESS.Debug($"eSight-{this.ESightIp} Dequeue:{dn}  Queue Count:{ this.NeedUpdateDnQueue.Count}");
-                            if (dn == null)
-                            {
-                                continue;
-                            }
-                            HWLogger.NOTIFICATION_PROCESS.Info($"eSight-{this.ESightIp} Start UpdateServer " + dn);
-                            this.UpdateServer(dn);
-                            HWLogger.NOTIFICATION_PROCESS.Info($"eSight-{this.ESightIp} End UpdateServer " + dn);
+                            OnPollingError($"SyncHistoryAlarm faild .pageNo:{startPage}.result:[{JsonUtil.SerializeObject(result)}");
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            HWLogger.NOTIFICATION_PROCESS.Error("DoJob Error", ex);
+                            var deviceEvents = result.Data.Where(x => x.EventType == 2).ToList();
+                            OnPollingInfo($"SyncHistoryAlarm Success:[TotalCount:{result.Data.Count} EventType2Count:{deviceEvents.Count}]");
+                            deviceEvents.ForEach(x =>
+                            {
+                                historyAlarms.Add(new AlarmData(x));
+                            });
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        OnPollingError($"SyncHistoryAlarm Error.eSight:{this.ESightIp} pageNo:{startPage}.", ex);
+                    }
                 }
-                Thread.Sleep(300);
+
+                OnPollingInfo($"Get History Alarm:[Count:{historyAlarms.Count}]");
+                // 插入历史告警完成后调用订阅接口
+                this.InsertHistoryEvent(historyAlarms, this.Subscribe);
+            });
+        }
+
+        /// <summary>
+        /// Subscribes the eSight.
+        /// </summary>
+        public void Subscribe()
+        {
+            // 如果没有订阅，则订阅
+            Task.Run(async () =>
+            {
+                await Task.Delay(3 * 1000);
+                if (this.NeedSubscribeKeepAlive)
+                {
+                    SubscribeKeepAlive();
+                }
+                if (this.NeedSubscribeAlarm)
+                {
+                    SubscribeAlarm();
+                }
+                if (this.NeedSubscribeDeviceChange)
+                {
+                    SubscribeDeviceChange();
+                }
+            });
+        }
+
+        /// <summary>
+        /// 订阅设备变更
+        /// </summary>
+        private void SubscribeDeviceChange()
+        {
+            try
+            {
+                logger.Subscribe.Debug($"Start Subscribe DeviceChange On Polling");
+                var result = this.Session.SubscribeNeDevice();
+                var status = 0;
+                if (result.Code != 0)
+                {
+                    status = -1;
+                    logger.Subscribe.Error($"Subscription DeviceChange faild.[result:{JsonUtil.SerializeObject(result)}]");
+                }
+                else
+                {
+                    status = 1;
+                    logger.Subscribe.Debug($"Subscription DeviceChange Success");
+                }
+                this.Session.ESight.SubscriptionNeDeviceStatus = status;
+                this.Session.ESight.SubscripeNeDeviceError = result.Description;
+                // 订阅后更新实体
+                ESightDal.Instance.UpdateESightNeDevice(this.ESightIp, status, result.Description);
+            }
+            catch (Exception e)
+            {
+                logger.Subscribe.Error($"Subscription DeviceChange error: {this.ESightIp}", e);
             }
         }
 
         /// <summary>
-        /// Enqueues the specified model.
+        /// 订阅告警
         /// </summary>
-        /// <param name="dn">The dn.</param>
-        public void Enqueue(string dn)
+        private void SubscribeAlarm()
         {
-            HWLogger.NOTIFICATION_PROCESS.Debug($"eSight-{this.ESightIp} Enqueue: {dn} ");
-            string item = $"{dn}";
-            if (!this.NeedUpdateDnQueue.Contains(item))
+            try
             {
-                this.NeedUpdateDnQueue.Enqueue(item);
-                this.waitHandle.Set();
+                logger.Subscribe.Debug($"Start Subscribe Alarm On Polling");
+                var result = this.Session.SubscribeAlarm();
+
+                var status = 0;
+                if (result.Code != 0)
+                {
+                    status = -1;
+                    logger.Subscribe.Error($"Subscription Alarm faild.[result:{JsonUtil.SerializeObject(result)}]");
+                }
+                else
+                {
+                    status = 1;
+                    logger.Subscribe.Debug($"Subscription Alarm Success");
+                }
+                this.Session.ESight.SubscriptionAlarmStatus = status;
+                this.Session.ESight.SubscripeAlarmError = result.Description;
+                // 订阅后更新实体
+                ESightDal.Instance.UpdateESightAlarm(this.ESightIp, status, result.Description);
             }
-            else
+            catch (Exception e)
             {
-                HWLogger.NOTIFICATION_PROCESS.Debug($"eSight-{this.ESightIp} Cancel Enqueue:" + item);
+                logger.Subscribe.Error($"Subscription Alarm error: {this.ESightIp}", e);
             }
+        }
+
+        /// <summary>
+        /// 订阅保活
+        /// </summary>
+        private void SubscribeKeepAlive()
+        {
+            #region SubscribeKeepAlive
+            try
+            {
+                logger.Subscribe.Debug($"Start Subscribe KeepAlive On Polling");
+                var result = this.Session.SubscribeKeepAlive();
+
+                var status = 0;
+                if (result.Code != 0)
+                {
+                    status = -1;
+                    logger.Subscribe.Error($"SubscribeKeepAlive Alarm faild.[result:{JsonUtil.SerializeObject(result)}]");
+                }
+                else
+                {
+                    //如果一直收不到保活消息，则再订阅成功后更新最后保活时间
+                    this.LastAliveTime = DateTime.Now;
+                    this.IsNeedKeepAlive = true;
+                    status = 1;
+                    logger.Subscribe.Info($"SubscribeKeepAlive Success.Start KeepAlive Taks.Update LastAliveTime [{ DateTime.Now:yyyy-MM-dd HH:mm:ss}]");
+                }
+                this.Session.ESight.SubKeepAliveStatus = status;
+                this.Session.ESight.SubKeepAliveError = result.Description;
+                // 订阅后更新实体
+                ESightDal.Instance.UpdateESightKeepAlive(this.ESightIp, status, result.Description);
+            }
+            catch (Exception e)
+            {
+                logger.Subscribe.Error($"SubscribeKeepAlive error: {this.ESightIp}", e);
+            }
+
+            #endregion
+        }
+
+        /// <summary>
+        /// The insert event.
+        /// </summary>
+        /// <param name="alarmDatas">The alarm datas.</param>
+        /// <param name="callback">The callback.</param>
+        public void InsertHistoryEvent(List<AlarmData> alarmDatas, Action callback)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var r = alarmDatas.GroupBy(x => x.NeDN).ToList();
+                    r.ForEach(datas =>
+                    {
+                        var dn = datas.Key;
+                        try
+                        {
+                            logger.Polling.Debug($"Start InsertHistoryEvent:{dn}");
+                            var serverType = this.GetServerTypeByDn(dn);
+                            var eventDatas = datas.Select(x => new EventData(x, this.ESightIp, serverType)).ToList();
+                            switch (serverType)
+                            {
+                                case ServerTypeEnum.Blade:
+                                case ServerTypeEnum.ChildBlade:
+                                case ServerTypeEnum.Switch:
+                                    BladeConnector.Instance.InsertHistoryEvent(eventDatas, serverType, this.ESightIp);
+                                    break;
+                                case ServerTypeEnum.Highdensity:
+                                case ServerTypeEnum.ChildHighdensity:
+                                    HighdensityConnector.Instance.InsertHistoryEvent(eventDatas, serverType, this.ESightIp);
+                                    break;
+                                case ServerTypeEnum.Rack:
+                                    RackConnector.Instance.InsertHistoryEvent(eventDatas, this.ESightIp);
+                                    break;
+                                case ServerTypeEnum.KunLun:
+                                    KunLunConnector.Instance.InsertHistoryEvent(eventDatas, this.ESightIp);
+                                    break;
+                            }
+
+                            logger.Polling.Debug($"End InsertHistoryEvent :{dn} [Count:{eventDatas.Count}]");
+                        }
+                        catch (Exception ex)
+                        {
+                            OnPollingError($"End InsertHistoryEvent :{dn}", ex);
+                        }
+                    });
+                    callback();
+                }
+                catch (Exception ex)
+                {
+                    OnPollingError("InsertHistoryEvent Error: ", ex);
+                }
+            });
         }
 
         #region 刀片
@@ -297,31 +422,35 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <summary>
         /// 同步刀片服务器
         /// </summary>
-        public void SyncBladeList()
+        private void SyncBladeList()
         {
+            logger.Sdk.Info("Start Polling Blade Task.");
             var task = Task.Run(() =>
+            {
+                int totalPage = 1;
+                int startPage = 0;
+                var newDeviceIds = new List<string>();
+                while (startPage < totalPage)
                 {
-                    int totalPage = 1;
-                    int startPage = 0;
-                    while (startPage < totalPage)
+                    try
                     {
-                        try
+                        startPage++;
+                        var result = this.Session.QueryBladeServer(startPage);
+                        totalPage = result.TotalPage;
+                        foreach (var x in result.Data)
                         {
-                            startPage++;
-                            var result = this.Session.QueryBladeServer(startPage);
-                            totalPage = result.TotalPage;
-                            foreach (var x in result.Data)
-                            {
-                                x.ESight = this.ESightIp;
-                                this.QueryBladeDetial(x);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            this.OnError($"SyncBladeList Error.eSight:{this.ESightIp} ", ex);
+                            newDeviceIds.Add($"{this.ESightIp}-{x.DN}");
+                            this.QueryBladeDetial(x);
                         }
                     }
-                });
+                    catch (Exception ex)
+                    {
+                        OnPollingError($"SyncBladeList Error.eSight:{this.ESightIp} ", ex);
+                    }
+                }
+                logger.Polling.Debug($"SyncBladeList Finish.[{string.Join(",", newDeviceIds).Replace($"{this.ESightIp}-", "")}]");
+                BladeConnector.Instance.RemoveBladeOnSync(this.ESightIp, newDeviceIds);
+            });
             this.taskList.Add(task);
         }
 
@@ -329,28 +458,28 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// Queries the blade detial.
         /// </summary>
         /// <param name="x">The x.</param>
-        public void QueryBladeDetial(BladeServer x)
+        private void QueryBladeDetial(BladeServer x)
         {
             var task = Task.Run(() =>
+            {
+                try
                 {
-                    try
+                    var device = this.Session.GetServerDetails(x.DN);
+                    x.MakeDetail(device, this.ESightIp);
+                    x.ChildBlades.ForEach(m =>
                     {
-                        var device = this.Session.GetServerDetails(x.DN);
-                        x.MakeDetail(device);
-                        x.ChildBlades.ForEach(m =>
-                        {
-                            var deviceDatail = this.Session.GetServerDetails(m.DN);
-                            m.MakeChildBladeDetail(deviceDatail);
-                        });
+                        var deviceDatail = this.Session.GetServerDetails(m.DN);
+                        m.MakeChildBladeDetail(deviceDatail);
+                    });
 
-                        // 插入數據
-                        BladeConnector.Instance.InsertDetials(x);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.OnError($"QueryBladeDetial Error:DN:{x.DN}", ex);
-                    }
-                });
+                    // 插入數據
+                    BladeConnector.Instance.SyncServer(x);
+                }
+                catch (Exception ex)
+                {
+                    OnPollingError($"QueryBladeDetial Error:DN:{x.DN}", ex);
+                }
+            });
             this.taskList.Add(task);
         }
         #endregion
@@ -362,29 +491,33 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// </summary>
         public void SyncHighdensityList()
         {
+            logger.Sdk.Info("Start Polling Highdensity Task.");
             var task = Task.Run(() =>
+            {
+                int totalPage = 1;
+                int startPage = 0;
+                var newDeviceIds = new List<string>();
+                while (startPage < totalPage)
                 {
-                    int totalPage = 1;
-                    int startPage = 0;
-                    while (startPage < totalPage)
+                    try
                     {
-                        try
+                        startPage++;
+                        var result = this.Session.QueryHighDesentyServer(startPage);
+                        totalPage = result.TotalPage;
+                        foreach (var x in result.Data)
                         {
-                            startPage++;
-                            var result = this.Session.QueryHighDesentyServer(startPage);
-                            totalPage = result.TotalPage;
-                            foreach (var x in result.Data)
-                            {
-                                x.ESight = this.ESightIp;
-                                this.QueryHighdensityDetial(x);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            this.OnError($"SyncHighdensityList Error.eSight:{this.ESightIp} ", ex);
+                            newDeviceIds.Add($"{this.ESightIp}-{x.DN}");
+                            this.QueryHighdensityDetial(x);
                         }
                     }
-                });
+                    catch (Exception ex)
+                    {
+                        OnPollingError($"SyncHighdensityList Error.eSight:{this.ESightIp} ", ex);
+                    }
+                }
+                logger.Polling.Debug($"SyncHighdensityList Finish.[{string.Join(",", newDeviceIds).Replace($"{this.ESightIp}-", "")}]");
+                HighdensityConnector.Instance.RemoveHighOnSync(this.ESightIp, newDeviceIds);
+            });
             this.taskList.Add(task);
         }
 
@@ -392,29 +525,30 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// Queries the highdensity detial.
         /// </summary>
         /// <param name="x">The x.</param>
-        public void QueryHighdensityDetial(HighdensityServer x)
+        /// <param name="isPolling">是否轮询</param>
+        private void QueryHighdensityDetial(HighdensityServer x)
         {
             var task = Task.Run(() =>
+            {
+                try
                 {
-                    try
-                    {
-                        var device = this.Session.GetServerDetails(x.DN);
-                        x.MakeDetail(device);
-                        x.ChildHighdensitys.ForEach(
-                            m =>
-                                {
-                                    var deviceDatail = this.Session.GetServerDetails(m.DN);
-                                    m.MakeChildBladeDetail(deviceDatail);
-                                });
+                    var device = this.Session.GetServerDetails(x.DN);
+                    x.MakeDetail(device, this.ESightIp);
+                    x.ChildHighdensitys.ForEach(
+                        m =>
+                            {
+                                var deviceDatail = this.Session.GetServerDetails(m.DN);
+                                m.MakeChildBladeDetail(deviceDatail);
+                            });
 
-                        // 插入數據
-                        HighdensityConnector.Instance.InsertDetials(x);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.OnError($"QueryHighdensityDetial Error:DN:{x.DN}", ex);
-                    }
-                });
+                    // 插入數據
+                    HighdensityConnector.Instance.SyncServer(x);
+                }
+                catch (Exception ex)
+                {
+                    OnPollingError($"QueryHighdensityDetial Error:DN:{x.DN}", ex);
+                }
+            });
             this.taskList.Add(task);
         }
         #endregion
@@ -424,12 +558,14 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <summary>
         /// 同步机架服务器的详情
         /// </summary>
-        public void SyncRackList()
+        private void SyncRackList()
         {
+            logger.Sdk.Info("Start Polling Rack Task.");
             var task = Task.Run(() =>
             {
                 int totalPage = 1;
                 int startPage = 0;
+                var newDeviceIds = new List<string>();
                 while (startPage < totalPage)
                 {
                     try
@@ -439,14 +575,17 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         totalPage = result.TotalPage;
                         foreach (var x in result.Data)
                         {
+                            newDeviceIds.Add($"{this.ESightIp}-{ x.DN}");
                             this.QueryRackDetial(x);
                         }
                     }
                     catch (Exception ex)
                     {
-                        this.OnError($"SyncRackList Error.eSight:{this.ESightIp} ", ex);
+                        OnPollingError($"SyncRackList Error.eSight:{this.ESightIp} ", ex);
                     }
                 }
+                logger.Polling.Debug($"SyncRackList Finish.[{string.Join(",", newDeviceIds).Replace($"{this.ESightIp}-", "")}]");
+                RackConnector.Instance.DeleteRackOnSync(this.ESightIp, newDeviceIds);
             });
             this.taskList.Add(task);
         }
@@ -455,20 +594,19 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// Queries the rack detial.
         /// </summary>
         /// <param name="rack">The rack.</param>
-        public void QueryRackDetial(RackServer rack)
+        private void QueryRackDetial(RackServer rack)
         {
             var task = Task.Run(() =>
                 {
                     try
                     {
                         var device = this.Session.GetServerDetails(rack.DN);
-                        rack.ESight = this.ESightIp;
-                        rack.MakeDetail(device);
-                        RackConnector.Instance.InsertDetials(rack);
+                        rack.MakeDetail(device, this.ESightIp);
+                        RackConnector.Instance.SyncServer(rack);
                     }
                     catch (Exception ex)
                     {
-                        this.OnError($"QueryRackDetial Error: {rack.DN}", ex);
+                        OnPollingError($"QueryRackDetial Error: {rack.DN}", ex);
                     }
                 });
             this.taskList.Add(task);
@@ -480,30 +618,35 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <summary>
         /// 同步昆仑服务器的详情
         /// </summary>
-        public void SyncKunLunList()
+        private void SyncKunLunList()
         {
+            logger.Sdk.Info("Start Polling KunLun Task.");
             var task = Task.Run(() =>
+            {
+                int totalPage = 1;
+                int startPage = 0;
+                var newDeviceIds = new List<string>();
+                while (startPage < totalPage)
                 {
-                    int totalPage = 1;
-                    int startPage = 0;
-                    while (startPage < totalPage)
+                    try
                     {
-                        try
+                        startPage++;
+                        var result = this.Session.QueryKunLunServer(startPage);
+                        totalPage = result.TotalPage;
+                        foreach (var x in result.Data)
                         {
-                            startPage++;
-                            var result = this.Session.QueryKunLunServer(startPage);
-                            totalPage = result.TotalPage;
-                            foreach (var x in result.Data)
-                            {
-                                this.QueryKunLunDetial(x);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            this.OnError($"SyncKunLunList Error.eSight:{this.ESightIp} ", ex);
+                            newDeviceIds.Add($"{this.ESightIp}-{x.DN}");
+                            this.QueryKunLunDetial(x);
                         }
                     }
-                });
+                    catch (Exception ex)
+                    {
+                        OnPollingError($"SyncKunLunList Error.eSight:{this.ESightIp} ", ex);
+                    }
+                }
+                logger.Polling.Debug($"SyncKunLunList Finish.[{string.Join(",", newDeviceIds).Replace($"{this.ESightIp}-", "")}]");
+                KunLunConnector.Instance.RemoveKunLunOnSync(this.ESightIp, newDeviceIds);
+            });
             this.taskList.Add(task);
         }
 
@@ -511,429 +654,93 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// Queries the kunLun detial.
         /// </summary>
         /// <param name="kunLun">The kun lun.</param>
-        public void QueryKunLunDetial(KunLunServer kunLun)
+        private void QueryKunLunDetial(KunLunServer kunLun)
         {
             var task = Task.Run(() =>
+            {
+                try
                 {
-                    try
-                    {
-                        var device = this.Session.GetServerDetails(kunLun.DN);
-                        kunLun.ESight = this.ESightIp;
-                        kunLun.MakeDetail(device);
-                        KunLunConnector.Instance.InsertDetials(kunLun);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.OnError($"QueryKunLunDetial Error:{kunLun.DN}", ex);
-                    }
-                });
+                    var device = this.Session.GetServerDetails(kunLun.DN);
+                    kunLun.MakeDetail(device, this.ESightIp);
+                    KunLunConnector.Instance.SyncServer(kunLun);
+                }
+                catch (Exception ex)
+                {
+                    OnPollingError($"QueryKunLunDetial Error:{kunLun.DN}", ex);
+                }
+            });
             this.taskList.Add(task);
         }
         #endregion
 
-        #region Notify
+        #region KeepAlive
+
         /// <summary>
-        /// The delete server.
+        /// 检查保活任务
+        /// 系统在运行过程中10分钟内收不到esight 的系统保活信息，需要重新进行系统保活订阅和告警以及设备变更订阅
         /// </summary>
-        /// <param name="dn">The dn.</param>
-        public void DeleteServer(string dn)
+        private void StartKeepAliveJob()
         {
             Task.Run(() =>
             {
-                try
+                logger.Subscribe.Info("Run KeepAlive Job");
+                while (this.IsRunning)
                 {
-                    var serverType = this.GetServerType(dn);
-                    switch (serverType)
+                    if (IsNeedKeepAlive)
                     {
-                        case ServerTypeEnum.Blade:
-                            BladeConnector.Instance.RemoveComputerByDn(dn);
-                            break;
-                        case ServerTypeEnum.ChildBlade:
-                            BladeConnector.Instance.RemoveChildBlade(dn);
-                            break;
-                        case ServerTypeEnum.Highdensity:
-                            HighdensityConnector.Instance.RemoveComputerByDn(dn);
-                            break;
-                        case ServerTypeEnum.ChildHighdensity:
-                            HighdensityConnector.Instance.RemoveChildHighDensityServer(dn);
-                            break;
-                        case ServerTypeEnum.Rack:
-                            RackConnector.Instance.RemoveComputerByDn(dn);
-                            break;
-                        case ServerTypeEnum.KunLun:
-                            KunLunConnector.Instance.RemoveComputerByDn(dn);
-                            break;
+                        #region Check
+                        try
+                        {
+                            if ((DateTime.Now - this.LastAliveTime).TotalMinutes > 10)
+                            {
+                                logger.Subscribe.Error($"[{this.ESightIp}]-keep Alive TimeOut.Will subcribe again.LastAliveTime:{this.LastAliveTime:yyyy-MM-dd HH:mm:ss}");
+                                this.IsNeedKeepAlive = false;
+                                this.SubscribeKeepAlive();
+                                this.SubscribeAlarm();
+                                this.SubscribeDeviceChange();
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            logger.Subscribe.Error(e);
+                            throw;
+                        }
+                        #endregion
                     }
-                }
-                catch (Exception ex)
-                {
-                    HWLogger.UI.Error($"DeleteServer {dn} Error: ", ex);
+                    Thread.Sleep(TimeSpan.FromMinutes(2));
                 }
             });
         }
 
         /// <summary>
-        /// The get server type.
+        /// 更新最后保活时间
         /// </summary>
-        /// <param name="dn">
-        /// The dn.
-        /// </param>
-        /// <returns>
-        /// The <see cref="ServerTypeEnum"/>.
-        /// </returns>
-        public ServerTypeEnum GetServerType(string dn)
+        /// <param name="dt">The dt.</param>
+        public void UpdateAliveTime(DateTime dt)
         {
-            HWLogger.NOTIFICATION_PROCESS.Debug($"Start GetServerType {dn}");
-            var server = BladeConnector.Instance.GetBladeServer(dn);
-            if (server != null)
-            {
-                return ServerTypeEnum.Blade;
-            }
-            server = BladeConnector.Instance.GetChildBladeServer(dn);
-            if (server != null)
-            {
-                return ServerTypeEnum.ChildBlade;
-            }
-            server = HighdensityConnector.Instance.GetHighdensityServer(dn);
-            if (server != null)
-            {
-                return ServerTypeEnum.Highdensity;
-            }
-            server = HighdensityConnector.Instance.GetChildHighdensityServer(dn);
-            if (server != null)
-            {
-                return ServerTypeEnum.ChildHighdensity;
-            }
-            server = RackConnector.Instance.GetRackServer(dn);
-            if (server != null)
-            {
-                return ServerTypeEnum.Rack;
-            }
-            server = KunLunConnector.Instance.GetKunLunServer(dn);
-            if (server != null)
-            {
-                return ServerTypeEnum.KunLun;
-            }
-            HWLogger.NOTIFICATION_PROCESS.Debug($"End GetServerType {dn}");
-            return ServerTypeEnum.Default;
+            this.LastAliveTime = DateTime.Now;
+            logger.Subscribe.Debug($"Update LastAliveTime:[{this.LastAliveTime:yyyy-MM-dd HH:mm:ss}]");
         }
 
         /// <summary>
-        /// Inserts the device change event.
+        /// 关闭实例
         /// </summary>
-        /// <param name="data">The data.</param>
-        public void InsertDeviceChangeEvent(NedeviceData data)
+        public void Close()
         {
-            Task.Run(() =>
-            {
-                try
-                {
-                    var serverType = this.GetServerType(data.DeviceId);
-
-                    HWLogger.NOTIFICATION_PROCESS.Info($"Start deviceChangeEvent :{data.DeviceId}");
-                    var deviceChangeEventData = new DeviceChangeEventData(data);
-                    switch (serverType)
-                    {
-                        case ServerTypeEnum.Blade:
-                            BladeConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
-                            break;
-                        case ServerTypeEnum.ChildBlade:
-                            BladeConnector.Instance.InsertChildDeviceChangeEvent(deviceChangeEventData);
-                            break;
-                        case ServerTypeEnum.Highdensity:
-                            HighdensityConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
-                            break;
-                        case ServerTypeEnum.ChildHighdensity:
-                            HighdensityConnector.Instance.InsertChildDeviceChangeEvent(deviceChangeEventData);
-                            break;
-                        case ServerTypeEnum.Rack:
-                            RackConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
-                            break;
-                        case ServerTypeEnum.KunLun:
-                            KunLunConnector.Instance.InsertDeviceChangeEvent(deviceChangeEventData);
-                            break;
-                    }
-                    HWLogger.NOTIFICATION_PROCESS.Info($"End deviceChangeEvent: {data.DeviceId}");
-                }
-                catch (Exception ex)
-                {
-                    HWLogger.UI.Error("InsertEvent Error: ", ex);
-                }
-            });
-        }
-
-        /// <summary>
-        /// The insert event.
-        /// </summary>
-        /// <param name="alarmData">The alarm data.</param>
-        public void InsertEvent(AlarmData alarmData)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    var serverType = this.GetServerType(alarmData.NeDN);
-
-                    HWLogger.NOTIFICATION_PROCESS.Info($"Start InsertEvent {alarmData.NeDN}");
-                    var alertModel = new EventData(alarmData);
-
-                    switch (serverType)
-                    {
-                        case ServerTypeEnum.Blade:
-                            BladeConnector.Instance.InsertEvent(alertModel);
-                            break;
-                        case ServerTypeEnum.ChildBlade:
-                            BladeConnector.Instance.InsertChildBladeEvent(alertModel);
-                            break;
-                        case ServerTypeEnum.Highdensity:
-                            HighdensityConnector.Instance.InsertEvent(alertModel);
-                            break;
-                        case ServerTypeEnum.ChildHighdensity:
-                            HighdensityConnector.Instance.InsertChildBladeEvent(alertModel);
-                            break;
-                        case ServerTypeEnum.Rack:
-                            RackConnector.Instance.InsertEvent(alertModel);
-                            break;
-                        case ServerTypeEnum.KunLun:
-                            KunLunConnector.Instance.InsertEvent(alertModel);
-                            break;
-                    }
-                    HWLogger.NOTIFICATION_PROCESS.Info($"End InsertEvent {alarmData.NeDN}");
-                }
-                catch (Exception ex)
-                {
-                    HWLogger.UI.Error("InsertEvent Error: ", ex);
-                }
-            });
-        }
-
-        /// <summary>
-        /// 更新刀片机架
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateBladeServer(HWDeviceDetail model)
-        {
-            try
-            {
-                var server = new BladeServer
-                {
-                    DN = model.DN,
-                    ServerName = model.Name,
-                    Manufacturer = string.Empty,
-                    ServerModel = model.Mode,
-                    IpAddress = model.IpAddress,
-                    Location = string.Empty,
-                    Status = model.Status
-                };
-                server.MakeDetail(model);
-                server.ESight = this.ESightIp;
-                BladeConnector.Instance.UpdateMainWithOutChildBlade(server);
-            }
-            catch (Exception ex)
-            {
-                this.OnNotifyError($"UpdateBladeServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
-            }
-        }
-
-        /// <summary>
-        /// 更新子刀片
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateChildBladeServer(HWDeviceDetail model)
-        {
-            try
-            {
-                var server = new ChildBlade();
-                server.MakeChildBladeDetail(model);
-                server.DN = model.DN;
-                server.Name = model.Name;
-                server.IpAddress = model.IpAddress;
-                BladeConnector.Instance.UpdateChildBlade(server);
-            }
-            catch (Exception ex)
-            {
-                this.OnNotifyError($"UpdateChildBladeServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
-            }
-        }
-
-        /// <summary>
-        /// 更新高密子服务器
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateChildHighdensityServer(HWDeviceDetail model)
-        {
-            try
-            {
-                var server = new ChildHighdensity();
-                server.DN = model.DN;
-                server.Name = model.Name;
-                server.IpAddress = model.IpAddress;
-                server.MakeChildBladeDetail(model);
-                HighdensityConnector.Instance.UpdateChildBoard(server);
-            }
-            catch (Exception ex)
-            {
-                this.OnNotifyError($"UpdateChildHighdensityServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
-            }
-        }
-
-        /// <summary>
-        /// 更新高密管理板
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateHighdensityServer(HWDeviceDetail model)
-        {
-            try
-            {
-                var server = new HighdensityServer
-                {
-                    DN = model.DN,
-                    ServerName = model.Name,
-                    Manufacturer = string.Empty,
-                    ServerModel = model.Mode,
-                    IpAddress = model.IpAddress,
-                    Location = string.Empty,
-                    Status = model.Status,
-                    ESight = this.ESightIp
-                };
-                server.MakeDetail(model);
-                HighdensityConnector.Instance.UpdateMainWithOutChildBlade(server);
-            }
-            catch (Exception ex)
-            {
-                this.OnNotifyError($"UpdateHighdensityServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
-            }
-        }
-
-        /// <summary>
-        /// 更新昆仑
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateKunLunServer(HWDeviceDetail model)
-        {
-            try
-            {
-                var server = new KunLunServer();
-                server.ESight = this.ESightIp;
-                server.MakeDetail(model);
-                KunLunConnector.Instance.UpdateKunLun(server);
-            }
-            catch (Exception ex)
-            {
-                this.OnNotifyError($"UpdateKunLunServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
-            }
-        }
-
-        /// <summary>
-        /// 更新机架
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void UpdateRackServer(HWDeviceDetail model)
-        {
-            try
-            {
-                var server = new RackServer();
-                server.MakeDetail(model);
-                server.ESight = this.ESightIp;
-                RackConnector.Instance.UpdateRack(server);
-            }
-            catch (Exception ex)
-            {
-                this.OnNotifyError($"UpdateRackServer Error.eSight:{this.ESightIp} Dn:{model.DN}. ", ex);
-            }
-        }
-
-        /// <summary>
-        /// The update server.
-        /// </summary>
-        /// <param name="dn">The dn.</param>
-        public void UpdateServer(string dn)
-        {
-            var serverType = this.GetServerType(dn);
-            try
-            {
-                var device = this.Session.GetServerDetails(dn);
-                switch (serverType)
-                {
-                    case ServerTypeEnum.Blade:
-                        this.UpdateBladeServer(device);
-                        break;
-                    case ServerTypeEnum.ChildBlade:
-                        this.UpdateChildBladeServer(device);
-                        break;
-                    case ServerTypeEnum.Highdensity:
-                        this.UpdateHighdensityServer(device);
-                        break;
-                    case ServerTypeEnum.ChildHighdensity:
-                        this.UpdateChildHighdensityServer(device);
-                        break;
-                    case ServerTypeEnum.Rack:
-                        this.UpdateRackServer(device);
-                        break;
-                    case ServerTypeEnum.KunLun:
-                        this.UpdateKunLunServer(device);
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                HWLogger.NOTIFICATION_PROCESS.Error("UpdateServer Error: ", ex);
-            }
+            logger.Subscribe.Info("Delete ESight SyncInstance");
+            this.IsRunning = false;
+            this.IsNeedKeepAlive = false;
         }
         #endregion
 
-        #region Log
-        /// <summary>
-        /// The on error.
-        /// </summary>
-        /// <param name="msg">
-        /// The msg.
-        /// </param>
-        /// <param name="ex">
-        /// The ex.
-        /// </param>
-        private void OnError(string msg, Exception ex = null)
+        private void OnPollingInfo(string msg)
         {
-            HWLogger.SERVICE.Error(msg, ex);
+            logger.Polling.Info(msg);
         }
 
-        /// <summary>
-        /// The on log.
-        /// </summary>
-        /// <param name="msg">
-        /// The msg.
-        /// </param>
-        private void OnLog(string msg)
+        private void OnPollingError(string msg, Exception ex = null)
         {
-            HWLogger.SERVICE.Info(msg);
+            logger.Polling.Error(msg, ex);
         }
-
-        /// <summary>
-        /// The on error.
-        /// </summary>
-        /// <param name="msg">
-        /// The msg.
-        /// </param>
-        /// <param name="ex">
-        /// The ex.
-        /// </param>
-        private void OnNotifyError(string msg, Exception ex = null)
-        {
-            HWLogger.SERVICE.Error(msg, ex);
-            HWLogger.NOTIFICATION_PROCESS.Error(msg, ex);
-        }
-
-        /// <summary>
-        /// The on log.
-        /// </summary>
-        /// <param name="msg">
-        /// The msg.
-        /// </param>
-        private void OnNotifyLog(string msg)
-        {
-            HWLogger.SERVICE.Info(msg);
-            HWLogger.NOTIFICATION_PROCESS.Info(msg);
-        }
-        #endregion
     }
 }

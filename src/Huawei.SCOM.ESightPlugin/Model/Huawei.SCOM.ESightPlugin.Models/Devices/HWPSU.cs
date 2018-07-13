@@ -6,6 +6,9 @@ using System.Text;
 
 namespace Huawei.SCOM.ESightPlugin.Models.Devices
 {
+    /// <summary>
+    /// Class HWPSU.
+    /// </summary>
     [Serializable]
     public class HWPSU
     {
@@ -23,8 +26,12 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
-
-        private string _healthState;
+        /// <summary>
+        /// 原始状态
+        /// </summary>
+        /// <value>The ori status.</value>
+        [JsonProperty(PropertyName = "healthState")]
+        public string OriStatus { get; set; }
 
         /// <summary>
         /// 服务器状态，含义如下：
@@ -33,8 +40,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         ///	“-2”：未知
         ///	其他：故障
         /// </summary>
-        [JsonProperty(PropertyName = "healthState")]
-        public string HealthState { get { return _healthState; } set { _healthState = StatusHelper.ConvertStatus(value); } }
+        public string HealthState => StatusHelper.ConvertStatus(OriStatus);
         /// <summary>
         /// 功耗
         /// </summary>

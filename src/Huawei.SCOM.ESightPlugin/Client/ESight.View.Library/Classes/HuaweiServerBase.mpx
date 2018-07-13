@@ -2,16 +2,10 @@
   <TypeDefinitions>
     <EntityTypes>
       <ClassTypes>
-        <ClassType ID="ESight.HuaweiServer" Base="System!System.LogicalEntity" Accessibility="Public" Abstract="true" Hosted="true" Singleton="false">
+        <ClassType ID="ESight.HuaweiServer" Base="System!System.LogicalEntity" Accessibility="Public" Abstract="true" Hosted="false" Singleton="false">
           <Property ID="DN" Key="true" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
         </ClassType>
       </ClassTypes>
-      <RelationshipTypes>
-        <RelationshipType ID="WindowsComputer.Contains.HuaweiServer" Accessibility="Public" Abstract="false" Base="System!System.Hosting">
-          <Source ID="Source" Type="Windows!Microsoft.Windows.Computer" />
-          <Target ID="Target" Type="ESight.HuaweiServer" />
-        </RelationshipType>
-      </RelationshipTypes>
     </EntityTypes>
   </TypeDefinitions>
   <LanguagePacks>

@@ -23,6 +23,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
 
     using Huawei.SCOM.ESightPlugin.Const;
     using Huawei.SCOM.ESightPlugin.Models;
+    using Huawei.SCOM.ESightPlugin.RESTeSightLib;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Exceptions;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper;
     using Huawei.SCOM.ESightPlugin.WebServer.Model;
@@ -45,7 +46,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
             try
             {
                 var jsData = JsonUtil.SerializeObject(eventData);
-                HWLogger.UI.InfoFormat("Deleting eSight, the param is [{0}]", jsData);
+                HWLogger.UI.Info("Deleting eSight, the param is [{0}]", jsData);
                 var hostIps = eventData.ToString().TrimEnd(',').Split(',');
                 foreach (var hostIp in hostIps)
                 {
@@ -123,7 +124,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
             {
                 // 1. 处理参数
                 var jsData = JsonUtil.SerializeObject(queryParam);
-                HWLogger.UI.InfoFormat("Querying eSight list, the param is [{0}]", jsData);
+                HWLogger.UI.Info("Querying eSight list, the param is [{0}]", jsData);
                 var pageSize = queryParam.PageSize;
                 var pageNo = queryParam.PageNo;
                 var hostIp = queryParam.HostIp;
@@ -139,7 +140,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                 ret.TotalNum = hwESightHostList.Count();
                 ret.Description = string.Empty;
 
-                HWLogger.UI.InfoFormat("Querying eSight list successful, the ret is [{0}]", JsonUtil.SerializeObject(ret));
+                HWLogger.UI.Info("Querying eSight list successful, the ret is [{0}]", JsonUtil.SerializeObject(ret));
             }
             catch (BaseException ex)
             {
@@ -185,8 +186,10 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                 model.LastModifyTime = DateTime.Now;
                 model.OpenID = Guid.NewGuid().ToString("D");
                 model.SubscribeID = Guid.NewGuid().ToString("D");
+                model.SubKeepAliveStatus = 0;
                 model.SubscriptionAlarmStatus = 0;
                 model.SubscriptionNeDeviceStatus = 0;
+                model.SubKeepAliveError = string.Empty;
                 model.SubscripeAlarmError = string.Empty;
                 model.SubscripeNeDeviceError = string.Empty;
                 model.LatestStatus = ConstMgr.ESightConnectStatus.NONE;
@@ -196,7 +199,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
 
                 #endregion
                 var json = JsonUtil.SerializeObject(model);
-                HWLogger.UI.InfoFormat("Add eSight, the param is [{0}]", HidePd(json));
+                HWLogger.UI.Info("Add eSight, the param is [{0}]", HidePd(json));
                 ESightEngine.Instance.SaveSession(model);
                 ESightDal.Instance.InsertEntity(model);
 
@@ -241,7 +244,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
             try
             {
                 var json = JsonUtil.SerializeObject(model);
-                HWLogger.UI.InfoFormat("Update eSight , the param is [{0}]", HidePd(json));
+                HWLogger.UI.Info("Update eSight , the param is [{0}]", HidePd(json));
                 #region 赋值
                 var eSight = ESightDal.Instance.GetEntityByHostIp(model.HostIP);
                 if (eSight == null)
@@ -269,8 +272,10 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                     eSight.SubscribeID = Guid.NewGuid().ToString();
                     eSight.SubscripeNeDeviceError = string.Empty;
                     eSight.SubscripeAlarmError = string.Empty;
+                    eSight.SubKeepAliveError = string.Empty;
                     eSight.SubscriptionNeDeviceStatus = 0;
                     eSight.SubscriptionAlarmStatus = 0;
+                    eSight.SubKeepAliveStatus = 0;
                 }
                 #endregion
                 ESightEngine.Instance.SaveSession(eSight);
@@ -323,7 +328,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
             try
             {
                 var json = JsonUtil.SerializeObject(model);
-                HWLogger.UI.InfoFormat("Update eSight , the param is [{0}]", HidePd(json));
+                HWLogger.UI.Info("Update eSight , the param is [{0}]", HidePd(json));
                 #region 赋值
                 var eSight = ESightDal.Instance.GetEntityByHostIp(model.HostIP);
                 if (eSight == null)
@@ -345,8 +350,10 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                     eSight.SubscribeID = Guid.NewGuid().ToString();
                     eSight.SubscripeNeDeviceError = string.Empty;
                     eSight.SubscripeAlarmError = string.Empty;
+                    eSight.SubKeepAliveError = string.Empty;
                     eSight.SubscriptionNeDeviceStatus = 0;
                     eSight.SubscriptionAlarmStatus = 0;
+                    eSight.SubKeepAliveStatus = 0;
                 }
 
                 #endregion
@@ -400,7 +407,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
             try
             {
                 var json = JsonUtil.SerializeObject(eSight);
-                HWLogger.UI.InfoFormat("Testing eSight connect..., the param is [{0}]", HidePd(json));
+                HWLogger.UI.Info("Testing eSight connect..., the param is [{0}]", HidePd(json));
 
                 var LoginPd = eSight.LoginPd;
                 eSight.LoginPd = EncryptUtil.EncryptPwd(LoginPd);
@@ -475,7 +482,10 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                 {
                     // 取消订阅
                     var iEsSession = ESightEngine.Instance.FindEsSession(hostIp);
-                    var resut = iEsSession.UnSubscribeAlarm(oldSystemId);
+
+                    var resut = iEsSession.UnSubscribeKeepAlive(oldSystemId);
+                    HWLogger.UI.Info($"UnSubscribeKeepAlive.eSight:{hostIp} result:{JsonUtil.SerializeObject(resut)}");
+                    resut = iEsSession.UnSubscribeAlarm(oldSystemId);
                     HWLogger.UI.Info($"UnSubscribeAlarm. eSight:{hostIp} result:{JsonUtil.SerializeObject(resut)}");
                     resut = iEsSession.UnSubscribeNeDevice(oldSystemId);
                     HWLogger.UI.Info($"UnSubscribeNeDevice. eSight:{hostIp} result:{JsonUtil.SerializeObject(resut)}");

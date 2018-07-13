@@ -165,6 +165,33 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="hostIp">The host ip.</param>
         /// <param name="alarmStatus">The alarm status.</param>
         /// <param name="error">The error.</param>
+        public void UpdateESightKeepAlive(string hostIp, int alarmStatus, string error)
+        {
+            var list = this.GetList();
+            var oldModel = list.FirstOrDefault(x => x.HostIP == hostIp);
+            if (oldModel == null)
+            {
+                throw new Exception($"Can not find the eSight:{hostIp}");
+            }
+            list.Remove(oldModel);
+            oldModel.LastModifyTime = DateTime.Now;
+            oldModel.SubKeepAliveError = error;
+            oldModel.SubKeepAliveStatus = alarmStatus;
+            list.Add(oldModel);
+            using (var fs = new FileStream(this.filePath, FileMode.Create))
+            {
+                var bf = new BinaryFormatter();
+                bf.Serialize(fs, list);
+            }
+        }
+
+
+        /// <summary>
+        /// Updates the esight alarm.
+        /// </summary>
+        /// <param name="hostIp">The host ip.</param>
+        /// <param name="alarmStatus">The alarm status.</param>
+        /// <param name="error">The error.</param>
         public void UpdateESightAlarm(string hostIp, int alarmStatus, string error)
         {
             var list = this.GetList();

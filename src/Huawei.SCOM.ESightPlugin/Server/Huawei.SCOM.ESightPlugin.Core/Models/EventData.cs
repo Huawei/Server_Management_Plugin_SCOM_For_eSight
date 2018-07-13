@@ -18,6 +18,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
     using CommonUtil;
     using Huawei.SCOM.ESightPlugin.Models;
     using Microsoft.EnterpriseManagement.Monitoring;
+    using ESightPlugin.Models.Server;
 
     /// <summary>
     /// Class EventModel.
@@ -28,11 +29,15 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// Initializes a new instance of the <see cref="EventData" /> class.
         /// </summary>
         /// <param name="data">The data.</param>
-        public EventData(AlarmData data)
+        /// <param name="eSightIp">The e sight ip.</param>
+        /// <param name="serverType">Type of the server.</param>
+        public EventData(AlarmData data, string eSightIp, ServerTypeEnum serverType)
         {
             this.AlarmData = data;
             this.OptType = data.OptType;
-            this.Dn = data.MoDN;
+            this.DeviceId = $"{eSightIp}-{data.MoDN}";
+
+            this.ESightIp = eSightIp;
             this.AlarmSn = data.AlarmSN;
             this.Channel = data.AlarmName;
             this.LevelId = this.GetLevel(data.PerceivedSeverity, data.OptType);
@@ -46,8 +51,8 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
                 EventTime = TimeHelper.StampToDateTime(data.EventTime.ToString()).ToString(),
                 NeType = string.IsNullOrEmpty(data.NeType) ? string.Empty : data.NeType,
                 ObjectInstance = string.IsNullOrEmpty(data.ObjectInstance) ? string.Empty : data.ObjectInstance,
-                ProposedRepairActions = string.IsNullOrEmpty(data.ProposedRepairActions) ? string.Empty : data.ObjectInstance,
-                AdditionalInformation = string.IsNullOrEmpty(data.AdditionalInformation) ? string.Empty : data.ObjectInstance
+                ProposedRepairActions = string.IsNullOrEmpty(data.ProposedRepairActions) ? string.Empty : data.ProposedRepairActions,
+                AdditionalInformation = data.AlarmName
             };
         }
 
@@ -55,7 +60,13 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// Gets or sets the dn.
         /// </summary>
         /// <value>The dn.</value>
-        public string Dn { get; set; }
+        public string DeviceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the e sight ip.
+        /// </summary>
+        /// <value>The e sight ip.</value>
+        public string ESightIp { get; set; }
 
         /// <summary>
         /// 1-新增告警 2-清除告警 3-确认告警 4-反确认告警 5-变更告警 6-新增事件
@@ -177,7 +188,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
                     case "4":
                     case "9": return "49";
                     case "5":
-                    case "0": return "50";
+                    case "0": return "05";
                     default: return "16";
                 }
             }
@@ -196,7 +207,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// <returns>CustomMonitoringEvent.</returns>
         public CustomMonitoringEvent ToCustomMonitoringEvent()
         {
-            var customMonitoringEvent = new CustomMonitoringEvent(this.Dn, this.AlarmSn)
+            var customMonitoringEvent = new CustomMonitoringEvent(this.DeviceId, this.AlarmSn)
             {
                 LoggingComputer = this.LoggingComputer,
                 Channel = this.Channel,
@@ -208,7 +219,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
 
             customMonitoringEvent.Parameters.Add($"{this.Severity}{this.MantissaNumber}");
             customMonitoringEvent.Parameters.Add(this.Priority.ToString());
-            customMonitoringEvent.Parameters.Add(this.AlarmData.AdditionalText);
+            customMonitoringEvent.Parameters.Add(this.AlarmData.AdditionalText ?? string.Empty);
             customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmId.ToString());
             customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmName);
             customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmSN.ToString());
@@ -219,6 +230,30 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
             return customMonitoringEvent;
         }
 
+        public CustomMonitoringEvent ToCustomMonitoringInitEvent()
+        {
+            var customMonitoringEvent = new CustomMonitoringEvent(this.DeviceId, this.AlarmSn)
+            {
+                LoggingComputer = this.LoggingComputer,
+                Channel = "scom plugin for eSight warning initialization",
+                TimeGenerated = DateTime.Now,
+                LevelId = 2,
+                EventData = this.ToEventData(),
+                Message = new CustomMonitoringEventMessage(this.Message),
+            };
+
+            customMonitoringEvent.Parameters.Add($"1{this.MantissaNumber}");
+            customMonitoringEvent.Parameters.Add("1");
+            customMonitoringEvent.Parameters.Add(this.AlarmData.AdditionalText ?? string.Empty);
+            customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmId.ToString());
+            customMonitoringEvent.Parameters.Add("scom plugin for eSight warning initialization");
+            customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmSN.ToString());
+            customMonitoringEvent.Parameters.Add(TimeHelper.StampToDateTime(this.AlarmData.ArrivedTime.ToString()).ToString());
+            customMonitoringEvent.Parameters.Add(this.AlarmData.DevCsn.ToString());
+            customMonitoringEvent.Parameters.Add(this.AlarmData.EventType.ToString());
+            customMonitoringEvent.Parameters.Add(this.AlarmData.MoName);
+            return customMonitoringEvent;
+        }
 
         /// <summary>
         /// Gets the level.

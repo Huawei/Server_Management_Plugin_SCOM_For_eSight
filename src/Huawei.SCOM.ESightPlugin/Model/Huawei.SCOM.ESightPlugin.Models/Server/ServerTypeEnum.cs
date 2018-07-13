@@ -8,6 +8,10 @@
         ChildHighdensity = 3,
         Rack = 4,
         Default = 5,
-        KunLun = 6
+        KunLun = 6,
+        /// <summary>
+        /// 刀片的swith
+        /// </summary>
+        Switch = 7
     }
 }

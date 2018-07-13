@@ -84,10 +84,17 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
                 this._childHighdensitys = value;
             }
         }
-        
+
         /// <summary>
-        ///     服务器唯一标识，例如：
-        ///     "NE=xxx"
+        /// 服务器唯一标识，格式为eSightIp-Dn
+        /// "192.168.1.1-NE=xxx"
+        /// </summary>
+        public string DeviceId { get; set; }
+
+
+        /// <summary>
+        /// 服务器唯一标识，例如：
+        /// "NE=xxx"
         /// </summary>
         public string DN { get; set; }
 
@@ -203,23 +210,27 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         /// <summary>
         /// The make detail.
         /// </summary>
-        /// <param name="detail">
-        /// The detail.
-        /// </param>
-        public void MakeDetail(HWDeviceDetail detail)
+        /// <param name="detail">The detail.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        public void MakeDetail(HWDeviceDetail detail, string eSightIp)
         {
+            //高密服务器根据管理板Dn查询详情返回的是第一个子刀片的dn因此不等于deatial的dn
             var hmm = new HWHMM
-                          {
-                              DN = detail.DN,
-                              IpAddress = detail.IpAddress,
-                              Name = detail.Name,
-                              Type = detail.Type,
-                              UUID = detail.UUID,
-                              Status = detail.Status,
-                              SmmMacAddr = detail.SmmMacAddr,
-                              RealTimePower = detail.RealTimePower,
-                              ProductSN = detail.ProductSN
-                          };
+            {
+                DN = this.DN,
+                IpAddress = detail.IpAddress,
+                Name = $"{eSightIp}-{ detail.Name}",
+                Type = detail.Type,
+                UUID = detail.UUID,
+                OriStatus = detail.Status,
+                SmmMacAddr = detail.SmmMacAddr,
+                RealTimePower = detail.RealTimePower,
+                ProductSN = detail.ProductSN
+            };
+            this.ESight = eSightIp;
+            this.ServerName = $"{eSightIp}-{detail.Name}";
+            //this.DN = detail.DN;
+            this.DeviceId = $"{eSightIp}-{ this.DN}";
             this.HmmInfo = hmm;
             this.FanList = detail.FANList;
             this.PowerSupplyList = detail.PSUList;

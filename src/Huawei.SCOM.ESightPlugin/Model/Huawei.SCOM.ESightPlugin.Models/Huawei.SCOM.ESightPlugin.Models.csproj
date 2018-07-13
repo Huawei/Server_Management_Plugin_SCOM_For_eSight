@@ -93,10 +93,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommonUtil, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\src_bin\CommonUtil.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\third_party\Lib\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -140,11 +136,13 @@
     <Compile Include="Server\BladeServer.cs" />
     <Compile Include="Server\ChildBlade.cs" />
     <Compile Include="Server\ChildHighdensity.cs" />
+    <Compile Include="Server\ChildSwithBoard.cs" />
     <Compile Include="Server\HighdensityServer.cs" />
     <Compile Include="Server\KunLunServer.cs" />
     <Compile Include="Server\RackServer.cs" />
     <Compile Include="Server\ServerTypeEnum.cs" />
     <Compile Include="StatusHelper.cs" />
+    <Compile Include="Subscribe\AlarmHistory.cs" />
     <Compile Include="TaskResult.cs" />
     <Compile Include="TcpMessage.cs" />
     <Compile Include="WebMutilESightsParam.cs" />
@@ -152,6 +150,12 @@
     <Compile Include="WebReturnESightResult.cs" />
     <Compile Include="WebReturnLGResult.cs" />
     <Compile Include="WebReturnResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Util\CommonUtil\CommonUtil.csproj">
+      <Project>{c79a21bf-e869-4b93-a787-67b1d4231c02}</Project>
+      <Name>CommonUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

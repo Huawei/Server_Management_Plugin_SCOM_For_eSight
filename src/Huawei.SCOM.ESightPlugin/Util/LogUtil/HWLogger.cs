@@ -1,45 +1,37 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NLog;
 
-namespace LogUtil
+namespace Huawei.SCOM.ESightPlugin.LogUtil
 {
-    /// <summary>
-    /// 日志管理类。
-    /// </summary>
-    public static class HWLogger
+    public class HWLogger
     {
-        /// <summary>
-        /// 缺省日志 输出: Huawei.SCOM.Plugin.For.eSight.log
-        /// </summary>
-        public static ILogger DEFAULT = new Logger("DEFAULT_LOG");
-        /// <summary>
-        /// UI层日志 输出: Huawei.UI.log
-        /// </summary>
-        public static ILogger UI = new Logger("UI_LOG");
+        public static Logger Default => LogManager.GetLogger($"Default");
 
-        /// <summary>
-        /// windows service日志
-        /// </summary>
-        public static ILogger SERVICE = new Logger("SERVICE_LOG");
+        public static Logger Service => LogManager.GetLogger($"Service");
 
-        /// <summary>
-        /// 通知消息日志
-        /// </summary>
-        public static ILogger NOTIFICATION = new Logger("NOTIFICATION_LOG");
+        public static Logger Install => LogManager.GetLogger($"Install");
 
-        /// <summary>
-        /// 业务类日志 输出：Huawei.API.log
-        /// </summary>
-        public static ILogger API = new Logger("API_LOG");
-        /// <summary>
-        /// 系统更新或者升级日志，目前暂时没有使用，保留属性 输出：Huawei.updater.log 
-        /// </summary>
-        public static ILogger UPDATER = new Logger("UPDATER_LOG");
+        public static Logger UI => LogManager.GetLogger($"UI");
 
+        public static Logger NotifyRecv => LogManager.GetLogger($"NotifyRecv");
 
-        /// <summary>
-        /// The notificatio n_ process
-        /// </summary>
-        public static ILogger NOTIFICATION_PROCESS = new Logger("NOTIFICATION_PROCESS_LOG");  
+        public static Logger GetESightSdkLogger(string eSightIp)
+        {
+            return LogManager.GetLogger($"{eSightIp}.Sdk");
+        }
+
+        public static Logger GetESightNotifyLogger(string eSightIp)
+        {
+            return LogManager.GetLogger($"{eSightIp}.NotifyProcess");
+        }
+
+        public static Logger GetESightSubscribeLogger(string eSightIp)
+        {
+            return LogManager.GetLogger($"{eSightIp}.Subscribe");
+        }
     }
 }

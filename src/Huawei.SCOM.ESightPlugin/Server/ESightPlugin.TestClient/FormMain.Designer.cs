@@ -135,7 +135,7 @@ namespace ESightPlugin.TestClient
             this.btnInsertChildBlade.TabIndex = 2;
             this.btnInsertChildBlade.Text = "Update ChildBlade";
             this.btnInsertChildBlade.UseVisualStyleBackColor = true;
-            this.btnInsertChildBlade.Click += new System.EventHandler(this.btnInsertChildBlade_Click);
+            this.btnInsertChildBlade.Click += new System.EventHandler(this.btnUpdateChildBlade_Click);
             // 
             // btnInsertMainBlade
             // 
@@ -145,7 +145,7 @@ namespace ESightPlugin.TestClient
             this.btnInsertMainBlade.TabIndex = 3;
             this.btnInsertMainBlade.Text = "Update MainBlade";
             this.btnInsertMainBlade.UseVisualStyleBackColor = true;
-            this.btnInsertMainBlade.Click += new System.EventHandler(this.btnInsertMainBlade_Click);
+            this.btnInsertMainBlade.Click += new System.EventHandler(this.btnUpdateMainBlade_Click);
             // 
             // btnInsertMainHigh
             // 
@@ -155,7 +155,7 @@ namespace ESightPlugin.TestClient
             this.btnInsertMainHigh.TabIndex = 4;
             this.btnInsertMainHigh.Text = "Update MainHigh";
             this.btnInsertMainHigh.UseVisualStyleBackColor = true;
-            this.btnInsertMainHigh.Click += new System.EventHandler(this.btnInsertMainHigh_Click);
+            this.btnInsertMainHigh.Click += new System.EventHandler(this.btnUpdateMainHigh_Click);
             // 
             // btnInsertChildHigh
             // 
@@ -165,7 +165,7 @@ namespace ESightPlugin.TestClient
             this.btnInsertChildHigh.TabIndex = 5;
             this.btnInsertChildHigh.Text = "Update ChildHigh";
             this.btnInsertChildHigh.UseVisualStyleBackColor = true;
-            this.btnInsertChildHigh.Click += new System.EventHandler(this.btnInsertChildHigh_Click);
+            this.btnInsertChildHigh.Click += new System.EventHandler(this.btnUpdateChildHigh_Click);
             // 
             // btnInsertRack
             // 
@@ -175,7 +175,7 @@ namespace ESightPlugin.TestClient
             this.btnInsertRack.TabIndex = 6;
             this.btnInsertRack.Text = "Update RackServer";
             this.btnInsertRack.UseVisualStyleBackColor = true;
-            this.btnInsertRack.Click += new System.EventHandler(this.btnInsertRack_Click);
+            this.btnInsertRack.Click += new System.EventHandler(this.btnUpdateRack_Click);
             // 
             // btnDeleteBladeServer
             // 

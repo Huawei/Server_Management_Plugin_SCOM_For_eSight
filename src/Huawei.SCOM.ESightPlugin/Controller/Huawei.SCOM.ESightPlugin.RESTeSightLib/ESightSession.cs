@@ -32,7 +32,6 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
     using Huawei.SCOM.ESightPlugin.Models.Server;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Exceptions;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper;
-
     using LogUtil;
 
     /// <summary>
@@ -78,6 +77,8 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// </summary>
         private bool disposed;
 
+        private ESightLogger logger;
+
         #endregion
 
         #region Constructor
@@ -89,6 +90,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         public ESightSession(HWESightHost eSight)
         {
             this.ESight = eSight;
+            logger = new ESightLogger(eSight.HostIP);
         }
 
         /// <summary>
@@ -188,7 +190,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             string url = this.GetFullUrl("rest/openapi/sm/session");
             try
             {
-                HWLogger.API.Info($"TestConnection url: {url}.");
+                logger.Api.Info($"TestConnection url: {url}.");
                 var param = new
                 {
                     userid = this.ESight.LoginAccount,
@@ -200,7 +202,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 var httpClient = new HttpClient();
                 var res = httpClient.PutAsync(url, content).Result;
                 var resultStr = res.Content.ReadAsStringAsync().Result;
-                HWLogger.API.Info($"TestConnection url: {url}.-result{resultStr}");
+                logger.Api.Info($"TestConnection url: {url}.-result{resultStr}");
 
                 if (!res.IsSuccessStatusCode)
                 {
@@ -215,17 +217,17 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 }
                 this.OpenId = result.Data;
                 this.LatestConnectedTime = DateTime.Now;
-                HWLogger.API.Info($"Test Login Success");
+                logger.Api.Info($"Test Login Success");
             }
             catch (ESSessionExpceion ex)
             {
-                HWLogger.API.Error($"TestConnection Error.Url:{url} : ", ex);
+                logger.Api.Error($"TestConnection Error.Url:{url} : ", ex);
                 throw ex;
             }
             catch (AggregateException ae)
             {
                 var esSessionExpceion = this.HandleException(ae);
-                HWLogger.API.Error("TestConnection faild", esSessionExpceion);
+                logger.Api.Error("TestConnection faild", esSessionExpceion);
                 throw esSessionExpceion;
             }
         }
@@ -241,7 +243,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             string url = this.GetFullUrl("rest/openapi/sm/session");
             try
             {
-                HWLogger.API.Info($"Login url: {url}.");
+                logger.Api.Info($"Login url: {url}.");
                 var param = new
                 {
                     userid = this.ESight.LoginAccount,
@@ -253,7 +255,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 var httpClient = new HttpClient();
                 var res = httpClient.PutAsync(url, content).Result;
                 var resultStr = res.Content.ReadAsStringAsync().Result;
-                HWLogger.API.Info($"Login url: {url}.-result{resultStr}");
+                logger.Api.Info($"Login url: {url}.-result{resultStr}");
                 if (!res.IsSuccessStatusCode)
                 {
                     var errMsg =
@@ -271,19 +273,19 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
 
                 // Login
                 ESightDal.Instance.UpdateESightConnectStatus(this.ESight.HostIP, ConstMgr.ESightConnectStatus.ONLINE, "connect success.");
-                HWLogger.API.Info($"Login Success");
+                logger.Api.Info($"Login Success");
             }
             catch (ESSessionExpceion ex)
             {
                 this.HandleEsSessionException(ex);
-                HWLogger.API.Error($"Login Error.Url:{url} : ", ex);
+                logger.Api.Error($"Login Error.Url:{url} : ", ex);
                 throw ex;
             }
             catch (AggregateException ae)
             {
                 var esSessionExpceion = this.HandleException(ae);
                 this.HandleEsSessionException(esSessionExpceion);
-                HWLogger.API.Error($"Login Error.Url:{url} : ", ae);
+                logger.Api.Error($"Login Error.Url:{url} : ", ae);
                 throw esSessionExpceion;
             }
         }
@@ -302,7 +304,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             string url = this.GetFullUrl($"rest/openapi/sm/session?openid={this.OpenId}");
             try
             {
-                HWLogger.API.Info($"Logout url: {url}.");
+                logger.Api.Info($"Logout url: {url}.");
                 this.TrustCertificate();
                 var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
@@ -319,13 +321,108 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 {
                     throw new ESSessionExpceion(result.Code.ToString(), this, resultStr);
                 }
-                HWLogger.API.Info($"Logout Success.");
+                logger.Api.Info($"Logout Success.");
             }
             catch (Exception ex)
             {
-                HWLogger.API.Error($"Logout Error.Url:{url} : ", ex);
+                logger.Api.Error($"Logout Error.Url:{url} : ", ex);
                 throw;
             }
+        }
+
+        #endregion
+
+        #region KeepAlive
+        public ESightResult SubscribeKeepAlive()
+        {
+            var result = new ESightResult { Code = -1, Description = string.Empty };
+            try
+            {
+                if (string.IsNullOrEmpty(this.ESight.SubscribeID))
+                {
+                    throw new Exception("SubscribeID can not be empty");
+                }
+                #region param
+                var pluginConfig = ConfigHelper.GetPluginConfig();
+                if (pluginConfig.InternetIp == "localhost")
+                {
+                    throw new Exception("Subscription ip can not be localhost");
+                }
+                var alramUrl = HttpUtility.UrlEncode(
+                    $"https://{pluginConfig.InternetIp}:{pluginConfig.InternetPort}/SystemKeepAlive/{this.ESight.SubscribeID}");
+                var param = new
+                {
+                    systemID = HttpUtility.UrlEncode(this.ESight.SystemID),
+                    openID = this.ESight.OpenID,
+                    url = alramUrl,
+                    dataType = "JSON",
+                    desc = "ESightSCOM.ESightPlugin"
+                };
+                #endregion
+
+                string urlAlarm = "rest/openapi/notification/common/systemKeepAlive";
+                string url = this.GetFullUrl(urlAlarm);
+
+                var paramJson = JsonUtil.SerializeObject(param);
+                logger.Api.Info($"SubscribeKeepAlive url:{url} param: {paramJson}");
+
+                this.CheckAndReLogin();
+                this.TrustCertificate();
+
+                var content = new StringContent(paramJson, Encoding.UTF8, "application/json");
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
+                var res = httpClient.PutAsync(url, content).Result;
+                var resultStr = res.Content.ReadAsStringAsync().Result;
+                if (!res.IsSuccessStatusCode)
+                {
+                    var errMsg = $"Accessing[{url}] ,StatusCode:[{res.StatusCode}],ReasonPhrase:[{res.ReasonPhrase}], Error occurred: [{resultStr}]";
+                    throw new Exception(errMsg);
+                }
+                logger.Api.Info($"SubscribeKeepAlive url:{url} result: {resultStr}");
+                result = JsonUtil.DeserializeObject<ESightResult>(resultStr);
+            }
+            catch (Exception ex)
+            {
+                result.Description = ex.Message;
+                logger.Api.Error("SubscribeKeepAlive Error: ", ex);
+            }
+            return result;
+        }
+
+        public ESightResult UnSubscribeKeepAlive(string systemId)
+        {
+            var result = new ESightResult { Code = -1, Description = string.Empty };
+            try
+            {
+                string url = this.GetFullUrl($"rest/openapi/notification/common/systemKeepAlive?systemID={systemId}&desc=ESightSCOM.ESightPlugin");
+                logger.Api.Info($"UnSubscribeKeepAlive url:{url} ");
+
+                this.CheckAndReLogin();
+                this.TrustCertificate();
+
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
+                var res = httpClient.DeleteAsync(url).Result;
+                var resultStr = res.Content.ReadAsStringAsync().Result;
+                if (!res.IsSuccessStatusCode)
+                {
+                    var errMsg = $"Accessing[{url}] ,StatusCode:[{res.StatusCode}],ReasonPhrase:[{res.ReasonPhrase}], Error occurred: [{resultStr}]";
+                    throw new Exception(errMsg);
+                }
+                result = JsonUtil.DeserializeObject<ESightResult>(resultStr);
+                logger.Api.Info($"UnSubscribeKeepAlive url:{url} result: {resultStr}");
+                if (result.Code != 0)
+                {
+                    throw new Exception("UnSubscribeKeepAlive Error:" + resultStr);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Description = ex.Message;
+                logger.Api.Error("UnSubscribeKeepAlive Error: ", ex);
+            }
+            return result;
         }
 
         #endregion
@@ -333,7 +430,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         #region Subscribe
 
         /// <summary>
-        /// S订阅告警信息
+        /// 订阅告警信息
         /// </summary>
         /// <returns>The <see cref="ESightResult" />.</returns>
         /// <exception cref="Exception">SubscribeAlarm Error: + resultStr</exception>
@@ -357,7 +454,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 var param = new
                 {
                     systemID = HttpUtility.UrlEncode(this.ESight.SystemID),
-                    openID = this.OpenId,
+                    openID = this.ESight.OpenID,
                     url = alramUrl,
                     dataType = "JSON",
                     desc = "ESightSCOM.ESightPlugin"
@@ -368,7 +465,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 string url = this.GetFullUrl(urlAlarm);
 
                 var paramJson = JsonUtil.SerializeObject(param);
-                HWLogger.API.Info($"SubscribeAlarm url:{url} param: {paramJson}");
+                logger.Api.Info($"SubscribeAlarm url:{url} param: {paramJson}");
 
                 this.CheckAndReLogin();
                 this.TrustCertificate();
@@ -383,13 +480,13 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                     var errMsg = $"Accessing[{url}] ,StatusCode:[{res.StatusCode}],ReasonPhrase:[{res.ReasonPhrase}], Error occurred: [{resultStr}]";
                     throw new Exception(errMsg);
                 }
-                HWLogger.API.Info($"SubscribeAlarm url:{url} result: {resultStr}");
+                logger.Api.Info($"SubscribeAlarm url:{url} result: {resultStr}");
                 result = JsonUtil.DeserializeObject<ESightResult>(resultStr);
             }
             catch (Exception ex)
             {
                 result.Description = ex.Message;
-                HWLogger.API.Error("SubscribeAlarm Error: ", ex);
+                logger.Api.Error("SubscribeAlarm Error: ", ex);
             }
             return result;
         }
@@ -432,7 +529,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 string url = this.GetFullUrl(urlAlarm);
 
                 var paramJson = JsonUtil.SerializeObject(param);
-                HWLogger.API.Info($"SubscribeNeDevice url:{url} param: {paramJson}");
+                logger.Api.Info($"SubscribeNeDevice url:{url} param: {paramJson}");
 
                 this.CheckAndReLogin();
                 this.TrustCertificate();
@@ -442,7 +539,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
                 var res = httpClient.PutAsync(url, content).Result;
                 var resultStr = res.Content.ReadAsStringAsync().Result;
-                HWLogger.API.Info($"SubscribeNeDevice url:{url} result: {resultStr}");
+                logger.Api.Info($"SubscribeNeDevice url:{url} result: {resultStr}");
                 if (!res.IsSuccessStatusCode)
                 {
                     var errMsg = $"Accessing[{url}] ,StatusCode:[{res.StatusCode}],ReasonPhrase:[{res.ReasonPhrase}], Error occurred: [{resultStr}]";
@@ -453,7 +550,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             catch (Exception ex)
             {
                 result.Description = ex.Message;
-                HWLogger.API.Error("SubscribeNeDevice Error: ", ex);
+                logger.Api.Error("SubscribeNeDevice Error: ", ex);
             }
             return result;
         }
@@ -470,7 +567,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             try
             {
                 string url = this.GetFullUrl($"rest/openapi/notification/common/alarm?systemID={systemId}&desc=ESightSCOM.ESightPlugin");
-                HWLogger.API.Info($"UnSubscribeAlarm url:{url} ");
+                logger.Api.Info($"UnSubscribeAlarm url:{url} ");
 
                 this.CheckAndReLogin();
                 this.TrustCertificate();
@@ -485,7 +582,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                     throw new Exception(errMsg);
                 }
                 result = JsonUtil.DeserializeObject<ESightResult>(resultStr);
-                HWLogger.API.Info($"UnSubscribeAlarm url:{url} result: {resultStr}");
+                logger.Api.Info($"UnSubscribeAlarm url:{url} result: {resultStr}");
                 if (result.Code != 0)
                 {
                     throw new Exception("UnSubscribeAlarm Error:" + resultStr);
@@ -494,7 +591,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             catch (Exception ex)
             {
                 result.Description = ex.Message;
-                HWLogger.API.Error("UnSubscribeAlarm Error: ", ex);
+                logger.Api.Error("UnSubscribeAlarm Error: ", ex);
             }
             return result;
         }
@@ -512,7 +609,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             try
             {
                 string url = this.GetFullUrl($"rest/openapi/notification/common/nedevice?systemID={systemId}&desc=ESightSCOM.ESightPlugin");
-                HWLogger.API.Info($"UnSubscribeNeDevice url:{url} ");
+                logger.Api.Info($"UnSubscribeNeDevice url:{url} ");
 
                 this.CheckAndReLogin();
                 this.TrustCertificate();
@@ -525,7 +622,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                     var errMsg = $"Accessing[{url}] ,StatusCode:[{res.StatusCode}],ReasonPhrase:[{res.ReasonPhrase}], Error occurred: [{resultStr}]";
                     throw new Exception(errMsg);
                 }
-                HWLogger.API.Info($"UnSubscribeNeDevice url:{url} result: {resultStr}");
+                logger.Api.Info($"UnSubscribeNeDevice url:{url} result: {resultStr}");
                 result = JsonUtil.DeserializeObject<ESightResult>(resultStr);
                 if (result.Code != 0)
                 {
@@ -535,10 +632,52 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             catch (Exception ex)
             {
                 result.Description = ex.Message;
-                HWLogger.API.Error("UnSubscribeNeDevice Error: ", ex);
+                logger.Api.Error("UnSubscribeNeDevice Error: ", ex);
             }
             return result;
         }
+
+        /// <summary>
+        /// Gets the alarm history.
+        /// </summary>
+        /// <param name="startPage">The start page.</param>
+        /// <returns>QueryPageResult&lt;AlarmHistory&gt;.</returns>
+        /// <exception cref="ESSessionExpceion">e</exception>
+        public AlarmHistoryList GetAlarmHistory(int startPage)
+        {
+            var result = new AlarmHistoryList();
+            string url = string.Empty;
+            try
+            {
+                StringBuilder sb = new StringBuilder($"rest/openapi/alarm?clearStatus=0&ackStatus=0&pageNo={startPage}&pageSize=100");
+                url = this.GetFullUrl(sb.ToString());
+                logger.Api.Info($"GetAlarmHistory start.Url:{url}");
+
+                this.CheckAndReLogin();
+                this.TrustCertificate();
+
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
+                var res = httpClient.GetAsync(url).Result;
+                var resultStr = res.Content.ReadAsStringAsync().Result;
+                logger.Api.Debug($"GetAlarmHistory success.Url:{url} \r\n result:{resultStr}");
+                resultStr = resultStr.Replace("\"data\":\"null\"", "\"data\":[]");
+                result = JsonUtil.DeserializeObject<AlarmHistoryList>(resultStr);
+                if (result.Code != 0)
+                {
+                    throw new ESSessionExpceion(result.Code.ToString(), this, resultStr);
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Code = -1;
+                result.Description = ex.Message;
+                logger.Api.Error($"GetAlarmHistory Error.Url:{url} : ", ex);
+                throw;
+            }
+            return result;
+        }
+
         #endregion
 
         #region 服务器列表、服务器详情
@@ -574,7 +713,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 }
                 url = this.GetFullUrl(sb.ToString());
 
-                HWLogger.API.Info($"GetServerList success.Url:{url}");
+                //logger.Api.Info($"GetServerList start.Url:{url}");
 
                 this.CheckAndReLogin();
                 this.TrustCertificate();
@@ -583,7 +722,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
                 var res = httpClient.GetAsync(url).Result;
                 var resultStr = res.Content.ReadAsStringAsync().Result;
-                HWLogger.API.Debug($"GetServerList success.Url:{url} \r\n result:{resultStr}");
+                logger.Api.Debug($"GetServerList success.Url:{url} \r\nresult:{resultStr}");
                 resultStr = resultStr.Replace("\"data\":\"null\"", "\"data\":[]");
                 result = JsonUtil.DeserializeObject<QueryPageResult<HWDevice>>(resultStr);
                 if (result.Code != 0)
@@ -595,7 +734,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             {
                 result.Code = -1;
                 result.Description = ex.Message;
-                HWLogger.API.Error($"GetServerList Error.Url:{url} : ", ex);
+                logger.Api.Error($"GetServerList Error.Url:{url} : ", ex);
                 throw;
             }
             return result;
@@ -612,7 +751,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             try
             {
                 url = this.GetFullUrl($"rest/openapi/server/device/detail?dn={dn}");
-                HWLogger.API.Info($"GetServerDetails success.Url:{url}");
+                //logger.Api.Info($"GetServerDetails success.Url:{url}");
 
                 this.CheckAndReLogin();
                 this.TrustCertificate();
@@ -620,22 +759,22 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
                 var res = httpClient.GetAsync(url).Result;
                 var resultStr = res.Content.ReadAsStringAsync().Result;
-                HWLogger.API.Debug($"GetServerDetails success.Url:{url} \r\n result:{resultStr}");
+                logger.Api.Debug($"GetServerDetails success.Url:{url} \r\nresult:{resultStr}");
                 resultStr = resultStr.Replace("\"data\":\"null\"", "\"data\":[]");
                 var result = JsonUtil.DeserializeObject<QueryListResult<HWDeviceDetail>>(resultStr);
                 if (result.Code != 0)
                 {
-                    throw new Exception($"GetServerDetails Error. Url:{url} \r\n Result:{ resultStr}");
+                    throw new Exception($"GetServerDetails Error. Url:{url} \r\nResult:{ resultStr}");
                 }
                 if (!result.Data.Any())
                 {
-                    throw new Exception($"GetServerDetails Error. Url:{url} \r\n Result:{ resultStr}");
+                    throw new Exception($"GetServerDetails Error. Url:{url} \r\nResult:{ resultStr}");
                 }
                 return result.Data.FirstOrDefault();
             }
             catch (Exception ex)
             {
-                HWLogger.API.Error($"GetServerDetails Error.Url:{url} : ", ex);
+                logger.Api.Error($"GetServerDetails Error.Url:{url} : ", ex);
                 throw;
             }
         }
@@ -643,6 +782,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// 查询刀片列表
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>刀片列表</returns>
         public ApiServerList<BladeServer> QueryBladeServer(int startPage)
         {
@@ -654,7 +794,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                     BladeServer bladeServer = new BladeServer(x);
                     x.ChildBlades.ForEach(m =>
                     {
-                        ChildBlade childBlade = new ChildBlade(m);
+                        ChildBlade childBlade = new ChildBlade(m, this.ESight.HostIP);
                         bladeServer.ChildBlades.Add(childBlade);
                     });
                     result.Data.Add(bladeServer);
@@ -667,6 +807,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// 查询高密列表
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>高密列表</returns>
         public ApiServerList<HighdensityServer> QueryHighDesentyServer(int startPage)
         {
@@ -678,7 +819,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                     var highDesentyServer = new HighdensityServer(x);
                     x.ChildBlades.ForEach(m =>
                         {
-                            var childHighdensity = new ChildHighdensity(m);
+                            var childHighdensity = new ChildHighdensity(m, this.ESight.HostIP);
                             highDesentyServer.ChildHighdensitys.Add(childHighdensity);
                         });
                     result.Data.Add(highDesentyServer);
@@ -691,6 +832,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// 查询机架列表
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>机架列表</returns>
         public ApiServerList<RackServer> QueryRackServer(int startPage)
         {
@@ -710,6 +852,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// 查询昆仑列表
         /// </summary>
+        /// <param name="startPage">The start page.</param>
         /// <returns>机架列表</returns>
         public ApiServerList<KunLunServer> QueryKunLunServer(int startPage)
         {
@@ -770,7 +913,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 }
                 var resultStr = res.Content.ReadAsStringAsync().Result;
                 var errMsg = $"Accessing[{url}] ,StatusCode:[{res.StatusCode}],ReasonPhrase:[{res.ReasonPhrase}], Error occurred: [{resultStr}]";
-                HWLogger.API.ErrorFormat(errMsg);
+                logger.Api.Error(errMsg);
                 throw new ESSessionExpceion(webErrorCode, this, errMsg);
             }
         }
@@ -865,14 +1008,14 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         private ESSessionExpceion HandleException(AggregateException ae)
         {
             StringBuilder sb = new StringBuilder();
-            HWLogger.API.Error(ae);
+            logger.Api.Error(ae);
             List<Exception> flattenedExceptions = this.GetFlattenAggregateException(ae);
             foreach (var ex in flattenedExceptions)
             {
                 if (ex is WebException)
                 {
                     WebException we = (WebException)ex;
-                    HWLogger.API.Error(we);
+                    logger.Api.Error(we);
                     if (we.Response != null)
                     {
                         HttpWebResponse response = (HttpWebResponse)we.Response;
@@ -880,12 +1023,12 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                         string backstr = sr.ReadToEnd();
                         sr.Close();
                         response.Close();
-                        HWLogger.API.Error(backstr);
+                        logger.Api.Error(backstr);
                     }
                 }
                 sb.AppendLine(ex.Message);
             }
-            HWLogger.API.Error(sb.ToString());
+            logger.Api.Error(sb.ToString());
             int errCnt = flattenedExceptions.Count;
             for (int i = errCnt - 1; i >= 0; i--)
             {
@@ -929,7 +1072,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 }
                 catch (Exception se)
                 {
-                    HWLogger.API.WarnFormat("There was an error clearing the connection", se);
+                    logger.Api.Warn("There was an error clearing the connection", se);
                 }
                 // If disposing is false, only the following code is executed.
             }

@@ -55,7 +55,13 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         [JsonProperty(PropertyName = "productSn")]
         public string ProductSN { get; set; }
 
-        private string _status;
+        /// <summary>
+        /// 原始状态
+        /// </summary>
+        /// <value>The ori status.</value>
+        [JsonProperty(PropertyName = "status")]
+        public string OriStatus { get; set; }
+
         /// <summary>
         /// 服务器状态，含义如下：
         ///	“0”：正常
@@ -63,9 +69,8 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         ///	“-2”：未知
         ///	其他：故障
         /// </summary>
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get { return _status; } set { _status = StatusHelper.ConvertStatus(value); } }
-
+        public string Status => StatusHelper.ConvertStatus(OriStatus);
+     
         /// <summary>
         /// 描述，属性字符串直接显示，非枚举值
         /// </summary>
@@ -111,6 +116,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
 
         /// <summary>
         /// 板信息，刀片服务器：交换板；机架、高密服务器、刀片：主板；
+        /// todo 此处接口有变动为 "SwitchBoard" 待确认
         /// </summary>
         [JsonProperty(PropertyName = "board")]
         public List<HWBoard> BoardList { get; set; }

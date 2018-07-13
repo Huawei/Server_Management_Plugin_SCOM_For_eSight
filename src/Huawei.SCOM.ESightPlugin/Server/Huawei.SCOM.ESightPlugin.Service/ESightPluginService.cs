@@ -27,19 +27,14 @@ namespace Huawei.SCOM.ESightPlugin.Service
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Timers;
     using CommonUtil;
 
     using Huawei.SCOM.ESightPlugin.Core;
     using Huawei.SCOM.ESightPlugin.Models;
+    using Huawei.SCOM.ESightPlugin.Models.Server;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper;
-
-    using LogUtil;
-
-    using Microsoft.EnterpriseManagement;
-
-    using Newtonsoft.Json;
+    using Huawei.SCOM.ESightPlugin.LogUtil;
 
     using Timer = System.Timers.Timer;
 
@@ -350,8 +345,10 @@ namespace Huawei.SCOM.ESightPlugin.Service
         {
             try
             {
-                this.OnLog("Start Sync Task");
+                this.OnLog("Run Sync Task");
 
+                this.OnLog("Check is need update pd..");
+                ESightEngine.Instance.Init();
                 var hwESightHostList = ESightDal.Instance.GetList();
                 if (hwESightHostList != null)
                 {
@@ -369,7 +366,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception ex)
             {
-                this.OnError("GetServerList Error: ", ex);
+                this.OnError("RunSync Error: ", ex);
             }
         }
 
@@ -451,29 +448,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                         {
                             var json = Encoding.UTF8.GetString(bytes, 0, i);
-                            HWLogger.NOTIFICATION_PROCESS.Info($"RecieveMsg data:{json}");
-                            Task.Run(() =>
-                            {
-                                var tcpMessage = JsonUtil.DeserializeObject<TcpMessage<object>>(json);
-                                switch (tcpMessage.MsgType)
-                                {
-                                    case TcpMessageType.SyncESight:
-                                        this.RunSyncESight(json);
-                                        break;
-                                    case TcpMessageType.DeleteESight:
-                                        this.RunDeleteESight(json);
-                                        break;
-                                    case TcpMessageType.Alarm:
-                                        this.AnalysisAlarm(json);
-                                        break;
-                                    case TcpMessageType.NeDevice:
-                                        this.AnalysisNeDevice(json);
-                                        break;
-                                    default:
-                                        throw new ArgumentOutOfRangeException();
-                                }
-                            });
-
+                            Task.Run(() => { AnalysisTcpMsg(json); });
                             // Send back a response.
                             byte[] responseMsg = Encoding.UTF8.GetBytes("Received");
                             stream.Write(responseMsg, 0, responseMsg.Length);
@@ -493,96 +468,150 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
         }
 
-
         /// <summary>
-        /// Runs the synchronize e sight.
+        /// Analysises the TCP MSG.
         /// </summary>
         /// <param name="json">The json.</param>
-        private void RunDeleteESight(string json)
+        /// <exception cref="System.Exception">can not find eSight:" + tcpMessage.ESightIp</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        public void AnalysisTcpMsg(string json)
         {
+            var tcpMessage = JsonUtil.DeserializeObject<TcpMessage<object>>(json);
             try
             {
-                var messge = JsonUtil.DeserializeObject<TcpMessage<string>>(json);
-                HWLogger.NOTIFICATION_PROCESS.Info($"RunDeleteESight:{messge.ESightIp} ");
-                var eSightIp = messge.ESightIp;
-                Task.Run(() =>
-               {
-                   BladeConnector.Instance.RemoveServerFromMGroup(eSightIp);
-                   HighdensityConnector.Instance.RemoveServerFromMGroup(eSightIp);
-                   RackConnector.Instance.RemoveServerFromMGroup(eSightIp);
-                   KunLunConnector.Instance.RemoveServerFromMGroup(eSightIp);
-               });
-                var syncInstance = this.SyncInstances.FirstOrDefault(y => y.ESightIp == eSightIp);
-                if (syncInstance != null)
+                if (tcpMessage.MsgType != TcpMessageType.KeepAlive)
                 {
-                    this.SyncInstances.Remove(syncInstance);
+                    HWLogger.GetESightNotifyLogger(tcpMessage.ESightIp).Info($"RecieveTcpMsg. data:{json}");
+                }
+                else
+                {
+                    HWLogger.GetESightSubscribeLogger(tcpMessage.ESightIp).Info($"RecieveTcpMsg. data:{json}");
+                }
+                var eSight = ESightDal.Instance.GetEntityByHostIp(tcpMessage.ESightIp);
+                if (eSight == null && tcpMessage.MsgType != TcpMessageType.DeleteESight)
+                {
+                    throw new Exception("can not find eSight:" + tcpMessage.ESightIp);
+                }
+                switch (tcpMessage.MsgType)
+                {
+                    case TcpMessageType.SyncESight:
+                        this.RunSyncESight(eSight);
+                        break;
+                    case TcpMessageType.DeleteESight:
+                        this.RunDeleteESight(tcpMessage.ESightIp);
+                        break;
+                    case TcpMessageType.Alarm:
+                        this.AnalysisAlarm(eSight, json);
+                        break;
+                    case TcpMessageType.NeDevice:
+                        this.AnalysisNeDevice(eSight, json);
+                        break;
+                    case TcpMessageType.KeepAlive:
+                        this.AnalysisAlive(eSight, json);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                HWLogger.NOTIFICATION_PROCESS.Error($"RunDeleteESight error. data:{json}", ex);
+                HWLogger.GetESightSubscribeLogger(tcpMessage.ESightIp).Error(e);
             }
         }
 
         /// <summary>
-        /// Runs the synchronize e sight.
+        /// Runs to delete eSight.
         /// </summary>
-        /// <param name="json">The json.</param>
-        private void RunSyncESight(string json)
+        /// <param name="eSightIp">The e sight ip.</param>
+        private void RunDeleteESight(string eSightIp)
         {
-            try
+            HWLogger.GetESightNotifyLogger(eSightIp).Info($"Recieve: delete this eSight");
+            Task.Run(() =>
             {
-                var messge = JsonUtil.DeserializeObject<TcpMessage<string>>(json);
-                HWLogger.NOTIFICATION_PROCESS.Info($"RunSyncESight:{messge.ESightIp} ");
-                var eSight = ESightDal.Instance.GetEntityByHostIp(messge.ESightIp);
-                if (eSight == null)
-                {
-                    throw new Exception("can not find eSight:" + messge.ESightIp);
-                }
-                var instance = this.FindInstance(eSight);
-                instance.Sync();
-            }
-            catch (Exception ex)
+                BladeConnector.Instance.RemoveServerFromMGroup(eSightIp);
+                HighdensityConnector.Instance.RemoveServerFromMGroup(eSightIp);
+                RackConnector.Instance.RemoveServerFromMGroup(eSightIp);
+                KunLunConnector.Instance.RemoveServerFromMGroup(eSightIp);
+            });
+            var syncInstance = this.SyncInstances.FirstOrDefault(y => y.ESightIp == eSightIp);
+            if (syncInstance != null)
             {
-                HWLogger.NOTIFICATION_PROCESS.Error($"RunSyncESight error. data:{json}", ex);
+                syncInstance.Close();
+                this.SyncInstances.Remove(syncInstance);
             }
+        }
+
+        /// <summary>
+        /// Runs to synchronize eSight.
+        /// </summary>
+        /// <param name="eSight">The e sight.</param>
+        private void RunSyncESight(HWESightHost eSight)
+        {
+            HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"Recieve: Sync this eSight");
+            var instance = this.FindInstance(eSight);
+            instance.Sync();
         }
 
         /// <summary>
         /// 解析告警变更消息
         /// </summary>
+        /// <param name="eSight">The eSight.</param>
         /// <param name="json">The json.</param>
-        private void AnalysisAlarm(string json)
+        /// <exception cref="System.Exception"></exception>
+        private void AnalysisAlarm(HWESightHost eSight, string json)
         {
             try
             {
                 var messge = JsonUtil.DeserializeObject<TcpMessage<NotifyModel<AlarmData>>>(json);
                 var alarmData = messge.Data;
-                if (alarmData == null)
+                if (alarmData != null)
                 {
-                    throw new Exception($"AnalysisAlarm error. MsgId:{messge.Id} ");
-                }
-                var eSight = ESightDal.Instance.GetEntityBySubscribeId(alarmData.SubscribeId);
-                if (eSight == null)
-                {
-                    throw new Exception($"can not find the eSight,SystemID:{alarmData.Data.SystemID},subscribeID:{alarmData.SubscribeId}");
-                }
+                    var dn = alarmData.Data.NeDN;
+                    var alarmSn = alarmData.Data.AlarmSN;
+                    HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"[alarmSn:{alarmSn}] AnalysisAlarm.[DN:{dn}][optType:{alarmData.Data.OptType}][alarmName:{alarmData.Data.AlarmName}] ");
 
-                var instance = this.FindInstance(eSight);
-                instance.Enqueue(alarmData.Data.NeDN);
-                instance.InsertEvent(alarmData.Data); // 插入事件
+                    var instance = this.FindInstance(eSight);
+                    var serverType = instance.GetServerTypeByDn(dn);
+                    if (serverType == ServerTypeEnum.ChildBlade)
+                    {
+                        //更新子刀片的管理板
+                        var childDeviceId = $"{eSight.HostIP}-{dn}";
+                        var parentDn = BladeConnector.Instance.GetParentDn(childDeviceId);
+                        instance.StartUpdateTask(parentDn, ServerTypeEnum.Blade, alarmSn);
+                    }
+                    if (serverType == ServerTypeEnum.ChildHighdensity)
+                    {
+                        //更新子刀片的管理板
+                        var childDeviceId = $"{eSight.HostIP}-{dn}";
+                        var parentDn = HighdensityConnector.Instance.GetParentDn(childDeviceId);
+                        instance.StartUpdateTask(parentDn, ServerTypeEnum.Highdensity, alarmSn);
+                    }
+                    if (serverType == ServerTypeEnum.Switch)
+                    {
+                        //交换板告警 只用更新管理板
+                        var childDeviceId = $"{eSight.HostIP}-{dn}";
+                        var parentDn = BladeConnector.Instance.GetSwitchParentDn(childDeviceId);
+                        instance.StartUpdateTask(parentDn, ServerTypeEnum.Blade, alarmSn);
+                        return;
+                    }
+                    instance.StartUpdateTask(alarmData.Data.NeDN, serverType, alarmSn);
+                    instance.InsertEvent(alarmData.Data, serverType); // 插入事件
+                }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                HWLogger.NOTIFICATION_PROCESS.Error($"Analysis Alarm error. data:{json}", ex);
+                HWLogger.GetESightNotifyLogger(eSight.HostIP).Error($"AnalysisAlarm Error.", e);
             }
         }
 
         /// <summary>
         /// 解析设备变更消息
         /// </summary>
+        /// <param name="eSight">The e sight.</param>
         /// <param name="json">The json.</param>
-        private void AnalysisNeDevice(string json)
+        /// <exception cref="System.Exception">
+        /// </exception>
+        private void AnalysisNeDevice(HWESightHost eSight, string json)
         {
             try
             {
@@ -590,38 +619,56 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 var nedeviceData = messge.Data;
                 if (nedeviceData == null)
                 {
-                    throw new Exception($"Analysis NeDevice error. MsgId:{messge.Id} ");
+                    return;
                 }
                 var dn = nedeviceData.Data.DeviceId;
-                var eSight = ESightDal.Instance.GetList().FirstOrDefault(x => x.SubscribeID == nedeviceData.SubscribeId);
-                if (eSight == null)
-                {
-                    throw new Exception($"can not find the eSight,subscribeID:{nedeviceData.SubscribeId}");
-                }
-                this.OnLog($"msgType is {nedeviceData.MsgType}  Start sync server {eSight.HostIP}");
+                HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"AnalysisNeDevice [MsgType:{nedeviceData.MsgType}] [DN:{dn}][deviceName:{nedeviceData.Data.DeviceName}][desc:{nedeviceData.Data.Description}] ");
                 var instance = this.FindInstance(eSight);
                 switch (nedeviceData.MsgType)
                 {
                     case 1: // 新增
-                        instance.Sync();
+                        //instance.Sync();
                         break;
                     case 2: // 删除
-                        this.OnLog($"Start removing the server.Dn:{dn}");
-                        instance.DeleteServer(dn);
+                            // 高密的设备变更消息需要单独处理
+                        var deleteServerType = instance.GetServerTypeByDn(dn);
+                        if (deleteServerType == ServerTypeEnum.ChildHighdensity || deleteServerType == ServerTypeEnum.Highdensity)
+                        {
+                            instance.SyncHighdensityList();
+                        }
+                        else
+                        {
+                            instance.DeleteServer(dn, deleteServerType);
+                        }
                         break;
                     case 3: // 修改
-                        instance.Enqueue(dn);
-                        instance.InsertDeviceChangeEvent(nedeviceData.Data);
+                        var modifyServerType = instance.GetServerTypeByDn(dn);
+                        instance.StartUpdateTask(dn, modifyServerType, 0);
+                        instance.InsertDeviceChangeEvent(nedeviceData.Data, modifyServerType);
                         break;
                     default:
-                        HWLogger.NOTIFICATION_PROCESS.Error($"UnKnown MsgType :{dn}");
+                        //HWLogger.NOTIFICATION_PROCESS.Error($"UnKnown MsgType :{dn}");
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                HWLogger.NOTIFICATION_PROCESS.Error($"Analysis NeDevice  error. data:{json}", ex);
+                HWLogger.GetESightNotifyLogger(eSight.HostIP).Error($"AnalysisNeDevice Error.", e);
             }
+
+        }
+
+        /// <summary>
+        /// 解析保活消息
+        /// </summary>
+        /// <param name="eSight">The e sight.</param>
+        /// <param name="json">The json.</param>
+        private void AnalysisAlive(HWESightHost eSight, string json)
+        {
+            HWLogger.GetESightSubscribeLogger(eSight.HostIP).Info($"Analysis Alive Message. ");
+            //var messge = JsonUtil.DeserializeObject<TcpMessage<NotifyModel<KeepAliveData>>>(json);
+            var instance = this.FindInstance(eSight);
+            instance.UpdateAliveTime(DateTime.Now);
         }
 
         /// <summary>
@@ -721,7 +768,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// </param>
         private void OnError(string msg, Exception ex = null)
         {
-            HWLogger.SERVICE.Error(msg, ex);
+            HWLogger.Service.Error(msg, ex);
         }
 
         /// <summary>
@@ -732,7 +779,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// </param>
         private void OnLog(string msg)
         {
-            HWLogger.SERVICE.Info(msg);
+            HWLogger.Service.Info(msg);
         }
 
         /// <summary>
@@ -746,27 +793,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 if (!msg.StartsWith("Request"))
                 {
-                    HWLogger.SERVICE.Info("IIS-" + msg);
+                    HWLogger.Service.Info("IIS-" + msg);
                 }
             }
         }
 
-        /// <summary>
-        /// The on error.
-        /// </summary>
-        /// <param name="msg">
-        /// The msg.
-        /// </param>
-        /// <param name="ex">
-        /// The ex.
-        /// </param>
-        private void OnNotifyError(string msg, Exception ex = null)
-        {
-            HWLogger.NOTIFICATION_PROCESS.Error(msg, ex);
-        }
-
         #endregion
-
 
     }
 }

@@ -7,6 +7,7 @@ using System.Timers;
 using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
+using Huawei.SCOM.ESightPlugin.LogUtil;
 
 namespace Huawei.SCOM.ESightPlugin.WebServer
 {
@@ -70,10 +71,15 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
                     var newUrl = "/NeDeviceNotification.ashx?subscribeID=" + requestUrl.Substring(requestUrl.LastIndexOf('/') + 1);
                     HttpContext.Current.Server.TransferRequest(newUrl, true);
                 }
+                else if (requestUrl.Contains("SystemKeepAlive/"))
+                {
+                    var newUrl = "/SystemKeepAlive.ashx?subscribeID=" + requestUrl.Substring(requestUrl.LastIndexOf('/') + 1);
+                    HttpContext.Current.Server.TransferRequest(newUrl, true);
+                }
             }
             catch (Exception ex)
             {
-                LogUtil.HWLogger.UI.Info($"RedirectNotificationURL ERROR:", ex);
+                HWLogger.NotifyRecv.Error($"RedirectNotificationURL ERROR:", ex);
             }
 
         }

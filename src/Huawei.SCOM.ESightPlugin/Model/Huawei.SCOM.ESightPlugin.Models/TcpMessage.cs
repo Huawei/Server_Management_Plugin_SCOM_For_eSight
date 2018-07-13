@@ -15,7 +15,7 @@
 namespace Huawei.SCOM.ESightPlugin.Models
 {
     using System;
-
+    using Newtonsoft.Json;
     /// <summary>
     /// The tcp messge type.
     /// </summary>
@@ -39,7 +39,12 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// <summary>
         ///  delete a esight
         /// </summary>
-        DeleteESight
+        DeleteESight,
+
+        /// <summary>
+        /// The keep alive
+        /// </summary>
+        KeepAlive
     }
 
     /// <summary>
@@ -62,6 +67,24 @@ namespace Huawei.SCOM.ESightPlugin.Models
         }
 
         /// <summary>
+        /// Gets or sets the e sight ip.
+        /// </summary>
+        [JsonProperty("eSightIp")]
+        public string ESightIp { get; set; }
+
+        /// <summary>
+        /// Gets or sets the msg type.
+        /// </summary>
+        [JsonProperty("tcpMessageType")]
+        public TcpMessageType MsgType { get; set; }
+
+        /// <summary>
+        /// 描述
+        /// </summary>
+        /// <value>The desc.</value>
+        public string Desc => MsgType.ToString();
+
+        /// <summary>
         /// Gets or sets the identifier.
         /// </summary>
         /// <value>The identifier.</value>
@@ -71,15 +94,5 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// Gets or sets the data.
         /// </summary>
         public T Data { get; set; }
-
-        /// <summary>
-        /// Gets or sets the e sight ip.
-        /// </summary>
-        public string ESightIp { get; set; }
-
-        /// <summary>
-        /// Gets or sets the msg type.
-        /// </summary>
-        public TcpMessageType MsgType { get; set; }
     }
 }

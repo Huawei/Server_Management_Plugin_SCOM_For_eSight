@@ -9,7 +9,7 @@
       <DisplayStrings>
         <DisplayString ElementID="ESight.HuaweiServer.AlertMessage">
           <Name>HuaweiServer Alert Message</Name>
-          <Description>The {0}（{3}） occur  a alert at {2} ,it caused by {4} and we suggest the repair actions is {5}</Description>
+          <Description>The {0}（{3}）occur  a alert ({6}) at {2} ,it caused by {4} and we suggest the repair actions is {5}</Description>
         </DisplayString>
       </DisplayStrings> 
     </LanguagePack>
