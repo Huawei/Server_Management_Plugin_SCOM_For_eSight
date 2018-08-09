@@ -8,7 +8,7 @@ I. General Information
 
     Name:     SCOM Plugin for eSight
     Category: Monitoring
-    Version:  1.0.0
+    Version:  1.1.0
   
 II. Description
 
@@ -21,7 +21,7 @@ III.Supported software versions
     
 IV.Software Requirements
 
-    eSight V300R008C00SPC201
+    eSight V300R009C00SPC201
 
 V. Supported Device
  
