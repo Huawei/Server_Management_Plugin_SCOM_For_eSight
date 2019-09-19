@@ -4,34 +4,42 @@
       <ClassTypes>
         <ClassType ID="ESight.RackServer"  Base="EVL!ESight.HuaweiServer" Accessibility="Public" Abstract="false" Hosted="false" Singleton="false">
           <Property ID="eSight" Key="false" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：uuid-->
+          <!--ESight：iBMCIPv4Address-->
+          <Property ID="iBMCIPv4Address" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：serverName-->
+          <Property ID="ServerName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：Type-->
+          <Property ID="Type" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
+          <!--ESight：UUID-->
           <Property ID="UUID" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--默认为"HUAWEI"-->
-          <Property ID="Vendor" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：manufacturer-->
-          <Property ID="Manufacturer" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0"/>
-          <!--ESight：ipAddress-->
-          <Property ID="IPAddress" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：version-->
-          <Property ID="iBMCVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：暂时未返回-->
-          <Property ID="CPLDVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：暂时未返回-->
-          <Property ID="UbootVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：AveragePower-->
+          <Property ID="AveragePower" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：PeakPower-->
+          <Property ID="PeakPower" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：PowerConsumption-->
+          <Property ID="PowerConsumption" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：DNSServerIP-->
+          <Property ID="DNSServerIP" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：DNSName-->
+          <Property ID="DNSName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：ProductSN-->
           <Property ID="ProductSn" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：MemoryCapacity-->
-          <Property ID="MemoryCapacity" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：HostName-->
+          <Property ID="HostName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：CPUNums-->
           <Property ID="CPUNums" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：CPUCores-->
           <Property ID="CPUCores" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：暂时未返回-->
-          <Property ID="ServerName" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
-          <!--ESight：暂时未返回-->
-          <Property ID="BMCMacAddr" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：CPUModel-->
+          <Property ID="CPUModel" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：MemoryCapacity-->
+          <Property ID="MemoryCapacity" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：BMCVersion-->
+          <Property ID="BMCVersion" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
+          <!--ESight：AssertTag-->
+          <Property ID="AssertTag" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：status-->
-          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
         </ClassType>
       </ClassTypes>
       <RelationshipTypes>
@@ -60,37 +68,49 @@
           <Name>eSight</Name>
           <Description>eSight</Description>
         </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="iBMCIPv4Address">
+          <Name>iBMCIPv4Address</Name>
+          <Description>iBMCIPv4Address</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="ServerName">
+          <Name>ServerName</Name>
+          <Description>ServerName</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="Type">
+          <Name>Type</Name>
+          <Description>Type</Description>
+        </DisplayString>
         <DisplayString ElementID="ESight.RackServer" SubElementID="UUID">
           <Name>UUID</Name>
           <Description>UUID</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="Manufacturer">
-          <Name>Manufacturer</Name>
-          <Description>Manufacturer</Description>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="AveragePower">
+          <Name>AveragePower</Name>
+          <Description>AveragePower</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="Status">
-          <Name>Status</Name>
-          <Description>Status</Description>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="PeakPower">
+          <Name>PeakPower</Name>
+          <Description>PeakPower</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="IPAddress">
-          <Name>IPAddress</Name>
-          <Description>IPAddress</Description>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="PowerConsumption">
+          <Name>PowerConsumption</Name>
+          <Description>PowerConsumption</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="iBMCVersion">
-          <Name>iBMCVersion</Name>
-          <Description>iBMCVersion</Description>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="DNSServerIP">
+          <Name>DNSServerIP</Name>
+          <Description>DNSServerIP</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="CPLDVersion">
-          <Name>CPLDVersion</Name>
-          <Description>CPLDVersion</Description>
-        </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="UbootVersion">
-          <Name>UbootVersion</Name>
-          <Description>UbootVersion</Description>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="DNSName">
+          <Name>DNSName</Name>
+          <Description>DNSName</Description>
         </DisplayString>
         <DisplayString ElementID="ESight.RackServer" SubElementID="ProductSn">
           <Name>ProductSn</Name>
           <Description>ProductSn</Description>
+        </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="HostName">
+          <Name>HostName</Name>
+          <Description>HostName</Description>
         </DisplayString>
         <DisplayString ElementID="ESight.RackServer" SubElementID="CPUNums">
           <Name>CPUNums</Name>
@@ -100,21 +120,25 @@
           <Name>CPUCores</Name>
           <Description>CPUCores</Description>
         </DisplayString>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="CPUModel">
+          <Name>CPUModel</Name>
+          <Description>CPUModel</Description>
+        </DisplayString>
         <DisplayString ElementID="ESight.RackServer" SubElementID="MemoryCapacity">
           <Name>MemoryCapacity</Name>
           <Description>MemoryCapacity</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="Vendor">
-          <Name>Vendor</Name>
-          <Description>Vendor</Description>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="BMCVersion">
+          <Name>BMCVersion</Name>
+          <Description>BMCVersion</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="ServerName">
-          <Name>ServerName</Name>
-          <Description>ServerName</Description>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="AssertTag">
+          <Name>AssertTag</Name>
+          <Description>AssertTag</Description>
         </DisplayString>
-        <DisplayString ElementID="ESight.RackServer" SubElementID="BMCMacAddr">
-          <Name>BMCMacAddr</Name>
-          <Description>BMCMacAddr</Description>
+        <DisplayString ElementID="ESight.RackServer" SubElementID="Status">
+          <Name>Status</Name>
+          <Description>Status</Description>
         </DisplayString>
       </DisplayStrings>
     </LanguagePack>

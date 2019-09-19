@@ -69,11 +69,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\third_party\Lib\SCOMSDK\Microsoft.EnterpriseManagement.Packaging.dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=3.2.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c" />
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\third_party\Lib\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -90,6 +97,7 @@
     <None Include="..\..\..\..\third_party\Lib\IISExpress\iisexpress_amd64_en-US.msi">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
@@ -118,20 +126,11 @@
       <Name>Huawei.SCOM.ESightPlugin.Service</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\third_party\Lib\VisualCpp\msvcp120.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\third_party\Lib\VisualCpp\msvcr120.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /e /r /y "$(TargetDir)Huawei.SCOM.ESightPlugin.PackageHelper.exe" "$(SolutionDir)..\..\Release\Configuration\"
 xcopy /e /r /y "$(TargetDir)iisexpress_amd64_en-US.msi" "$(SolutionDir)..\..\Release\Configuration\"
-xcopy /e /r /y "$(TargetDir)msvcp120.dll" "$(SolutionDir)..\..\Release\Configuration\"
-xcopy /e /r /y "$(TargetDir)msvcr120.dll" "$(SolutionDir)..\..\Release\Configuration\"</PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

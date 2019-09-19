@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Core
 // Author           : yayun
@@ -331,7 +341,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 oldServer[this.DisplayNameField].Value = model.Name;
                 if (model.Status != "-3")
                 {
-                    oldServer[propertys["Status"]].Value = model.Status;
+                    oldServer[propertys["Status"]].Value = model.StatusTxt;
                 }
                 oldServer[propertys["Vendor"]].Value = "HUAWEI";
                 oldServer[propertys["UUID"]].Value = model.UUID;
@@ -513,16 +523,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Inserts the history event.
-        /// </summary>
-        /// <param name="eventDatas">The event datas.</param>
-        /// <param name="eSightIp">The e sight ip.</param>
-        public void InsertHistoryEvent(List<EventData> eventDatas, string eSightIp)
-        {
-            this.InsertHistoryEvent(this.KunLunClass, eventDatas, eSightIp);
-        }
-
-        /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="deviceChangeEventData">The device change event data.</param>
@@ -582,7 +582,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.KunLunClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.KunLunClass); // 实例化一个class
             obj[this.HuaweiServerKey].Value = model.DeviceId;
-            obj[propertys["Status"]].Value = model.Status == "-3" ? "0" : model.Status;
+            obj[propertys["Status"]].Value = model.StatusTxt;
             obj[propertys["Vendor"]].Value = "HUAWEI";
             obj[propertys["Manufacturer"]].Value = model.Manufacturer;
             obj[propertys["UUID"]].Value = model.UUID;
@@ -618,7 +618,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.PhysicalDiskClass); // 实例化一个class
             obj[propertys["UUID"]].Value = model.UUID;
 
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[propertys["Locator"]].Value = model.Location;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["Diskcapacity"]].Value = string.Empty;
@@ -640,7 +640,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var propertys = this.FanClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.FanClass); // 实例化一个class
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[propertys["UUID"]].Value = model.UUID;
 
             obj[propertys["PresentState"]].Value = model.PresentState;
@@ -665,7 +665,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.PowerSupplyClass); // 实例化一个class
             obj[propertys["UUID"]].Value = model.UUID;
 
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[propertys["Manufacturer"]].Value = model.Manufacturer;
             obj[propertys["InputMode"]].Value = model.InputMode;
             obj[propertys["Model"]].Value = model.Model;
@@ -691,7 +691,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.RaidClass); // 实例化一个class
             obj[propertys["UUID"]].Value = model.UUID;
 
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[propertys["Type"]].Value = model.RaidType;
             obj[propertys["DeviceInterface"]].Value = model.InterfaceType;
             obj[propertys["BBUType"]].Value = model.BbuType;
@@ -715,7 +715,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // oldObject[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
             oldObject[propertys["Locator"]].Value = model.Location;
             oldObject[propertys["PresentState"]].Value = model.PresentState;
@@ -735,7 +735,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.FanClass.PropertyCollection; // 获取到class的属性
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["Speed"]].Value = model.Rotate;
@@ -755,7 +755,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // oldObject[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
             oldObject[propertys["Manufacturer"]].Value = model.Manufacturer;
             oldObject[propertys["InputMode"]].Value = model.InputMode;
@@ -779,7 +779,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // oldObject[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
             oldObject[propertys["Type"]].Value = model.RaidType;
             oldObject[propertys["DeviceInterface"]].Value = model.InterfaceType;

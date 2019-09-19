@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.RESTeSightLib
 // Author           : yayun
@@ -48,6 +58,14 @@ namespace Huawei.SCOM.ESightPlugin.Service
 
         private ESightLogger logger;
 
+        private readonly TaskFactory taskFactory;
+
+        private CancellationTokenSource cts = new CancellationTokenSource();
+
+        private PluginConfig pluginConfig;
+
+
+
         #endregion
 
         #region Constuctor
@@ -64,7 +82,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
             this.Session = new ESightSession(eSight);
             this.UpdateDnTasks = new List<UpdateDnTask>();
             this.LastAliveTime = DateTime.Now;
+            this.AlarmDatas = new Queue<AlarmData>();
+            this.RunInsertEventTask();
             this.StartKeepAliveJob();
+            this.pluginConfig = ConfigHelper.GetPluginConfig();
+            var scheduler = new LimitedConcurrencyLevelTaskScheduler(pluginConfig.ThreadCount);
+            taskFactory = new TaskFactory(cts.Token, TaskCreationOptions.HideScheduler, TaskContinuationOptions.HideScheduler, scheduler);
         }
         #endregion
 
@@ -174,68 +197,20 @@ namespace Huawei.SCOM.ESightPlugin.Service
             this.SyncHighdensityList();
             this.SyncRackList();
             this.SyncKunLunList();
-            if (this.NeedSubscribeAlarm || this.NeedSubscribeDeviceChange || this.NeedSubscribeKeepAlive)
+            // 开启一个timer来监听本次轮询任务是否执行完
+            Timer timer = new Timer(1000);
+            timer.Elapsed += (sender, e) =>
             {
-                OnPollingInfo("Need Subscribe");
-                // 开启一个timer来监听本次轮询任务是否执行完
-                Timer timer = new Timer(1000);
-                timer.Elapsed += (sender, e) =>
+                if (this.IsComplete)
                 {
-                    if (this.IsComplete)
-                    {
-                        this.SyncHistoryAlarm();
-                        timer.Stop();
-                    }
-                };
-                timer.Start();
-            }
-        }
-
-        /// <summary>
-        /// Synchronizes the history alarm.
-        /// </summary>
-        public void SyncHistoryAlarm()
-        {
-            Task.Run(async () =>
-            {
-                logger.Polling.Debug($"Start Sync History Alarm");
-                await Task.Delay(3 * 1000);
-
-                int totalPage = 1;
-                int startPage = 0;
-                var historyAlarms = new List<AlarmData>();
-                while (startPage < totalPage)
-                {
-                    try
-                    {
-                        startPage++;
-                        var result = this.Session.GetAlarmHistory(startPage);
-                        totalPage = result.TotalPage;
-                        if (result.Code != 0)
-                        {
-                            OnPollingError($"SyncHistoryAlarm faild .pageNo:{startPage}.result:[{JsonUtil.SerializeObject(result)}");
-                        }
-                        else
-                        {
-                            var deviceEvents = result.Data.Where(x => x.EventType == 2).ToList();
-                            OnPollingInfo($"SyncHistoryAlarm Success:[TotalCount:{result.Data.Count} EventType2Count:{deviceEvents.Count}]");
-                            deviceEvents.ForEach(x =>
-                            {
-                                historyAlarms.Add(new AlarmData(x));
-                            });
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        OnPollingError($"SyncHistoryAlarm Error.eSight:{this.ESightIp} pageNo:{startPage}.", ex);
-                    }
+                    this.SyncHistoryAlarm();
+                    timer.Stop();
                 }
-
-                OnPollingInfo($"Get History Alarm:[Count:{historyAlarms.Count}]");
-                // 插入历史告警完成后调用订阅接口
-                this.InsertHistoryEvent(historyAlarms, this.Subscribe);
-            });
+            };
+            timer.Start();
         }
+
+
 
         /// <summary>
         /// Subscribes the eSight.
@@ -334,7 +309,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 logger.Subscribe.Debug($"Start Subscribe KeepAlive On Polling");
                 var result = this.Session.SubscribeKeepAlive();
-
+                this.IsNeedKeepAlive = true;
                 var status = 0;
                 if (result.Code != 0)
                 {
@@ -345,7 +320,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     //如果一直收不到保活消息，则再订阅成功后更新最后保活时间
                     this.LastAliveTime = DateTime.Now;
-                    this.IsNeedKeepAlive = true;
                     status = 1;
                     logger.Subscribe.Info($"SubscribeKeepAlive Success.Start KeepAlive Taks.Update LastAliveTime [{ DateTime.Now:yyyy-MM-dd HH:mm:ss}]");
                 }
@@ -363,58 +337,55 @@ namespace Huawei.SCOM.ESightPlugin.Service
         }
 
         /// <summary>
-        /// The insert event.
+        /// 取消订阅保活
         /// </summary>
-        /// <param name="alarmDatas">The alarm datas.</param>
-        /// <param name="callback">The callback.</param>
-        public void InsertHistoryEvent(List<AlarmData> alarmDatas, Action callback)
+        public void UnSubscribeKeepAlive()
         {
-            Task.Run(() =>
+            try
             {
-                try
-                {
-                    var r = alarmDatas.GroupBy(x => x.NeDN).ToList();
-                    r.ForEach(datas =>
-                    {
-                        var dn = datas.Key;
-                        try
-                        {
-                            logger.Polling.Debug($"Start InsertHistoryEvent:{dn}");
-                            var serverType = this.GetServerTypeByDn(dn);
-                            var eventDatas = datas.Select(x => new EventData(x, this.ESightIp, serverType)).ToList();
-                            switch (serverType)
-                            {
-                                case ServerTypeEnum.Blade:
-                                case ServerTypeEnum.ChildBlade:
-                                case ServerTypeEnum.Switch:
-                                    BladeConnector.Instance.InsertHistoryEvent(eventDatas, serverType, this.ESightIp);
-                                    break;
-                                case ServerTypeEnum.Highdensity:
-                                case ServerTypeEnum.ChildHighdensity:
-                                    HighdensityConnector.Instance.InsertHistoryEvent(eventDatas, serverType, this.ESightIp);
-                                    break;
-                                case ServerTypeEnum.Rack:
-                                    RackConnector.Instance.InsertHistoryEvent(eventDatas, this.ESightIp);
-                                    break;
-                                case ServerTypeEnum.KunLun:
-                                    KunLunConnector.Instance.InsertHistoryEvent(eventDatas, this.ESightIp);
-                                    break;
-                            }
+                var resut = this.Session.UnSubscribeKeepAlive(this.Session.ESight.SystemID);
+                logger.Subscribe.Info($"UnSubscribeKeepAlive.eSight:{this.Session.ESight.HostIP} result:{JsonUtil.SerializeObject(resut)}");
+            }
+            catch (Exception e)
+            {
+                logger.Subscribe.Error($"Subscription UnSubscribeKeepAlive error: {this.ESightIp}", e);
+            }
 
-                            logger.Polling.Debug($"End InsertHistoryEvent :{dn} [Count:{eventDatas.Count}]");
-                        }
-                        catch (Exception ex)
-                        {
-                            OnPollingError($"End InsertHistoryEvent :{dn}", ex);
-                        }
-                    });
-                    callback();
-                }
-                catch (Exception ex)
-                {
-                    OnPollingError("InsertHistoryEvent Error: ", ex);
-                }
-            });
+        }
+
+        /// <summary>
+        /// 取消订阅告警
+        /// </summary>
+        public void UnSubscribeAlarm()
+        {
+            try
+            {
+                var resut = this.Session.UnSubscribeAlarm(this.Session.ESight.SystemID);
+                logger.Subscribe.Info($"UnSubscribeAlarm.eSight:{this.Session.ESight.HostIP} result:{JsonUtil.SerializeObject(resut)}");
+
+            }
+            catch (Exception e)
+            {
+                logger.Subscribe.Error($"Subscription UnSubscribeAlarm error: {this.ESightIp}", e);
+            }
+
+        }
+
+        /// <summary>
+        /// 取消订阅设备变更
+        /// </summary>
+        public void UnSubscribeNeDevice()
+        {
+            try
+            {
+                var resut = this.Session.UnSubscribeNeDevice(this.Session.ESight.SystemID);
+                logger.Subscribe.Info($"UnSubscribeNeDevice.eSight:{this.Session.ESight.HostIP} result:{JsonUtil.SerializeObject(resut)}");
+            }
+            catch (Exception e)
+            {
+                logger.Subscribe.Error($"Subscription UnSubscribeNeDevice error: {this.ESightIp}", e);
+            }
+
         }
 
         #region 刀片
@@ -425,7 +396,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         private void SyncBladeList()
         {
             logger.Sdk.Info("Start Polling Blade Task.");
-            var task = Task.Run(() =>
+            var task = taskFactory.StartNew(() =>
             {
                 int totalPage = 1;
                 int startPage = 0;
@@ -450,7 +421,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
                 logger.Polling.Debug($"SyncBladeList Finish.[{string.Join(",", newDeviceIds).Replace($"{this.ESightIp}-", "")}]");
                 BladeConnector.Instance.RemoveBladeOnSync(this.ESightIp, newDeviceIds);
-            });
+            }, cts.Token);
             this.taskList.Add(task);
         }
 
@@ -460,7 +431,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <param name="x">The x.</param>
         private void QueryBladeDetial(BladeServer x)
         {
-            var task = Task.Run(() =>
+            var task = taskFactory.StartNew(() =>
             {
                 try
                 {
@@ -479,7 +450,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     OnPollingError($"QueryBladeDetial Error:DN:{x.DN}", ex);
                 }
-            });
+            }, cts.Token);
             this.taskList.Add(task);
         }
         #endregion
@@ -492,7 +463,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         public void SyncHighdensityList()
         {
             logger.Sdk.Info("Start Polling Highdensity Task.");
-            var task = Task.Run(() =>
+            var task = taskFactory.StartNew(() =>
             {
                 int totalPage = 1;
                 int startPage = 0;
@@ -517,7 +488,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
                 logger.Polling.Debug($"SyncHighdensityList Finish.[{string.Join(",", newDeviceIds).Replace($"{this.ESightIp}-", "")}]");
                 HighdensityConnector.Instance.RemoveHighOnSync(this.ESightIp, newDeviceIds);
-            });
+            }, cts.Token);
             this.taskList.Add(task);
         }
 
@@ -528,7 +499,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <param name="isPolling">是否轮询</param>
         private void QueryHighdensityDetial(HighdensityServer x)
         {
-            var task = Task.Run(() =>
+            var task = taskFactory.StartNew(() =>
             {
                 try
                 {
@@ -548,7 +519,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     OnPollingError($"QueryHighdensityDetial Error:DN:{x.DN}", ex);
                 }
-            });
+            }, cts.Token);
             this.taskList.Add(task);
         }
         #endregion
@@ -561,7 +532,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         private void SyncRackList()
         {
             logger.Sdk.Info("Start Polling Rack Task.");
-            var task = Task.Run(() =>
+            var task = taskFactory.StartNew(() =>
             {
                 int totalPage = 1;
                 int startPage = 0;
@@ -586,7 +557,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
                 logger.Polling.Debug($"SyncRackList Finish.[{string.Join(",", newDeviceIds).Replace($"{this.ESightIp}-", "")}]");
                 RackConnector.Instance.DeleteRackOnSync(this.ESightIp, newDeviceIds);
-            });
+            }, cts.Token);
             this.taskList.Add(task);
         }
 
@@ -596,19 +567,19 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <param name="rack">The rack.</param>
         private void QueryRackDetial(RackServer rack)
         {
-            var task = Task.Run(() =>
+            var task = taskFactory.StartNew(() =>
+            {
+                try
                 {
-                    try
-                    {
-                        var device = this.Session.GetServerDetails(rack.DN);
-                        rack.MakeDetail(device, this.ESightIp);
-                        RackConnector.Instance.SyncServer(rack);
-                    }
-                    catch (Exception ex)
-                    {
-                        OnPollingError($"QueryRackDetial Error: {rack.DN}", ex);
-                    }
-                });
+                    var device = this.Session.GetServerDetails(rack.DN);
+                    rack.MakeDetail(device, this.ESightIp);
+                    RackConnector.Instance.SyncServer(rack);
+                }
+                catch (Exception ex)
+                {
+                    OnPollingError($"QueryRackDetial Error: {rack.DN}", ex);
+                }
+            }, cts.Token);
             this.taskList.Add(task);
         }
         #endregion
@@ -621,7 +592,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         private void SyncKunLunList()
         {
             logger.Sdk.Info("Start Polling KunLun Task.");
-            var task = Task.Run(() =>
+            var task = taskFactory.StartNew(() =>
             {
                 int totalPage = 1;
                 int startPage = 0;
@@ -646,7 +617,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
                 logger.Polling.Debug($"SyncKunLunList Finish.[{string.Join(",", newDeviceIds).Replace($"{this.ESightIp}-", "")}]");
                 KunLunConnector.Instance.RemoveKunLunOnSync(this.ESightIp, newDeviceIds);
-            });
+            }, cts.Token);
             this.taskList.Add(task);
         }
 
@@ -656,7 +627,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <param name="kunLun">The kun lun.</param>
         private void QueryKunLunDetial(KunLunServer kunLun)
         {
-            var task = Task.Run(() =>
+            var task = taskFactory.StartNew(() =>
             {
                 try
                 {
@@ -668,7 +639,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     OnPollingError($"QueryKunLunDetial Error:{kunLun.DN}", ex);
                 }
-            });
+            }, cts.Token);
             this.taskList.Add(task);
         }
         #endregion
@@ -730,14 +701,25 @@ namespace Huawei.SCOM.ESightPlugin.Service
             logger.Subscribe.Info("Delete ESight SyncInstance");
             this.IsRunning = false;
             this.IsNeedKeepAlive = false;
+            this.AlarmDatas.Clear();
+            this.cts.Cancel(false);
         }
         #endregion
 
+        /// <summary>
+        /// log [polling information].
+        /// </summary>
+        /// <param name="msg">The MSG.</param>
         private void OnPollingInfo(string msg)
         {
             logger.Polling.Info(msg);
         }
 
+        /// <summary>
+        ///  log [polling error].
+        /// </summary>
+        /// <param name="msg">The MSG.</param>
+        /// <param name="ex">The ex.</param>
         private void OnPollingError(string msg, Exception ex = null)
         {
             logger.Polling.Error(msg, ex);

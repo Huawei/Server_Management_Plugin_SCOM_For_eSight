@@ -1,0 +1,49 @@
+﻿<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TypeDefinitions>
+    <EntityTypes>
+      <ClassTypes>
+        <ClassType ID="ESight.Appliance" Accessibility="Public" Abstract="false" Base="System!System.LocalApplication" Hosted="false" Singleton="false">
+          <Property ID="Host" Type="string" Key="true" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="AliasName" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="Port" Type="int" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="SystemId" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="LoginAccount" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="LoginPassword" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="CreatedOn" Type="datetime" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="LastModifiedOn" Type="datetime" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="LatestStatus" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="OpenID" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="SubKeepAliveStatus" Type="int" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="SubscriptionAlarmStatus" Type="int" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="SubscriptionNeDeviceStatus" Type="int" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="SubKeepAliveError" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="SubscripeAlarmError" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="SubscripeNeDeviceError" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="SubscribeID" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+          <Property ID="LatestConnectInfo" Type="string" Key="false" CaseSensitive="false" MaxLength="65535" MinLength="0" />
+        </ClassType>
+    
+      </ClassTypes>
+    </EntityTypes>
+    <SecureReferences>
+      <SecureReference ID="ESight.RunAsProfile" Accessibility="Public" />
+    </SecureReferences>
+  </TypeDefinitions>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+
+        <DisplayString ElementID="ESight.Appliance">
+          <Name>HUAWEI ESight Appliance Info</Name>
+          <Description>HUAWEI ESight Appliance Info</Description>
+        </DisplayString>
+
+        <DisplayString ElementID="ESight.RunAsProfile">
+          <Name>HUAWEI ESight Appliance Discovery/Monitoring Account</Name>
+          <Description>This account is used to Discovery/Monitoring of HUAWEI ESight Appliance.</Description>
+        </DisplayString>
+
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

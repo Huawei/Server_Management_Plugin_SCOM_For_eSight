@@ -1,11 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{82226b60-af9b-432b-aa43-ea4de7628d85}</ProjectGuid>
     <RootNamespace>ESight.BladeServer</RootNamespace>
     <Name>eSight.BladeServer</Name>
-    <ManagementPackName>eSight.BladeServer.Library</ManagementPackName>
+    <ManagementPackName>eSight.Chassis.Library</ManagementPackName>
     <Version>1.1.0.0</Version>
     <MpFrameworkVersion>v7.0.2</MpFrameworkVersion>
     <MpFrameworkProfile>OM</MpFrameworkProfile>
@@ -15,8 +15,8 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
     <GenerateSealed>True</GenerateSealed>
-    <Company>广州摩赛网络技术有限公司</Company>
-    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <Company>Huawei Technologies Co. Ltd</Company>
+    <Copyright>Copyright (c) Huawei Technologies Co. Ltd. All rights reserved.</Copyright>
     <DelaySigning>False</DelaySigning>
     <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -24,8 +24,8 @@
     <DebugSymbols>false</DebugSymbols>
     <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
     <DelaySigning>False</DelaySigning>
-    <Company>广州摩赛网络技术有限公司</Company>
-    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <Company>Huawei Technologies Co. Ltd</Company>
+    <Copyright>Copyright (c) Huawei Technologies Co. Ltd. All rights reserved.</Copyright>
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
     <GenerateSealed>True</GenerateSealed>

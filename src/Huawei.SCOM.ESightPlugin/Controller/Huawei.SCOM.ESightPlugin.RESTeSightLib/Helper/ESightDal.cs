@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.DAO
 // Author           : suxiaobo
@@ -24,6 +34,9 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
 
     using Huawei.SCOM.ESightPlugin.Const;
     using Huawei.SCOM.ESightPlugin.Models;
+    using Huawei.SCOM.ESightPlugin.ViewLib.Model;
+    using Huawei.SCOM.ESightPlugin.ViewLib.OM12R2;
+    using Microsoft.EnterpriseManagement.Common;
 
     /// <summary>
     /// Class ESightDal.
@@ -46,18 +59,13 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="hostIp">The host ip.</param>
         public void DeleteESightByHostIp(string hostIp)
         {
-            var list = this.GetList();
-            var oldModel = list.FirstOrDefault(x => x.HostIP == hostIp);
-            if (oldModel == null)
+            // TODO should never call here??
+            var entity = this.GetEntityByHostIp(hostIp);
+            if (entity == null)
             {
                 throw new Exception($"can not find eSight:{hostIp}");
             }
-            list.Remove(oldModel);
-            using (var fs = new FileStream(this.filePath, FileMode.Create))
-            {
-                var bf = new BinaryFormatter();
-                bf.Serialize(fs, list);
-            }
+
         }
 
         /// <summary>
@@ -67,8 +75,9 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <returns>Huawei.SCOM.ESightPlugin.Models.HWESightHost.</returns>
         public HWESightHost GetEntityBySubscribeId(string subscribeId)
         {
-            var list = this.GetList();
-            return list.FirstOrDefault(x => x.SubscribeID == subscribeId);
+            IObjectReader<EnterpriseManagementObject> items =
+               OM12Connection.Query(ESightAppliance.EntityClassName, $"SubscribeID='{subscribeId}'");
+            return items.Select(ConvertMonitoringObjectToESightHost()).FirstOrDefault();
         }
 
         /// <summary>
@@ -77,6 +86,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="model">The model.</param>
         public void InsertEntity(HWESightHost model)
         {
+            // TODO should never call here??
             var list = this.GetList();
             list.Add(model);
             using (var fs = new FileStream(this.filePath, FileMode.Create))
@@ -92,6 +102,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="model">The model.</param>
         public void UpdateEntity(HWESightHost model)
         {
+            // TODO should never call here??
             var list = this.GetList();
             var oldModel = list.FirstOrDefault(x => x.HostIP == model.HostIP);
             if (oldModel == null)
@@ -121,29 +132,46 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// </returns>
         public IList<HWESightHost> GetList(string condition = "1=1 ")
         {
-            this.CreateDir();
-            var list = new List<HWESightHost>();
-            if (File.Exists(this.filePath))
+            IObjectReader<EnterpriseManagementObject> monitoringObjects = OM12Connection.All(ESightAppliance.EntityClassName);
+            IEnumerable<HWESightHost> appliances = monitoringObjects.Select(ConvertMonitoringObjectToESightHost());
+            return appliances.OrderByDescending(x => x.CreateTime).ToList();
+        }
+
+
+        /// <summary>
+        /// Convert OM MonitoringObject to HWESightHost Entity Function
+        /// </summary>
+        /// <returns></returns>
+        private static Func<EnterpriseManagementObject, HWESightHost> ConvertMonitoringObjectToESightHost()
+        {
+            return obj =>
             {
-                using (var fs = new FileStream(this.filePath, FileMode.Open))
+                var props = OM12Connection.GetManagementPackProperties(obj);
+                HWESightHost appliance = new HWESightHost
                 {
-                    var bf = new BinaryFormatter();
-                    list = bf.Deserialize(fs) as List<HWESightHost>;
-                }
-                if (list == null)
-                {
-                    throw new Exception($"Get eSight list is null");
-                }
-            }
-            else
-            {
-                using (var fs = new FileStream(this.filePath, FileMode.Create))
-                {
-                    var bf = new BinaryFormatter();
-                    bf.Serialize(fs, list);
-                }
-            }
-            return list.OrderByDescending(x => x.CreateTime).ToList();
+                    HostIP = obj[props["Host"]].Value as String,
+                    HostPort = Convert.ToInt32(obj[props["Port"]].Value),
+                    AliasName = obj[props["AliasName"]].Value as String,
+                    SystemID = obj[props["SystemId"]].Value as String,
+                    LoginAccount = obj[props["LoginAccount"]].Value as String,
+                    LoginPd = obj[props["LoginPassword"]].Value as String,
+                    CreateTime = ((DateTime)obj[props["CreatedOn"]].Value).ToLocalTime(),
+                    LastModifyTime = ((DateTime)obj[props["LastModifiedOn"]].Value).ToLocalTime(),
+
+                    OpenID = obj[props["OpenID"]].Value as String,
+                    SubscribeID = obj[props["SubscribeID"]].Value as String,
+                    SubKeepAliveStatus = Convert.ToInt32(obj[props["SubKeepAliveStatus"]].Value),
+                    SubscriptionAlarmStatus = Convert.ToInt32(obj[props["SubscriptionAlarmStatus"]].Value),
+                    SubscriptionNeDeviceStatus = Convert.ToInt32(obj[props["SubscriptionNeDeviceStatus"]].Value),
+                    SubKeepAliveError = obj[props["SubKeepAliveError"]].Value as String,
+                    SubscripeAlarmError = obj[props["SubscripeAlarmError"]].Value as String,
+                    SubscripeNeDeviceError = obj[props["SubscripeNeDeviceError"]].Value as String,
+                    //LatestConnectInfo = obj[props["LatestConnectInfo"]].Value as String,
+                    //LatestStatus = obj[props["LatestStatus"]].Value as string,
+                };
+
+                return appliance;
+            };
         }
 
         /// <summary>
@@ -153,10 +181,10 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <returns>The <see cref="HWESightHost" />.</returns>
         public HWESightHost GetEntityByHostIp(string hostIp)
         {
-            var list = this.GetList();
-            return list.FirstOrDefault(x => x.HostIP == hostIp);
+            IObjectReader<EnterpriseManagementObject> items =
+                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+            return items.Select(ConvertMonitoringObjectToESightHost()).FirstOrDefault();
         }
-
         #region UpdateESight
 
         /// <summary>
@@ -167,22 +195,20 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="error">The error.</param>
         public void UpdateESightKeepAlive(string hostIp, int alarmStatus, string error)
         {
-            var list = this.GetList();
-            var oldModel = list.FirstOrDefault(x => x.HostIP == hostIp);
-            if (oldModel == null)
+            IObjectReader<EnterpriseManagementObject> items =
+                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+            EnterpriseManagementObject managementObject = items.FirstOrDefault();
+            if (managementObject == null)
             {
                 throw new Exception($"Can not find the eSight:{hostIp}");
             }
-            list.Remove(oldModel);
-            oldModel.LastModifyTime = DateTime.Now;
-            oldModel.SubKeepAliveError = error;
-            oldModel.SubKeepAliveStatus = alarmStatus;
-            list.Add(oldModel);
-            using (var fs = new FileStream(this.filePath, FileMode.Create))
-            {
-                var bf = new BinaryFormatter();
-                bf.Serialize(fs, list);
-            }
+
+            var props = OM12Connection.GetManagementPackProperties(managementObject);
+            managementObject[props["LastModifiedOn"]].Value = DateTime.UtcNow;
+            managementObject[props["SubKeepAliveError"]].Value = error;
+            managementObject[props["SubKeepAliveStatus"]].Value = alarmStatus;
+
+            managementObject.Overwrite();
         }
 
 
@@ -194,22 +220,20 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="error">The error.</param>
         public void UpdateESightAlarm(string hostIp, int alarmStatus, string error)
         {
-            var list = this.GetList();
-            var oldModel = list.FirstOrDefault(x => x.HostIP == hostIp);
-            if (oldModel == null)
+            IObjectReader<EnterpriseManagementObject> items =
+                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+            EnterpriseManagementObject managementObject = items.FirstOrDefault();
+            if (managementObject == null)
             {
                 throw new Exception($"Can not find the eSight:{hostIp}");
             }
-            list.Remove(oldModel);
-            oldModel.LastModifyTime = DateTime.Now;
-            oldModel.SubscripeAlarmError = error;
-            oldModel.SubscriptionAlarmStatus = alarmStatus;
-            list.Add(oldModel);
-            using (var fs = new FileStream(this.filePath, FileMode.Create))
-            {
-                var bf = new BinaryFormatter();
-                bf.Serialize(fs, list);
-            }
+
+            var props = OM12Connection.GetManagementPackProperties(managementObject);
+            managementObject[props["LastModifiedOn"]].Value = DateTime.UtcNow;
+            managementObject[props["SubscripeAlarmError"]].Value = error;
+            managementObject[props["SubscriptionAlarmStatus"]].Value = alarmStatus;
+
+            managementObject.Overwrite();
         }
 
         /// <summary>
@@ -220,22 +244,20 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="error">The error.</param>
         public void UpdateESightNeDevice(string hostIp, int alarmStatus, string error)
         {
-            var list = this.GetList();
-            var oldModel = list.FirstOrDefault(x => x.HostIP == hostIp);
-            if (oldModel == null)
+            IObjectReader<EnterpriseManagementObject> items =
+                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+            EnterpriseManagementObject managementObject = items.FirstOrDefault();
+            if (managementObject == null)
             {
                 throw new Exception($"Can not find the eSight:{hostIp}");
             }
-            list.Remove(oldModel);
-            oldModel.LastModifyTime = DateTime.Now;
-            oldModel.SubscripeNeDeviceError = error;
-            oldModel.SubscriptionNeDeviceStatus = alarmStatus;
-            list.Add(oldModel);
-            using (var fs = new FileStream(this.filePath, FileMode.Create))
-            {
-                var bf = new BinaryFormatter();
-                bf.Serialize(fs, list);
-            }
+
+            var props = OM12Connection.GetManagementPackProperties(managementObject);
+            managementObject[props["LastModifiedOn"]].Value = DateTime.UtcNow;
+            managementObject[props["SubscripeNeDeviceError"]].Value = error;
+            managementObject[props["SubscriptionNeDeviceStatus"]].Value = alarmStatus;
+
+            managementObject.Overwrite();
         }
 
         /// <summary>
@@ -245,21 +267,23 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="enPwd">The pwd.</param>
         public void UpdateESightPwd(string hostIp, string enPwd)
         {
-            var list = this.GetList();
-            var oldModel = list.FirstOrDefault(x => x.HostIP == hostIp);
-            if (oldModel == null)
-            {
-                throw new Exception($"Can not find the eSight:{hostIp}");
-            }
-            list.Remove(oldModel);
-            oldModel.LastModifyTime = DateTime.Now;
-            oldModel.LoginPd = enPwd;
-            list.Add(oldModel);
-            using (var fs = new FileStream(this.filePath, FileMode.Create))
-            {
-                var bf = new BinaryFormatter();
-                bf.Serialize(fs, list);
-            }
+
+            //  TODO remove later?
+            //var list = this.GetList();
+            //var oldModel = list.FirstOrDefault(x => x.HostIP == hostIp);
+            //if (oldModel == null)
+            //{
+            //    throw new Exception($"Can not find the eSight:{hostIp}");
+            //}
+            //list.Remove(oldModel);
+            //oldModel.LastModifyTime = DateTime.Now;
+            //oldModel.LoginPd = enPwd;
+            //list.Add(oldModel);
+            //using (var fs = new FileStream(this.filePath, FileMode.Create))
+            //{
+            //    var bf = new BinaryFormatter();
+            //    bf.Serialize(fs, list);
+            //}
         }
 
 
@@ -271,47 +295,23 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// <param name="latestConnectInfo">The latest connect information.</param>
         public void UpdateESightConnectStatus(string hostIp, string latestStatus, string latestConnectInfo)
         {
-            var list = this.GetList();
-            var oldModel = list.FirstOrDefault(x => x.HostIP == hostIp);
-            if (oldModel == null)
+            IObjectReader<EnterpriseManagementObject> items =
+                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+            EnterpriseManagementObject managementObject = items.FirstOrDefault();
+            if (managementObject == null)
             {
                 throw new Exception($"Can not find the eSight:{hostIp}");
             }
-            list.Remove(oldModel);
-            oldModel.LastModifyTime = DateTime.Now;
-            oldModel.LatestStatus = latestStatus;
-            oldModel.LatestConnectInfo = latestConnectInfo;
-            list.Add(oldModel);
-            using (var fs = new FileStream(this.filePath, FileMode.Create))
-            {
-                var bf = new BinaryFormatter();
-                bf.Serialize(fs, list);
-            }
+
+            var props = OM12Connection.GetManagementPackProperties(managementObject);
+            managementObject[props["LastModifiedOn"]].Value = DateTime.UtcNow;
+            managementObject[props["LatestStatus"]].Value = latestStatus;
+            managementObject[props["LatestConnectInfo"]].Value = latestConnectInfo;
+
+            managementObject.Overwrite();
         }
 
         #endregion
 
-        /// <summary>
-        /// 删除数据库文件
-        /// </summary>
-        public void DeleteDbFile()
-        {
-            if (File.Exists(this.filePath))
-            {
-                File.Delete(this.filePath);
-            }
-        }
-
-        /// <summary>
-        /// Creates the dir.
-        /// </summary>
-        private void CreateDir()
-        {
-            var path = Path.GetDirectoryName(this.filePath);
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-        }
     }
 }

@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Core
 // Author           : yayun
@@ -41,19 +51,8 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
             this.AlarmSn = data.AlarmSN;
             this.Channel = data.AlarmName;
             this.LevelId = this.GetLevel(data.PerceivedSeverity, data.OptType);
-            this.LoggingComputer = data.MoDN;
+            this.LoggingComputer = eSightIp;
             this.Message = data.AlarmName;
-            this.CustomData = new CustomData()
-            {
-                Dn = data.MoDN,
-                AlarmSn = data.AlarmSN,
-                OptType = this.OptTypeTxt,
-                EventTime = TimeHelper.StampToDateTime(data.EventTime.ToString()).ToString(),
-                NeType = string.IsNullOrEmpty(data.NeType) ? string.Empty : data.NeType,
-                ObjectInstance = string.IsNullOrEmpty(data.ObjectInstance) ? string.Empty : data.ObjectInstance,
-                ProposedRepairActions = string.IsNullOrEmpty(data.ProposedRepairActions) ? string.Empty : data.ProposedRepairActions,
-                AdditionalInformation = data.AlarmName
-            };
         }
 
         /// <summary>
@@ -193,14 +192,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
                 }
             }
         }
-
-
-        /// <summary>
-        /// Gets or sets the custom data.
-        /// </summary>
-        /// <value>The custom data.</value>
-        public CustomData CustomData { get; set; }
-
+        
         /// <summary>
         /// To the custom monitoring event.
         /// </summary>
@@ -288,7 +280,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// <returns>System.String.</returns>
         private string ToEventData()
         {
-            return XmlHelper.SerializeToXmlStr(this.CustomData, true);
+            return XmlHelper.SerializeToXmlStr(this.AlarmData, true);
         }
     }
 }

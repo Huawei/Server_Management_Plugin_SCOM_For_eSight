@@ -27,6 +27,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,16 +49,22 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\third_party\Lib\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\third_party\Lib\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=3.2.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c" />
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\third_party\Lib\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -74,69 +81,6 @@
   <ItemGroup>
     <Content Include="AlarmNotification.ashx" />
     <Content Include="Global.asax" />
-    <None Include="..\..\..\..\third_party\Lib\VisualCpp\msvcp120.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\third_party\Lib\VisualCpp\msvcr120.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <Content Include="StaticWeb\eSight.html" />
-    <Content Include="StaticWeb\css\dataTables.jqueryui.min.css" />
-    <Content Include="StaticWeb\css\jquery.dataTables.min.css" />
-    <Content Include="StaticWeb\css\style.css" />
-    <Content Include="StaticWeb\i18n\en.js" />
-    <Content Include="StaticWeb\images\favicon.ico" />
-    <Content Include="StaticWeb\images\sort_asc.png" />
-    <Content Include="StaticWeb\images\sort_asc_disabled.png" />
-    <Content Include="StaticWeb\images\sort_both.png" />
-    <Content Include="StaticWeb\images\sort_desc.png" />
-    <Content Include="StaticWeb\images\sort_desc_disabled.png" />
-    <Content Include="StaticWeb\js\dataTables.jqueryui.min.js" />
-    <Content Include="StaticWeb\js\errorCode.js" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\animated-overlay.gif" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_222222_256x240.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_2e83ff_256x240.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_454545_256x240.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_888888_256x240.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\images\ui-icons_cd0a0a_256x240.png" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.accordion.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.all.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.autocomplete.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.base.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.button.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.core.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.datepicker.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.dialog.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.menu.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.progressbar.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.resizable.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.selectable.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.slider.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.spinner.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.tabs.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.theme.css" />
-    <Content Include="StaticWeb\js\jquery-ui\themes\base\jquery.ui.tooltip.css" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.autocomplete.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.button.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.core.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.dialog.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.draggable.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.effect.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.mouse.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.position.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.resizable.js" />
-    <Content Include="StaticWeb\js\jquery-ui\ui\jquery.ui.widget.js" />
-    <Content Include="StaticWeb\js\jquery.dataTables.min.js" />
-    <Content Include="StaticWeb\js\loadmask.js" />
-    <Content Include="StaticWeb\js\jquery.min.js" />
     <Content Include="Web.config" />
     <Content Include="SystemKeepAlive.ashx" />
   </ItemGroup>
@@ -145,28 +89,18 @@
       <DependentUpon>AlarmNotification.ashx</DependentUpon>
     </Compile>
     <Compile Include="Helper\NotifyClient.cs" />
-    <Compile Include="Model\ApiResult.cs" />
-    <Compile Include="Model\CommonBLLClass.cs" />
     <Compile Include="NeDeviceNotification.ashx.cs">
       <DependentUpon>NeDeviceNotification.ashx</DependentUpon>
-    </Compile>
-    <Compile Include="eSight.ashx.cs">
-      <DependentUpon>eSight.ashx</DependentUpon>
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helper\ESightHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemKeepAlive.ashx.cs">
       <DependentUpon>SystemKeepAlive.ashx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Controller\Huawei.SCOM.ESightPlugin.RESTeSightLib\Huawei.SCOM.ESightPlugin.RESTeSightLib.csproj">
-      <Project>{5c1c1de2-3507-4557-8b83-1321646fcf9d}</Project>
-      <Name>Huawei.SCOM.ESightPlugin.RESTeSightLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Util\LogUtil\Huawei.SCOM.ESightPlugin.LogUtil.csproj">
       <Project>{951D9438-9E64-4CA7-B793-033DC536B9B6}</Project>
       <Name>Huawei.SCOM.ESightPlugin.LogUtil</Name>
@@ -185,11 +119,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="eSight.ashx" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="NeDeviceNotification.ashx" />
-    <Content Include="packages.config" />
+    <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\release.pubxml" />
   </ItemGroup>
   <ItemGroup />

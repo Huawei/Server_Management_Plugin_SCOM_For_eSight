@@ -31,7 +31,7 @@
           <!--ESight：暂时未返回-->
           <Property ID="BMCMacAddr" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：status-->
-          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
         </ClassType>
       </ClassTypes>
       <RelationshipTypes>

@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -26,6 +36,29 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         /// 健康状态（1：:正常；-2、5：未知;其他故障；PresentState为-2时健康状态是为未知）
         /// </summary>
         public string MezzHealthStatus => StatusHelper.ConvertStatus(OriStatus);
+
+        public string MezzHealthStatusTxt
+        {
+            get
+            {
+                if (MezzHealthStatus == "0" || MezzHealthStatus == "-3")
+                {
+                    return "OK";
+                }
+                else if (MezzHealthStatus == "-1")
+                {
+                    return "Warning";
+                }
+                else if (MezzHealthStatus == "-2")
+                {
+                    return "Critical";
+                }
+                else
+                {
+                    return MezzHealthStatus;
+                }
+            }
+        }
 
         private string _presentState { get; set; }
 

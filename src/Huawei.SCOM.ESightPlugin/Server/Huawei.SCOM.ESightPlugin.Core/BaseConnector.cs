@@ -1,16 +1,28 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Core
 // Author           : yayun
 // Created          : 11-19-2017
 //
 // Last Modified By : yayun
-// Last Modified On : 12-12-2017
+// Last Modified On : 05-22-2019
 // ***********************************************************************
 // <copyright file="BaseConnector.cs" company="广州摩赛网络技术有限公司">
 //     Copyright ©  2017
 // </copyright>
 // <summary>The base connector.</summary>
-// ***********************************************************************
+// ************************************************************************
+
+using System.Threading.Tasks;
 
 namespace Huawei.SCOM.ESightPlugin.Core
 {
@@ -24,7 +36,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
     using Huawei.SCOM.ESightPlugin.Core.Const;
     using Huawei.SCOM.ESightPlugin.Core.Models;
-
+    using Huawei.SCOM.ESightPlugin.Models;
     using LogUtil;
 
     using Microsoft.EnterpriseManagement.Common;
@@ -77,31 +89,37 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Gets or sets the connector guid.
         /// </summary>
+        /// <value>The connector unique identifier.</value>
         public Guid ConnectorGuid { get; set; }
 
         /// <summary>
         /// Gets or sets the connector info.
         /// </summary>
+        /// <value>The connector information.</value>
         public ConnectorInfo ConnectorInfo { get; set; }
 
         /// <summary>
         /// Gets or sets the connector name.
         /// </summary>
+        /// <value>The name of the connector.</value>
         public string ConnectorName { get; set; }
 
         /// <summary>
         /// The display name field.
         /// </summary>
+        /// <value>The display name field.</value>
         public ManagementPackProperty DisplayNameField => this.BaseEntityClass.PropertyCollection["DisplayName"];
 
         /// <summary>
         /// Gets the huawei server class.
         /// </summary>
+        /// <value>The huawei server class.</value>
         public ManagementPackClass HuaweiServerClass => this.huaweiServerClass ?? (this.huaweiServerClass = MGroup.Instance.GetManagementPackClass(EntityTypeConst.ESight.HuaweiServer));
 
         /// <summary>
         /// The huawei server key.
         /// </summary>
+        /// <value>The huawei server key.</value>
         public ManagementPackProperty HuaweiServerKey => this.HuaweiServerClass.PropertyCollection["DN"];
 
         /// <summary>
@@ -113,21 +131,25 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <summary>
         /// Gets the part child group class.
         /// </summary>
+        /// <value>The part child group class.</value>
         public ManagementPackClass PartChildGroupClass => this.partChildGroupClass ?? (this.partChildGroupClass = MGroup.Instance.GetManagementPackClass("ESight.PartChildGroup"));
 
         /// <summary>
         /// The part child group key.
         /// </summary>
+        /// <value>The part child group key.</value>
         public ManagementPackProperty PartChildGroupKey => this.PartChildGroupClass.PropertyCollection["ID"];
 
         /// <summary>
         /// Gets the part group class.
         /// </summary>
+        /// <value>The part group class.</value>
         public ManagementPackClass PartGroupClass => this.partGroupClass ?? (this.partGroupClass = MGroup.Instance.GetManagementPackClass("ESight.PartGroup"));
 
         /// <summary>
         /// The part group key.
         /// </summary>
+        /// <value>The part group key.</value>
         public ManagementPackProperty PartGroupKey => this.PartGroupClass.PropertyCollection["ID"];
 
         /// <summary>
@@ -139,6 +161,23 @@ namespace Huawei.SCOM.ESightPlugin.Core
             get
             {
                 return this.closeState ?? (this.closeState = MGroup.Instance.OperationalData.GetMonitoringAlertResolutionStates().ToList().FirstOrDefault(x => x.Name == "Closed"));
+            }
+        }
+
+        /// <summary>
+        /// The new state
+        /// </summary>
+        private MonitoringAlertResolutionState newState;
+
+        /// <summary>
+        /// Gets the state of the New.
+        /// </summary>
+        /// <value>The state of the close.</value>
+        public MonitoringAlertResolutionState NewState
+        {
+            get
+            {
+                return this.newState ?? (this.newState = MGroup.Instance.OperationalData.GetMonitoringAlertResolutionStates().ToList().FirstOrDefault(x => x.Name == "New"));
             }
         }
         #endregion
@@ -334,56 +373,32 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// 插入历史告警-插入前请先排重
-        /// </summary>
-        /// <param name="mpClass">The mp class.</param>
-        /// <param name="eventDatas">The event datas.</param>
-        /// <param name="eSightIp">The e sight ip.</param>
-        public void InsertHistoryEvent(ManagementPackClass mpClass, List<EventData> eventDatas, string eSightIp)
-        {
-            HWLogger.GetESightSdkLogger(eSightIp).Info($"Start InsertHistoryEvent.[{JsonUtil.SerializeObject(eventDatas)}]");
-            // 获取到历史的事件记录
-            // var eventHistory = obj.GetMonitoringEvents();
-            // 过滤掉已经存在的事件-如果已存在，则不再重复添加
-            // var filterEventList = eventDatas.Where(y => eventHistory.All(x => x.Parameters[5] != y.AlarmSn.ToString())).ToList();
-            var deviceId = eventDatas[0].DeviceId;
-            var obj = this.GetReadyObject(mpClass, deviceId, eSightIp);
-            var alertHistory = obj.GetMonitoringAlerts();
-            // 过滤掉已经存在的告警 
-            var filterAlertList = eventDatas.Where(y => alertHistory.All(x => x.CustomField6 != y.AlarmSn.ToString())).ToList();
-
-            HWLogger.GetESightSdkLogger(eSightIp).Info($"Filter HistoryEvent.[deviceId:{deviceId}] [Event Count:{eventDatas.Count}] [New Alert Count:{filterAlertList.Count}]");
-            if (!filterAlertList.Any())
-            {
-                return;
-            }
-            foreach (var eventData in filterAlertList)
-            {
-                try
-                {
-                    obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
-                }
-                catch (Exception ex)
-                {
-                    HWLogger.GetESightSdkLogger(eSightIp).Error($"InsertHistoryEvent Error.AlarmSn: {eventData.AlarmSn}", ex);
-                }
-            }
-        }
-
-        /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="mpClass">The mp class.</param>
-        /// <param name="deviceChangeEventData">The device change event data.</param>
+        /// <param name="eventData">The event data.</param>
         /// <param name="eSightIp">The e sight ip.</param>
-        public void InsertDeviceChangeEvent(ManagementPackClass mpClass, DeviceChangeEventData deviceChangeEventData, string eSightIp)
+        public void InsertDeviceChangeEvent(ManagementPackClass mpClass, DeviceChangeEventData eventData, string eSightIp)
         {
             try
             {
-                HWLogger.GetESightSdkLogger(eSightIp).Info($"Start Insert DeviceChangeEvent.[{JsonUtil.SerializeObject(deviceChangeEventData)}]");
+                var logger = HWLogger.GetESightSdkLogger(eventData.ESightIp);
+                HWLogger.GetESightSdkLogger(eSightIp).Info($"Start Insert DeviceChangeEvent.[{JsonUtil.SerializeObject(eventData)}]");
                 MGroup.Instance.CheckConnection();
-                PartialMonitoringObject obj = this.GetNewReadyObject(mpClass, deviceChangeEventData.DeviceId, eSightIp);
-                obj?.InsertCustomMonitoringEvent(deviceChangeEventData.ToCustomMonitoringEvent());
+                var obj = GetObjectByDeviceId(mpClass, eventData.DeviceId);
+
+                if (obj == null)
+                {
+                    logger.Warn($"InsertDeviceChangeEvent:Can not find the MonitoringObject:{eventData.DeviceId}");
+                    return;
+                }
+                var isReady = CheckAndWaitHealthStateReady(mpClass, obj, eventData.DeviceId, eSightIp);
+                if (!isReady)
+                {
+                    logger.Warn($"InsertDeviceChangeEvent:The MonitoringObject state is uninitialized.Drop the event.");
+                    return;
+                }
+                obj?.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
             }
             catch (Exception ex)
             {
@@ -399,69 +414,150 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// <param name="eSightIp">The e sight ip.</param>
         public void InsertEvent(ManagementPackClass mpClass, EventData eventData, string eSightIp)
         {
+            var logger = HWLogger.GetESightSdkLogger(eventData.ESightIp);
             try
             {
+                var sn = eventData.AlarmSn.ToString();
                 MGroup.Instance.CheckConnection();
+                var logPre = $"[Sn={sn}] [OptType={eventData.OptType}] [LevelId={eventData.LevelId}] ";
                 HWLogger.GetESightSdkLogger(eSightIp).Info($"Start Insert Event.[{JsonUtil.SerializeObject(eventData)}]");
-                PartialMonitoringObject obj = GetNewReadyObject(mpClass, eventData.DeviceId, eSightIp);
+                var obj = GetObjectByDeviceId(mpClass, eventData.DeviceId);
                 if (obj == null)
                 {
+                    logger.Warn($"{logPre} Can not find the MonitoringObject:{eventData.DeviceId}");
                     return;
                 }
-                var alertHistory = obj.GetMonitoringAlerts();
-                if (eventData.OptType == 1 || eventData.OptType == 6)
+                var isReady = CheckAndWaitHealthStateReady(mpClass, obj, eventData.DeviceId, eSightIp);
+                if (!isReady)
                 {
-                    // 如果已存在，则不再重复添加
-                    if (alertHistory.All(x => x.CustomField6 != eventData.AlarmSn.ToString()))
-                    {
-                        obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
-                    }
+                    logger.Warn($"{logPre} The MonitoringObject state is uninitialized.Drop the event.");
+                    return;
                 }
-                else if (eventData.OptType == 2)
+                var eventHistory = obj.GetMonitoringEvents().Where(x => x.EventData.Contains("<AlarmData>")).ToList();
+                switch (eventData.OptType)
                 {
-                    var alerts = obj.GetMonitoringAlerts().Where(x => x.CustomField6 == eventData.AlarmSn.ToString()).ToList();
-                    if (!alerts.Any())
-                    {
-                        // throw new Exception($"cannot find alert '{eventData.AlarmSn}'");
-                    }
-                    else
-                    {
-                        alerts.ForEach(alert =>
+                    case 1:
+                    case 5:
+                        #region 新增/修改 告警-告警会重复上报
+                        //如果不存在，则插入
+                        //如果上次安装时的事件未清除，本次同步后，一个sn会存在两条数据，需要取最新添加的一条
+                        var existEvent = eventHistory.OrderByDescending(x => x.TimeAdded).FirstOrDefault(x => x.GetAlarmData().AlarmSN.ToString() == sn);
+                        if (existEvent == null || existEvent.TimeAdded < MGroup.Instance.MpInstallTime)
+                        {
+                            obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
+                            logger.Info($"{logPre}Insert new Event.");
+                            if (eventData.LevelId == 1 || eventData.LevelId == 2)
                             {
-                                alert.ResolutionState = this.CloseState.ResolutionState;
-                                alert.Update(eventData.AlarmData.Comments);
-                            });
-                    }
-                }
-                else if (eventData.OptType == 5)
-                {
-                    var alerts = obj.GetMonitoringAlerts().Where(x => x.CustomField6 == eventData.AlarmSn.ToString()).ToList();
-                    if (!alerts.Any())
-                    {
-                        // 未找到，则当做是新增告警
-                        obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
-                    }
-                    else
-                    {
-                        alerts.ForEach(alert =>
+                                if (eventData.AlarmData.Cleared)//如果告警是清除状态
+                                {
+                                    logger.Info($"{logPre}Need to close Event when insert.");
+                                    Task.Run(() =>
+                                    {
+                                        int i = 0;
+                                        while (i < 10)
+                                        {
+                                            i++;
+                                            Thread.Sleep(TimeSpan.FromMinutes(1));
+                                            var alertToClose = obj.GetMonitoringAlerts().FirstOrDefault(x => x.CustomField6 == sn);
+                                            if (alertToClose != null)
+                                            {
+                                                alertToClose.ResolutionState = this.CloseState.ResolutionState;
+                                                var comment = eventData.AlarmData.ClearedType.ToString();
+                                                alertToClose.Update(comment);
+                                                logger.Info($"{logPre}Close Event success.");
+                                                break;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            #region 存在则更新
+                            var alertHistory = obj.GetMonitoringAlerts();
+                            var alertToUpdate = alertHistory.FirstOrDefault(x => x.CustomField6 == sn);
+                            if (alertToUpdate != null)
                             {
-                                alert.CustomField2 = eventData.AlarmData.AdditionalInformation;
-                                alert.CustomField3 = eventData.AlarmData.AdditionalText;
-                                alert.CustomField4 = eventData.AlarmData.AlarmId.ToString();
-                                alert.CustomField5 = eventData.AlarmData.AlarmName;
-                                alert.CustomField6 = eventData.AlarmData.AlarmSN.ToString();
-                                alert.CustomField7 = TimeHelper.StampToDateTime(eventData.AlarmData.ArrivedTime.ToString()).ToString();
-                                alert.CustomField8 = eventData.AlarmData.DevCsn.ToString();
-                                alert.CustomField9 = eventData.AlarmData.EventType.ToString();
-                                alert.CustomField10 = eventData.AlarmData.MoName;
+                                alertToUpdate.CustomField2 = eventData.AlarmData.AdditionalInformation;
+                                alertToUpdate.CustomField3 = eventData.AlarmData.AdditionalText;
+                                alertToUpdate.CustomField4 = eventData.AlarmData.AlarmId.ToString();
+                                alertToUpdate.CustomField5 = eventData.AlarmData.AlarmName;
+                                alertToUpdate.CustomField6 = eventData.AlarmData.AlarmSN.ToString();
+                                alertToUpdate.CustomField7 = TimeHelper.StampToDateTime(eventData.AlarmData.ArrivedTime.ToString()).ToString();
+                                alertToUpdate.CustomField8 = eventData.AlarmData.DevCsn.ToString();
+                                alertToUpdate.CustomField9 = eventData.AlarmData.EventType.ToString();
+                                alertToUpdate.CustomField10 = eventData.AlarmData.MoName;
 
-                                alert.Update(eventData.AlarmData.Comments);
-                            });
-                    }
-                }
-                else
-                {
-                    HWLogger.GetESightSdkLogger(eSightIp).Error($"Unknown optType {eventData.OptType}");
+                                alertToUpdate.Update(eventData.AlarmData.AdditionalInformation);
+                                logger.Debug($"{logPre}Update Event.");
+                                if (eventData.AlarmData.Cleared)//如果告警是清除状态
+                                {
+                                    alertToUpdate.ResolutionState = this.CloseState.ResolutionState;
+                                    alertToUpdate.Update(eventData.AlarmData.AdditionalInformation);
+                                    logger.Info($"{logPre}Close Alert On Update Event.");
+                                }
+                                else
+                                {
+                                    //如果原来的告警是关闭状态，本次是Open,则重新打开告警
+                                    if (alertToUpdate.ResolutionState == this.CloseState.ResolutionState)
+                                    {
+                                        alertToUpdate.ResolutionState = this.NewState.ResolutionState;
+                                        alertToUpdate.Update(eventData.AlarmData.AdditionalInformation);
+                                        logger.Info($"{logPre}Reopen Alert On Update Event.");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                logger.Warn($"{logPre}Ingore Event.Can not find the alert.");
+                            }
+                            #endregion
+                        }
+                        #endregion
+                        break;
+                    case 2:
+                        #region 清除告警
+                        var _alertHistory = obj.GetMonitoringAlerts();
+                        var _alertToClose = _alertHistory.FirstOrDefault(x => x.CustomField6 == sn);
+                        if (_alertToClose != null)
+                        {
+                            _alertToClose.ResolutionState = this.CloseState.ResolutionState;
+                            var comment = eventData.AlarmData.ClearedType.ToString();
+                            _alertToClose.Update(comment);
+                            logger.Info($"{logPre}Close Event.");
+                        }
+                        else
+                        {
+                            logger.Warn($"{logPre}Ingore Event.Can not find the alert.");
+                        }
+                        #endregion
+                        break;
+                    case 6:
+                        #region 插入事件
+                        if (eventData.LevelId == 4)
+                        {
+                            var existAlarmDatas = obj.GetMonitoringEvents().Where(x => x.EventData.StartsWith("<AlarmData")).Select(x => x.GetAlarmData()).ToList();
+                            //插入事件
+                            if (existAlarmDatas.All(x => x.AlarmSN.ToString() != sn))
+                            {
+                                logger.Info($"{logPre}Insert new Event.");
+                                obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
+                            }
+                            else
+                            {
+                                logger.Warn($"{logPre}Ignore Event.The event is exist."); //忽略已存在
+                            }
+                        }
+                        else
+                        {
+                            logger.Warn($"{logPre}Ignore Event."); //忽略非事件
+                        }
+                        break;
+                    #endregion
+                    default:
+                        HWLogger.GetESightSdkLogger(eSightIp).Error($"Unknown optType {eventData.OptType}");
+                        break;
                 }
             }
             catch (Exception ex)
@@ -526,6 +622,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
             return null;
         }
 
+        /// <summary>
+        /// Gets the full parent server.
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>MonitoringObject.</returns>
         protected MonitoringObject GetFullParentServer(MonitoringObject obj)
         {
             var group = obj.GetParentPartialMonitoringObjects();
@@ -541,6 +642,12 @@ namespace Huawei.SCOM.ESightPlugin.Core
             return null;
         }
 
+        /// <summary>
+        /// Gets the object by device identifier.
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns>PartialMonitoringObject.</returns>
         private PartialMonitoringObject GetObjectByDeviceId(ManagementPackClass mpClass, string deviceId)
         {
             var criteria = new MonitoringObjectCriteria($"DN = '{deviceId}'", mpClass);
@@ -554,125 +661,50 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// 插入告警时，等待对象的healthState不再是Not Monitor
-        /// </summary>
-        /// <param name="mpClass">The mp class.</param>
-        /// <param name="deviceId">The device identifier.</param>
-        /// <param name="eSightIp">The e sight ip.</param>
-        /// <returns>PartialMonitoringObject.</returns>
-        private PartialMonitoringObject GetReadyObject(ManagementPackClass mpClass, string deviceId, string eSightIp)
-        {
-            MGroup.Instance.CheckConnection();
-            var obj = this.GetObjectByDeviceId(mpClass, deviceId);
-            if (obj.StateLastModified == null)
-            {
-                #region 新增对象
-                HWLogger.GetESightSdkLogger(eSightIp).Debug($"New Object:{deviceId}");
-                while (true)
-                {
-                    // 重新查询obj状态
-                    obj = this.GetObjectByDeviceId(mpClass, deviceId);
-                    if (obj.HealthState != HealthState.Uninitialized)
-                    {
-                        HWLogger.GetESightSdkLogger(eSightIp).Debug($"{deviceId} first healthState is {obj.HealthState}.");
-                        break;
-                    }
-                    HWLogger.GetESightSdkLogger(eSightIp).Debug($"wait {deviceId} first Initialized...");
-                    Thread.Sleep(TimeSpan.FromSeconds(5));
-                }
-                #endregion
-            }
-            else
-            {
-                #region 对象之前缓存过
-
-                HWLogger.GetESightSdkLogger(eSightIp).Debug($"Existed Object before:{deviceId}. StateLastModified(Utc):{obj.StateLastModified}.");
-                //var stateLastModified = obj.StateLastModified;
-                //var startTime = DateTime.UtcNow;
-                //// 距离上次状态变更大于5分钟 说明需要等待刷新健康状态
-                //if ((startTime - stateLastModified.Value).TotalMinutes > 5)
-                //{
-                //    // 最多尝试5分钟
-                //    while ((DateTime.UtcNow - startTime).TotalMinutes < 5)
-                //    {
-                //        // 重新查询obj状态
-                //        obj = this.GetObjectByDeviceId(mpClass, deviceId);
-                //        if (obj.StateLastModified > stateLastModified.Value)
-                //        {
-                //            HwLogger.Sdk.Debug($"{deviceId} Reset HealthState :{obj.HealthState} StateLastModified(Utc):{obj.StateLastModified} UtcNow:{DateTime.UtcNow}.");
-                //            break;
-                //        }
-                //        HwLogger.Sdk.Debug($"wait {deviceId}  Reinitialize HealthState...");
-                //        Thread.Sleep(TimeSpan.FromSeconds(5));
-                //    }
-                //}
-                //else
-                //{
-                //    // 距离上次状态变更小于5分钟
-                //    HwLogger.Sdk.Debug($"{deviceId} healthState :{obj.HealthState} StateLastModified:(Utc){obj.StateLastModified}  UtcNow:{startTime}.");
-                //}
-                #endregion
-            }
-            return obj;
-        }
-
-        /// <summary>
         /// 插入告警时，等待新增的对象的healthState不再是Not Monitor
         /// </summary>
         /// <param name="mpClass">The mp class.</param>
+        /// <param name="obj">The object.</param>
         /// <param name="deviceId">The device identifier.</param>
         /// <param name="eSightIp">The e sight ip.</param>
         /// <returns>PartialMonitoringObject.</returns>
-        private PartialMonitoringObject GetNewReadyObject(ManagementPackClass mpClass, string deviceId, string eSightIp)
+        public bool CheckAndWaitHealthStateReady(ManagementPackClass mpClass, PartialMonitoringObject obj, string deviceId, string eSightIp)
         {
-            MGroup.Instance.CheckConnection();
-            var obj = this.GetObjectByDeviceId(mpClass, deviceId);
-
-            if (obj != null && obj.StateLastModified == null)
+            var logger = HWLogger.GetESightSdkLogger(eSightIp);
+            if (obj.StateLastModified == null)
             {
-                #region 新增对象
-                HWLogger.GetESightSdkLogger(eSightIp).Debug($"New Object:{deviceId}");
-                while (true)
+                //如果对象添加超过5分钟，仍然没有健康状态，防止阻塞只查询一次
+                if ((DateTime.Now - obj.TimeAdded).TotalMinutes > 5)
                 {
-                    // 重新查询obj状态
-                    obj = this.GetObjectByDeviceId(mpClass, deviceId);
+                    obj = GetObjectByDeviceId(mpClass, deviceId);
                     if (obj.HealthState != HealthState.Uninitialized)
                     {
-                        HWLogger.GetESightSdkLogger(eSightIp).Debug($"{deviceId} first healthState is {obj.HealthState}.");
-                        break;
+                        logger.Info($"{deviceId} first healthState is {obj.HealthState}.");
+                        return true;
                     }
-                    HWLogger.GetESightSdkLogger(eSightIp).Debug($"wait {deviceId} first Initialized...");
+                    return false;
+                }
+                #region 新增对象
+                logger.Info($"New Object:{deviceId}");
+                int i = 0;
+                while (i < 48)
+                {
+                    i++;
+                    // 重新查询obj状态
+                    obj = GetObjectByDeviceId(mpClass, deviceId);
+                    if (obj.HealthState != HealthState.Uninitialized)
+                    {
+                        logger.Info($"{deviceId} first healthState is {obj.HealthState}.");
+                        Thread.Sleep(TimeSpan.FromSeconds(5));
+                        return true;
+                    }
+                    logger.Info($"wait {deviceId} first Initialized...");
                     Thread.Sleep(TimeSpan.FromSeconds(5));
                 }
+                return false;
                 #endregion
             }
-            return obj;
-        }
-
-        /// <summary>
-        /// 判断首次插入事件是否成功
-        /// 首次安装后 第一次插入事件会失败
-        /// 此处进行多次查找，以确定事件插入成功
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <param name="firstEvent">The first event.</param>
-        private void FindFirstEvent(PartialMonitoringObject obj, EventData firstEvent)
-        {
-            var ev = firstEvent.ToCustomMonitoringInitEvent();
-            obj.InsertCustomMonitoringEvent(ev);
-            int i = 0;
-            while (i < 100)
-            {
-                var eventHistory = obj.GetMonitoringEvents();
-                HWLogger.Service.Debug($"try Find FirstEvent:{i}.AlarmSn: {firstEvent.AlarmSn}. eventHistory Count:{eventHistory.Count}");
-                if (eventHistory.Any(x => x.Parameters[5] == firstEvent.AlarmSn.ToString()))
-                {
-                    HWLogger.Service.Debug($"Find FirstEvent Finish:{i}.AlarmSn: {firstEvent.AlarmSn}");
-                    break;
-                }
-                Thread.Sleep(2000);
-                i++;
-            }
+            return true;
         }
 
         /// <summary>
@@ -694,5 +726,56 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         #endregion
+
+        /// <summary>
+        /// 检查未关闭的告警，在本次历史告警查询中是否存在，不存在则关闭
+        /// 防止遗漏
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        /// <param name="sns">The SNS.</param>
+        public void CheckUnclosedAlert(ManagementPackClass mpClass, string eSightIp, List<string> sns)
+        {
+            //读取所有的未关闭的告警
+            var unCloseAlarm = MGroup.Instance.OperationalData.GetMonitoringAlerts(
+                new MonitoringAlertCriteria($"ResolutionState = '0' And CustomField1 like '%{eSightIp}%'"),
+                mpClass, TraversalDepth.OneLevel, null).ToList();
+            //判断这些未关闭的告警是否在本次的查询结果中
+            var needManualCloseAlert = unCloseAlarm.Where(x => sns.All(y => y != x.CustomField6));
+            foreach (var monitoringAlert in needManualCloseAlert)
+            {
+                monitoringAlert.ResolutionState = this.CloseState.ResolutionState;
+                monitoringAlert.Update("Manaul Close By SDK");
+                HWLogger.Service.Info("Manaul Close By SDK,SNS:" + monitoringAlert.CustomField6);
+            }
+        }
+
+        /// <summary>
+        /// Gets the exist events.
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        /// <returns>List&lt;MonitoringEvent&gt;.</returns>
+        public List<MonitoringEvent> GetExistEvents(ManagementPackClass mpClass, string eSightIp)
+        {
+            //https://docs.microsoft.com/en-us/previous-versions/system-center/developer/bb423658(v=msdn.10)
+            var list = MGroup.Instance.OperationalData.GetMonitoringEvents(
+                new MonitoringEventCriteria($"LoggingComputer = '{eSightIp}'"),
+                mpClass, TraversalDepth.OneLevel).ToList();
+            return list;
+        }
+
+        /// <summary>
+        /// Gets the history alarm datas.
+        /// </summary>
+        /// <param name="mpClass">The mp class.</param>
+        /// <param name="eSightIp">The eSight Ip.</param>
+        /// <returns>List&lt;AlarmData&gt;.</returns>
+        public List<AlarmData> GetExistAlarmDatas(ManagementPackClass mpClass, string eSightIp)
+        {
+            var existEvents = GetExistEvents(mpClass, eSightIp);
+           // HWLogger.Service.Info($"ExistEvents :[{ JsonUtil.SerializeObject(existEvents)}]");
+            return existEvents.Where(x => x.EventData.Contains("<AlarmData>")).Select(x => x.GetAlarmData()).ToList();
+        }
     }
 }

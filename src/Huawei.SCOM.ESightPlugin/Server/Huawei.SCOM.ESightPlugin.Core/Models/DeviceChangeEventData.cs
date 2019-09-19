@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Core
 // Author           : yayun
@@ -36,7 +46,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         {
             this.DeviceId = $"{eSightIp}-{data.DeviceId}";
 
-            this.LoggingComputer = data.DeviceId;
+            this.LoggingComputer = eSightIp;
             this.ESightIp = eSightIp;
             this.Message = data.Description;
             this.NedeviceData = data;

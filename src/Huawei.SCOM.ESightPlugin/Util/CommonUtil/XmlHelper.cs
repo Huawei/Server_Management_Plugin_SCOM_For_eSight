@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
@@ -457,8 +467,10 @@ namespace CommonUtil
             try
             {
                 var reader = new XmlSerializer(typeof(T));
-                var file = new StreamReader(path);
-                return (T)reader.Deserialize(file);
+                using (var file = new StreamReader(path))
+                {
+                    return (T)reader.Deserialize(file);
+                }
             }
             catch (Exception exception)
             {

@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Models
 // Author           : yayun
@@ -21,10 +31,6 @@ namespace Huawei.SCOM.ESightPlugin.Models
     /// </summary>
     public enum TcpMessageType
     {
-        /// <summary>
-        /// SyncESight
-        /// </summary>
-        SyncESight,
 
         /// <summary>
         /// alarm.
@@ -35,11 +41,6 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// nedevice.
         /// </summary>
         NeDevice,
-
-        /// <summary>
-        ///  delete a esight
-        /// </summary>
-        DeleteESight,
 
         /// <summary>
         /// The keep alive
@@ -58,10 +59,10 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// <param name="hostIp">The host ip.</param>
         /// <param name="msgType">Type of the MSG.</param>
         /// <param name="data">The data.</param>
-        public TcpMessage(string hostIp, TcpMessageType msgType, T data)
+        public TcpMessage(string subscribeId, TcpMessageType msgType, T data)
         {
             this.Id = Guid.NewGuid().ToString();
-            this.ESightIp = hostIp;
+            this.SubscribeId = subscribeId;
             this.MsgType = msgType;
             this.Data = data;
         }
@@ -69,8 +70,8 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// <summary>
         /// Gets or sets the e sight ip.
         /// </summary>
-        [JsonProperty("eSightIp")]
-        public string ESightIp { get; set; }
+        [JsonProperty("subscribeId")]
+        public string SubscribeId { get; set; }
 
         /// <summary>
         /// Gets or sets the msg type.

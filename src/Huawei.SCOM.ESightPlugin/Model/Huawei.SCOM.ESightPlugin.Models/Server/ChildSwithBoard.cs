@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Models
 // Author           : yayun
@@ -89,6 +99,29 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         ///	其他：故障
         /// </summary>
         public string HealthState { get; set; }
+
+        public string HealthStateTxt
+        {
+            get
+            {
+                if (HealthState == "0" || HealthState == "-3")
+                {
+                    return "OK";
+                }
+                else if (HealthState == "-1")
+                {
+                    return "Warning";
+                }
+                else if (HealthState == "-2")
+                {
+                    return "Critical";
+                }
+                else
+                {
+                    return HealthState;
+                }
+            }
+        }
 
         /// <summary>
         /// 单板类型，含义如下：“0”：主板	“1”：交换板

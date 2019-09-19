@@ -32,7 +32,7 @@
           <!-- web 页面有需要esight北向接口提供字段-->
           <Property ID="SystemCPUUsage" Type="string" Key="false" CaseSensitive="false" MaxLength="256" MinLength="0" />
           <!--ESight：status-->
-          <Property ID="Status" Type="int" Key="false" CaseSensitive="false" MinLength="0" />
+          <Property ID="Status" Type="string" Key="false" CaseSensitive="false" MinLength="0" />
          </ClassType>
       </ClassTypes>
       <RelationshipTypes>

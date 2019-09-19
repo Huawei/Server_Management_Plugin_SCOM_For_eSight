@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.PackageHelper
 // Author           : yayun
@@ -37,7 +47,6 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
     using Microsoft.Win32;
 
     using Models;
-    using LogUtil;
 
     /// <summary>
     /// The program.
@@ -49,7 +58,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
         /// <summary>
         /// The run path.
         /// </summary>
-        private static readonly string RunPath = @"E:\Projects\scom-plugin\SCOM\release\Configuration";
+        private static readonly string RunPath = @"E:\Project\scom-plugin\SCOM\release\Configuration";
 #else
         private static readonly string RunPath = AppDomain.CurrentDomain.BaseDirectory;
 #endif
@@ -73,11 +82,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
         /// </summary>
         private static string ServiceName => "Huawei SCOM Plugin For eSight.Service";
 
-        /// <summary>
-        /// Gets the name of the e sight configuration library.
-        /// </summary>
-        /// <value>The name of the e sight configuration library.</value>
-        private static string ESightConfigLibraryName => "eSight.Config.Library";
+   
 
         /// <summary>
         /// Gets the framework install dir.
@@ -100,14 +105,6 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
                 ScomInstallPath = ReadScomInstallPath();
                 //CreateESightConfigLibraryMp();
 #if DEBUG
-                //ReadScomInstallPath();
-                //ResetESightSubscribeStatus();
-                // CreateESightConfigLibraryMp();
-                // ModifyWebServerConfig();
-                // Install();
-                // SealMpb(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\sealTemp"));
-                // CreateMP(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\Temp"), 44301);
-                // UnInstall(); 
                 Console.ReadLine();
 
 #else
@@ -237,7 +234,6 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
             CopySdkFiles();
             ResetESightSubscribeStatus();
             ModifyWebServerConfig();
-            CreateESightConfigLibraryMp();
             // 服务已安装 则跳过安装
             if (ServiceController.GetServices().All(s => s.ServiceName == ServiceName))
             {
@@ -443,23 +439,24 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
                 OnLog("Start Install eSight ManagementPacks");
 #if DEBUG
                 MGroup.Instance.InstallMpb(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\eSight.View.Library.mpb"));
-                MGroup.Instance.InstallMpb(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\eSight.BladeServer.Library.mpb"));
+                MGroup.Instance.InstallMpb(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\eSight.Chassis.Library.mpb"));
                 MGroup.Instance.InstallMpb(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\eSight.HighDensityServer.Library.mpb"));
                 MGroup.Instance.InstallMpb(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\eSight.RackServer.Library.mpb"));
                 MGroup.Instance.InstallMpb(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\eSight.KunLunServer.Library.mpb"));
+                MGroup.Instance.InstallMpb(Path.GetFullPath("..\\..\\..\\..\\..\\..\\..\\release\\MPFiles\\eSight.Dashboard.Library.mpb"));
 #else
                 OnLog("Start Install eSight.View.Library");
                 MGroup.Instance.InstallMpb(Path.GetFullPath($"{RunPath}\\..\\MPFiles\\eSight.View.Library.mpb"));
-                OnLog($"Start Install {ESightConfigLibraryName}");
-                MGroup.Instance.InstallMp(Path.GetFullPath($"{RunPath}\\..\\MPFiles\\{ESightConfigLibraryName}.mp"));
-                OnLog("Start Install eSight.BladeServer.Library");
-                MGroup.Instance.InstallMpb(Path.GetFullPath($"{RunPath}\\..\\MPFiles\\eSight.BladeServer.Library.mpb"));
+                OnLog("Start Install eSight.Chassis.Library");
+                MGroup.Instance.InstallMpb(Path.GetFullPath($"{RunPath}\\..\\MPFiles\\eSight.Chassis.Library.mpb"));
                 OnLog("Start Install eSight.HighDensityServer.Library");
                 MGroup.Instance.InstallMpb(Path.GetFullPath($"{RunPath}\\..\\MPFiles\\eSight.HighDensityServer.Library.mpb"));
                 OnLog("Start Install eSight.RackServer.Library");
                 MGroup.Instance.InstallMpb(Path.GetFullPath($"{RunPath}\\..\\MPFiles\\eSight.RackServer.Library.mpb"));
                 OnLog("Start Install eSight.KunLunServer.Library");
                 MGroup.Instance.InstallMpb(Path.GetFullPath($"{RunPath}\\..\\MPFiles\\eSight.KunLunServer.Library.mpb"));
+                OnLog("Start Install eSight.Dashboard.Library");
+                MGroup.Instance.InstallMpb(Path.GetFullPath($"{RunPath}\\..\\MPFiles\\eSight.Dashboard.Library.mpb"));
 #endif
                 OnLog("Install eSight ManagementPacks Finish.");
             }
@@ -560,54 +557,12 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
             try
             {
                 OnLog("Start delete eSight .");
-                ESightDal.Instance.DeleteDbFile();
+                // ESightDal.Instance.DeleteDbFile();
                 OnLog("eSight delete finish.");
             }
             catch (Exception ex)
             {
                 OnLog("eSight delete :", ex);
-            }
-        }
-
-        /// <summary>
-        /// 删除所有管理的HuaweiServer对象
-        /// </summary>
-        private static void RemoveSCOMServers()
-        {
-            try
-            {
-                OnLog($"Remove eSight Servers From SCOM Start.");
-                BladeConnector.Instance.RemoverAllBlade();
-                RackConnector.Instance.RemoverAllRack();
-                HighdensityConnector.Instance.RemoverAllHighdensity();
-                KunLunConnector.Instance.RemoverAllKunLun();
-                OnLog($"Remove eSight Servers From SCOM Finish.");
-            }
-            catch (Exception ex)
-            {
-                OnLog("Remove eSight Servers From SCOM error", ex);
-            }
-        }
-
-        /// <summary>
-        /// The start service.
-        /// </summary>
-        private static void StartService()
-        {
-            try
-            {
-                OnLog("Start Huawei SCOM Plugin For eSight.Service");
-                var sc = new ServiceController { ServiceName = "Huawei SCOM Plugin For eSight.Service" };
-                if (sc.Status != ServiceControllerStatus.Running)
-                {
-                    sc.Start();
-                }
-                OnLog("Start Service success");
-            }
-            catch (Exception ex)
-            {
-                OnLog("Start Service faild", ex);
-                IsHaveException = true;
             }
         }
 
@@ -721,16 +676,16 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
             try
             {
                 OnLog("Start UnInstall eSight ManagementPacks");
-                OnLog("Start UnInstall eSight.BladeServer.Library");
-                MGroup.Instance.UnInstallMp("eSight.BladeServer.Library");
+                OnLog("Start UnInstall eSight.Dashboard.Library");
+                MGroup.Instance.UnInstallMp("eSight.Dashboard.Library");
+                OnLog("Start UnInstall eSight.Chassis.Library");
+                MGroup.Instance.UnInstallMp("eSight.Chassis.Library");
                 OnLog("Start UnInstall eSight.HighDensityServer.Library");
                 MGroup.Instance.UnInstallMp("eSight.HighDensityServer.Library");
                 OnLog("Start UnInstall eSight.RackServer.Library");
                 MGroup.Instance.UnInstallMp("eSight.RackServer.Library");
                 OnLog("Start UnInstall eSight.KunLunServer.Library");
                 MGroup.Instance.UnInstallMp("eSight.KunLunServer.Library");
-                OnLog($"Start UnInstall {ESightConfigLibraryName}");
-                MGroup.Instance.UnInstallMp(ESightConfigLibraryName);
                 OnLog("Start UnInstall eSight.View.Library");
                 MGroup.Instance.UnInstallMp("eSight.View.Library");
                 OnLog("UnInstall eSight ManagementPacks Finish.");
@@ -790,7 +745,6 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
         private static void OnLog(string data)
         {
             HWLogger.Install.Info(data);
-            Console.WriteLine(data);
         }
 
         /// <summary>
@@ -805,8 +759,6 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
         private static void OnLog(string data, Exception ex)
         {
             HWLogger.Install.Error(data, ex);
-            Console.WriteLine(data);
-            Console.WriteLine(ex);
         }
 
         /// <summary>
@@ -822,7 +774,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
             {
                 throw new Exception($"can not find the installKey: {softPath}");
             }
-            var installPath = installKey.GetValue("InstallDirectory").ToString();
+            var installPath = installKey.GetValue("InstallDirectory")!=null? installKey.GetValue("InstallDirectory").ToString():"";
             return installPath;
         }
         #endregion
@@ -859,96 +811,7 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
         }
         #endregion
 
-        /// <summary>
-        /// Creates the mp.
-        /// </summary>
-        private static void CreateESightConfigLibraryMp()
-        {
-            try
-            {
-                // var apmMpPath = @"E:\Projects\scom-plugin\SCOM\release\MPFiles\Temp";
-                OnLog("CreateESightConfigLibraryMp-ScomInstallPath:" + ScomInstallPath);
-                var apmMpPath = $"{ScomInstallPath}\\Server\\ApmConnector";
-                OnLog(apmMpPath);
-                var keyPath = $"{RunPath}\\..\\MPFiles\\Temp";
-                string outPath = $"{RunPath}\\..\\MPFiles";
-                string companyName = "广州摩赛网络技术有限公司";
-                string copyRight = "Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.";
-                string keyName = "esight.snk";
-
-                #region read eSight.View.Library
-                var mpStore = new ManagementPackFileStore();
-                mpStore.AddDirectory(outPath);
-
-                var reader = ManagementPackBundleFactory.CreateBundleReader();
-                var bundle = reader.Read($"{outPath}\\eSight.View.Library.mpb", mpStore);
-                var eSightViewMp = bundle.ManagementPacks.FirstOrDefault();
-                if (eSightViewMp == null)
-                {
-                    throw new Exception($"can not find mp : eSight.View.Library.mpb");
-                }
-
-                #endregion
-
-                var mMpStore = new ManagementPackFileStore();
-                mMpStore.AddDirectory(apmMpPath);
-                mMpStore.AddDirectory(outPath);
-                var mMp = new ManagementPack(ESightConfigLibraryName, ESightConfigLibraryName, eSightViewMp.Version, mMpStore);
-
-                #region AddReferences
-                var mLibraryMp = new ManagementPack($"{apmMpPath}\\System.Library.mp", mMpStore);
-                var mWindowsLibraryMp = new ManagementPack($"{apmMpPath}\\Microsoft.SystemCenter.Library.mp", mMpStore);
-                mMp.References.Add("System", new ManagementPackReference(mLibraryMp));
-                mMp.References.Add("SC", new ManagementPackReference(mWindowsLibraryMp));
-                mMp.References.Add("EVL", new ManagementPackReference(eSightViewMp));
-                #endregion
-
-                #region AddView
-
-                var view = new ManagementPackView(mMp, "ESight.Config.ESightConfigView", ManagementPackAccessibility.Public)
-                {
-                    Target = mLibraryMp.GetClass("System.WebSite"),
-                    TypeID = mWindowsLibraryMp.GetViewType("Microsoft.SystemCenter.UrlViewType"),
-                    Description = "eSight Config View",
-                    DisplayName = "eSight Config View",
-                    Category = "Operations",
-                    Configuration = $"<Criteria><Url>https://localhost:{port}/StaticWeb/eSight.html</Url></Criteria><Presentation></Presentation><Target></Target>"
-                };
-
-                var folderItem = new ManagementPackFolderItem("ESight.Config.ESightConfigView.FolderItem", view, eSightViewMp.GetFolder("ESight.Folder"));
-                folderItem.Status = ManagementPackElementStatus.PendingAdd;
-                #endregion
-
-                mMp.AcceptChanges();
-
-                #region seal
-
-                var mpWriterSettings = new ManagementPackAssemblyWriterSettings(companyName, Path.Combine(keyPath, keyName), false)
-                {
-                    OutputDirectory = outPath,
-                    Copyright = copyRight
-                };
-
-                ManagementPackAssemblyWriter mpWriter = new ManagementPackAssemblyWriter(mpWriterSettings);
-                mpWriter.WriteManagementPack(mMp);
-                #endregion
-                // Remove Temp files
-                if (Directory.Exists(keyPath))
-                {
-                    Directory.Delete(keyPath, true);
-                }
-                var tempFile = Path.Combine(RunPath, "..\\", "MPResources.resources");
-                if (File.Exists(tempFile))
-                {
-                    File.Delete(tempFile);
-                }
-            }
-            catch (Exception ex)
-            {
-                OnLog($"create {ESightConfigLibraryName} faild", ex);
-                throw;
-            }
-        }
+       
 
         /// <summary>
         /// 保存配置文件
@@ -959,9 +822,10 @@ namespace Huawei.SCOM.ESightPlugin.PackageHelper
             {
                 InternetIp = ipAddress,
                 InternetPort = port,
-                PollingInterval = 3600000,
+                PollingInterval =1000*60*60*4,
                 TempTcpPort = 40001,
-                IsFirstInsertEvent = false
+                IsFirstInsertEvent = false,
+                ThreadCount = 2
             };
             var path = $"{RunPath}\\PluginConfig.xml";
             ConfigHelper.SavePluginConfig(config, path);

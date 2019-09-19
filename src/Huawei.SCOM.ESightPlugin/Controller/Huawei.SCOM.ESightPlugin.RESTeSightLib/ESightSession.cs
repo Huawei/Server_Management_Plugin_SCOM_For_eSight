@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.RESTeSightLib
 // Author           : yayun
@@ -32,6 +42,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
     using Huawei.SCOM.ESightPlugin.Models.Server;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Exceptions;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper;
+    using Huawei.SCOM.ESightPlugin.ViewLib.Utils;
     using LogUtil;
 
     /// <summary>
@@ -194,7 +205,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 var param = new
                 {
                     userid = this.ESight.LoginAccount,
-                    value = EncryptUtil.DecryptPwd(this.ESight.LoginPd),
+                    value = RijndaelManagedCrypto.Instance.DecryptFromCS(ESight.LoginPd),
                     localIp = SystemUtil.GetLocalhostIP()
                 };
                 var content = new StringContent(JsonUtil.SerializeObject(param), Encoding.UTF8, "application/json");
@@ -247,7 +258,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 var param = new
                 {
                     userid = this.ESight.LoginAccount,
-                    value = EncryptUtil.DecryptPwd(this.ESight.LoginPd),
+                    value = RijndaelManagedCrypto.Instance.DecryptFromCS(this.ESight.LoginPd),
                     localIp = SystemUtil.GetLocalhostIP()
                 };
                 var content = new StringContent(JsonUtil.SerializeObject(param), Encoding.UTF8, "application/json");
@@ -272,19 +283,19 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 this.LatestConnectedTime = DateTime.Now;
 
                 // Login
-                ESightDal.Instance.UpdateESightConnectStatus(this.ESight.HostIP, ConstMgr.ESightConnectStatus.ONLINE, "connect success.");
+               // ESightDal.Instance.UpdateESightConnectStatus(this.ESight.HostIP, ConstMgr.ESightConnectStatus.ONLINE, "connect success.");
                 logger.Api.Info($"Login Success");
             }
             catch (ESSessionExpceion ex)
             {
-                this.HandleEsSessionException(ex);
+                //this.HandleEsSessionException(ex);
                 logger.Api.Error($"Login Error.Url:{url} : ", ex);
                 throw ex;
             }
             catch (AggregateException ae)
             {
                 var esSessionExpceion = this.HandleException(ae);
-                this.HandleEsSessionException(esSessionExpceion);
+                //this.HandleEsSessionException(esSessionExpceion);
                 logger.Api.Error($"Login Error.Url:{url} : ", ae);
                 throw esSessionExpceion;
             }
@@ -893,6 +904,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             // 兼容所有ssl协议
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)(MySecurityProtocolType.Tls12 | MySecurityProtocolType.Tls11 | MySecurityProtocolType.Tls | MySecurityProtocolType.Ssl3);
+            ServicePointManager.DefaultConnectionLimit = 1000;
         }
 
         /// <summary>
@@ -916,16 +928,6 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
                 logger.Api.Error(errMsg);
                 throw new ESSessionExpceion(webErrorCode, this, errMsg);
             }
-        }
-
-        /// <summary>
-        /// Deals the es session exception.
-        /// </summary>
-        /// <param name="ex">The ex.</param>
-        private void HandleEsSessionException(ESSessionExpceion ex)
-        {
-            // HandleEsSessionException
-            ESightDal.Instance.UpdateESightConnectStatus(this.ESight.HostIP, ConstMgr.ESightConnectStatus.FAILED, ex.Message);
         }
 
         #region Exception

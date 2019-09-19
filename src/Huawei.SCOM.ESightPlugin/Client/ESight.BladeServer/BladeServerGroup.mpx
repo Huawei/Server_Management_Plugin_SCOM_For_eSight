@@ -22,7 +22,7 @@
     <LanguagePack ID="ENU" IsDefault="true">
       <DisplayStrings>
         <DisplayString ElementID="ESight.BladeServer.BladeServerGroup">
-          <Name>BladeServer Group</Name>
+          <Name>Chassis Group</Name>
           <Description></Description>
         </DisplayString>
       </DisplayStrings>

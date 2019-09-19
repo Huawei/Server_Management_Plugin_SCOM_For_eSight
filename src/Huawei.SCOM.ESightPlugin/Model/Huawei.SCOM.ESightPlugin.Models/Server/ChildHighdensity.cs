@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Models
 // Author           : yayun
@@ -191,6 +201,29 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         ///     其他：故障
         /// </summary>
         public string Status { get; set; }
+
+        public string StatusTxt
+        {
+            get
+            {
+                if (Status == "0" || Status == "-3")
+                {
+                    return "OK";
+                }
+                else if (Status == "-1")
+                {
+                    return "Warning";
+                }
+                else if (Status == "-2")
+                {
+                    return "Critical";
+                }
+                else
+                {
+                    return Status;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the type.

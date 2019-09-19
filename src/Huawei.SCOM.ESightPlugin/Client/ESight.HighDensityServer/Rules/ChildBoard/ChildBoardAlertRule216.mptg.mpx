@@ -43,18 +43,18 @@
             <AlertMessageId>$MPElement[Name="EVL!ESight.HuaweiServer.AlertMessage"]$</AlertMessageId>
             <AlertParameters>
               <AlertParameter1>$Target/Property[Type="ESight.HighdensityServer.Highdensity"]/DN$</AlertParameter1>
-              <AlertParameter2>$Data/EventData/CustomData/OptType$</AlertParameter2>
-              <AlertParameter3>$Data/EventData/CustomData/EventTime$</AlertParameter3>
-              <AlertParameter4>$Data/EventData/CustomData/NeType$</AlertParameter4>
-              <AlertParameter5>$Data/EventData/CustomData/ObjectInstance$</AlertParameter5>
-              <AlertParameter6>$Data/EventData/CustomData/ProposedRepairActions$</AlertParameter6>
-              <AlertParameter7>$Data/EventData/CustomData/AdditionalInformation$</AlertParameter7>
+              <AlertParameter2>$Data/EventData/AlarmData/OptType$</AlertParameter2>
+              <AlertParameter3>$Data/EventData/AlarmData/EventTime$</AlertParameter3>
+              <AlertParameter4>$Data/EventData/AlarmData/NeType$</AlertParameter4>
+              <AlertParameter5>$Data/EventData/AlarmData/ObjectInstance$</AlertParameter5>
+              <AlertParameter6>$Data/EventData/AlarmData/ProposedRepairActions$</AlertParameter6>
+              <AlertParameter7>$Data/EventData/AlarmData/AdditionalInformation$</AlertParameter7>
             </AlertParameters>
             <Suppression />
             <!--moDN-->
             <Custom1>$Target/Property[Type="ESight.HighdensityServer.Highdensity"]/DN$</Custom1>
             <!--additionalInformation-->
-            <Custom2>$Data/EventData/CustomData/AdditionalInformation$</Custom2>
+            <Custom2>$Data/EventData/AlarmData/AdditionalInformation$</Custom2>
             <!--additionalText-->
             <Custom3>$Data/Params/Param[3]$</Custom3>
             <!--alarmId -->

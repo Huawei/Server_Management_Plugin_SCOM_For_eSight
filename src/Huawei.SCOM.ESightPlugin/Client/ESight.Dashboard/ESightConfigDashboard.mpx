@@ -1,0 +1,102 @@
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <Categories>
+    <Category
+      ID="WPFCategory"
+      Target="ViewLibAssembly"
+      Value="Visualization!Microsoft.SystemCenter.Visualization.WpfComponentAssembly" />
+  </Categories>
+
+  <Presentation>
+    <ComponentTypes>
+      <ComponentType ID="ESightConfigControl" Accessibility="Public" />
+      <ComponentType ID="ESightConfigDashboardHost" Accessibility="Public" />
+    </ComponentTypes>
+    <ComponentReferences>
+      <ComponentReference
+        ID="ESightConfigDashboardRef"
+        Accessibility="Public"
+        TypeID="ESightConfigDashboardHost"
+        Parent="EVL!ESight.Folder" />
+    </ComponentReferences>
+
+    <ComponentImplementations>
+      <ComponentImplementation
+        TypeId="ESightConfigDashboardHost"
+        ID="ESightConfigDashboardHostImplementation"
+        Accessibility="Public"
+        Platform="All">
+        <Composite>
+          <Component  TypeId="Visualization!Microsoft.SystemCenter.Visualization.ComponentContainer">
+            <Binding PropertyId="Visual">
+              <Component TypeId="ESightConfigControl">
+              </Component>
+            </Binding>
+          </Component>
+        </Composite>
+      </ComponentImplementation>
+      <ComponentImplementation
+        TypeId="ESightConfigControl"
+        ID="ESightConfigControlImplementation"
+        Accessibility="Public"
+        Platform="All">
+        <Unit>
+          <ContractFactory>Huawei.SCOM.ESightPlugin.ViewLib.ESightConfigDashboard</ContractFactory>
+        </Unit>
+      </ComponentImplementation>
+    </ComponentImplementations>
+  </Presentation>
+
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESightConfigDashboardHost">
+          <Name>eSight Configuration Dashboard</Name>
+          <Description>eSight Configuration Dashboard</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+
+  <Resources>
+    <Assembly
+      ID="ViewLibAssembly"
+      QualifiedName="Huawei.SCOM.ESightPlugin.ViewLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+      FileName="Huawei.SCOM.ESightPlugin.ViewLib.dll"
+      Accessibility="Public"
+      HasNullStream="false" />
+    <!--
+    <Assembly
+      ID="CommonUtilAssembly"
+      QualifiedName="CommonUtil, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+      FileName="CommonUtil.dll"
+      Accessibility="Public"
+      HasNullStream="false" />
+    <Assembly
+      ID="ConstAssembly"
+      QualifiedName="Huawei.SCOM.ESightPlugin.Const, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+      FileName="Huawei.SCOM.ESightPlugin.Const.dll"
+      Accessibility="Public"
+      HasNullStream="false" />
+    <Assembly
+      ID="ModelsAssembly"
+      QualifiedName="Huawei.SCOM.ESightPlugin.Models, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+      FileName="Huawei.SCOM.ESightPlugin.Models.dll"
+      Accessibility="Public"
+      HasNullStream="false" />
+    <Assembly
+      ID="RESTLibAssembly"
+      QualifiedName="Huawei.SCOM.ESightPlugin.RESTeSightLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+      FileName="Huawei.SCOM.ESightPlugin.RESTeSightLib.dll"
+      Accessibility="Public"
+      HasNullStream="false" />
+    <Assembly
+      ID="LogUtilAssembly"
+      QualifiedName="Huawei.SCOM.ESightPlugin.LogUtil, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+      FileName="Huawei.SCOM.ESightPlugin.LogUtil.dll"
+      Accessibility="Public"
+      HasNullStream="false" />
+      -->
+  </Resources>
+
+</ManagementPackFragment>

@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : ESightPlugin.TestClient
 // Author           : yayun
@@ -32,8 +42,6 @@ namespace ESightPlugin.TestClient
     using Huawei.SCOM.ESightPlugin.Models.Devices;
     using Huawei.SCOM.ESightPlugin.Models.Server;
     using Huawei.SCOM.ESightPlugin.Service;
-    using Huawei.SCOM.ESightPlugin.WebServer.Helper;
-    using Huawei.SCOM.ESightPlugin.WebServer.Model;
 
     /// <summary>
     ///     Class FormMain.
@@ -88,7 +96,7 @@ namespace ESightPlugin.TestClient
 
         public DeviceChangeEventData DeviceChangeEventData { get; set; }
 
-        public string ESightIp => "192.168" + ".1.13";
+        public string ESightIp => "112.93.129.237";
         #endregion
 
         #region Methods
@@ -139,7 +147,7 @@ namespace ESightPlugin.TestClient
         /// <param name="e">The e.</param>
         private void Form1_Load(object sender, EventArgs e)
         {
-            this.Reload();
+            //this.Reload();
         }
 
         /// <summary>
@@ -386,7 +394,7 @@ namespace ESightPlugin.TestClient
         /// </param>
         private void btnUpdateRack_Click(object sender, EventArgs e)
         {
-            this.RackTest.IpAddress = new Random().Next(0, 100) + this.RackTest.IpAddress;
+            this.RackTest.iBMCIPv4Address = new Random().Next(0, 100) + this.RackTest.iBMCIPv4Address;
             RackConnector.Instance.UpdateRack(this.RackTest, false);
         }
 
@@ -522,12 +530,12 @@ namespace ESightPlugin.TestClient
             //    SwitchEventData.AlarmSn += 1;
             //}
 
-            BladeConnector.Instance.InsertHistoryEvent(new List<EventData>() { BladeEventData }, ServerTypeEnum.Blade, this.ESightIp);
+           // BladeConnector.Instance.InsertHistoryEvent(new List<EventData>() { BladeEventData }, ServerTypeEnum.Blade, this.ESightIp);
             //HighdensityConnector.Instance.InsertEvent(HighEventData);
             //BladeConnector.Instance.InsertChildBladeEvent(ChildBladeEventData);
             //HighdensityConnector.Instance.InsertChildBladeEvent(ChildHighEventData);
             //KunLunConnector.Instance.InsertEvent(KunLunEventData);
-            //RackConnector.Instance.InsertEvent(RackEventData);
+            RackConnector.Instance.InsertEvent(RackEventData,this.ESightIp);
         }
 
         private void btnUpdateAlert_Click(object sender, EventArgs e)
@@ -550,6 +558,9 @@ namespace ESightPlugin.TestClient
 
         private void btnEnqueue_Click(object sender, EventArgs e)
         {
+            var a = "{'subscribeId':'ceb158a9-a73b-4e78-8dd4-ee16297fe39a','tcpMessageType':0,'Desc':'Alarm','Id':'239ebaf8-552d-49e7-bf18-5066796e3a88','Data':{'SubscribeId':'ceb158a9-a73b-4e78-8dd4-ee16297fe39a','resourceURI':'/rest/openapi/notification/common/alarm','msgType':1,'extendedData':'{}','description':'Alarm related notification.','timestamp':'2019-06-10 16:02:44','data':{'optType':1,'systemID':'HuaweiPlatform','ackTime':0,'ackUser':null,'acked':false,'additionalInformation':'The disk Disk4 predictive failure (SN:PFVXJKWE).','additionalText':'','alarmId':33554441,'alarmName':'Hard disk prewarning','alarmSN':24128,'arrivedTime':1560207764169,'clearUser':null,'cleared':false,'clearedTime':0,'clearedType':1,'commentTime':0,'commentUser':'','comments':'','devCsn':0,'eventTime':1560236563000,'eventType':2,'moDN':'NE=34603227','moName':'2488H V5-172.171.100.1','neDN':'NE=34603227','neName':'2488H V5-172.171.100.1','neType':'2488H V5','objectInstance':'Sensor name=HDDPlaneDisk4','perceivedSeverity':3,'probableCause':1014873,'proposedRepairActions':'The server can still operate properly. Replace the disk at an appropriate time and environment.'}}} ";
+            var service = new ESightPluginService();
+            service.AnalysisTcpMsg(a);
         }
 
         private void btnStartTask_Click(object sender, EventArgs e)

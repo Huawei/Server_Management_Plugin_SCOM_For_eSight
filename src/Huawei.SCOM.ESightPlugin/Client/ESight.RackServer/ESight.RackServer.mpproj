@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,8 +15,8 @@
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
     <GenerateSealed>True</GenerateSealed>
-    <Company>广州摩赛网络技术有限公司</Company>
-    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <Company>Huawei Technologies Co. Ltd</Company>
+    <Copyright>Copyright (c) Huawei Technologies Co. Ltd. All rights reserved.</Copyright>
     <DelaySigning>False</DelaySigning>
     <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -24,8 +24,8 @@
     <DebugSymbols>false</DebugSymbols>
     <OutputPath>..\..\..\..\Release\MPFiles\</OutputPath>
     <DelaySigning>False</DelaySigning>
-    <Company>广州摩赛网络技术有限公司</Company>
-    <Copyright>Copyright (c) 广州摩赛网络技术有限公司. All rights reserved.</Copyright>
+    <Company>Huawei Technologies Co. Ltd</Company>
+    <Copyright>Copyright (c) Huawei Technologies Co. Ltd. All rights reserved.</Copyright>
     <DelaySign>false</DelaySign>
     <AssemblyOriginatorKeyFile>..\mplib\esight.snk</AssemblyOriginatorKeyFile>
     <GenerateSealed>True</GenerateSealed>
@@ -54,9 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Classes\" />
-    <Folder Include="ClassGroup\" />
     <Folder Include="Discoveries\" />
-    <Folder Include="MonitorPartGroup\" />
     <Folder Include="Monitors\" />
     <Folder Include="Rules\" />
     <Folder Include="Views" />
@@ -64,42 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\RackServer.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Classes\RackServer.Fan.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Classes\RackServer.Memory.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Classes\RackServer.PhysicalDisk.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Classes\RackServer.PowerSupply.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Classes\RackServer.CPU.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Classes\RackServer.RaidController.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ClassGroup\RackServer.FanGroup.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ClassGroup\RackServer.MemoryGroup.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ClassGroup\RackServer.PhysicalDiskGroup.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ClassGroup\RackServer.PowerSupplyGroup.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ClassGroup\RackServer.CPUGroup.mpx">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ClassGroup\RackServer.RaidControllerGroup.mpx">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Discoveries\GroupDiscovery.mptg.mpx">
@@ -110,41 +72,9 @@
       <SubType>Code</SubType>
       <DependentUpon>Discoveries\HuaweiGroupDiscovery.mptg</DependentUpon>
     </Compile>
-    <Compile Include="MonitorPartGroup\RackServer.CPUGroup.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>MonitorPartGroup\RackServer.CPUGroup.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="MonitorPartGroup\RackServer.FanGroup.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>MonitorPartGroup\RackServer.FanGroup.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="MonitorPartGroup\RackServer.MemoryGroup.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>MonitorPartGroup\RackServer.MemoryGroup.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="MonitorPartGroup\RackServer.PhysicalDiskGroup.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>MonitorPartGroup\RackServer.PhysicalDiskGroup.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="MonitorPartGroup\RackServer.PowerSupplyGroup.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>MonitorPartGroup\RackServer.PowerSupplyGroup.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="MonitorPartGroup\RackServer.RaidControllerGroup.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>MonitorPartGroup\RackServer.RaidControllerGroup.mptg</DependentUpon>
-    </Compile>
     <Compile Include="Monitors\HuaweiGroupMonitor.mptg.mpx">
       <SubType>Code</SubType>
       <DependentUpon>Monitors\HuaweiGroupMonitor.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="Monitors\RackServer.CPU.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>Monitors\RackServer.CPU.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="Monitors\RackServer.RaidController.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>Monitors\RackServer.RaidController.mptg</DependentUpon>
     </Compile>
     <Compile Include="Monitors\RackServerGroupMonitor.mptg.mpx">
       <SubType>Code</SubType>
@@ -153,25 +83,9 @@
     <Compile Include="RackServerGroup.mpx">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Monitors\RackServer.Fan.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>Monitors\RackServer.Fan.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="Monitors\RackServer.Memory.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>Monitors\RackServer.Memory.mptg</DependentUpon>
-    </Compile>
     <Compile Include="Monitors\RackServer.mptg.mpx">
       <SubType>Code</SubType>
       <DependentUpon>Monitors\RackServer.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="Monitors\RackServer.PhysicalDisk.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>Monitors\RackServer.PhysicalDisk.mptg</DependentUpon>
-    </Compile>
-    <Compile Include="Monitors\RackServer.PowerSupply.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>Monitors\RackServer.PowerSupply.mptg</DependentUpon>
     </Compile>
     <Compile Include="Rules\RackServerAlertRule105.mptg.mpx">
       <SubType>Code</SubType>
@@ -239,59 +153,11 @@
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>
-    <Content Include="MonitorPartGroup\RackServer.CPUGroup.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="MonitorPartGroup\RackServer.FanGroup.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="MonitorPartGroup\RackServer.MemoryGroup.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="MonitorPartGroup\RackServer.PhysicalDiskGroup.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="MonitorPartGroup\RackServer.PowerSupplyGroup.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="MonitorPartGroup\RackServer.RaidControllerGroup.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
     <Content Include="Monitors\HuaweiGroupMonitor.mptg">
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>
-    <Content Include="Monitors\RackServer.Fan.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Monitors\RackServer.Memory.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
     <Content Include="Monitors\RackServer.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Monitors\RackServer.PhysicalDisk.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Monitors\RackServer.PowerSupply.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Monitors\RackServer.CPU.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Monitors\RackServer.RaidController.mptg">
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>

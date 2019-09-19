@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Service
 // Author           : suxiaobo
@@ -48,6 +58,8 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// </summary>
         private Timer pollingTimer;
 
+        private Timer checkESightChangesTimer;
+
         #region Constructor
 
         /// <summary>
@@ -90,6 +102,50 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <value>The TCP server taxk.</value>
         public Task TcpServerTask { get; private set; }
         #endregion
+
+        /// <summary>
+        /// Starts the check fd changes.
+        /// </summary>
+        public void StartCheckESightChanges()
+        {
+            this.checkESightChangesTimer = new Timer(60 * 1000) { Enabled = true, AutoReset = true };
+            this.checkESightChangesTimer.Elapsed += (s, e) => { this.RunCheckESightChanges(); };
+            this.checkESightChangesTimer.Start();
+        }
+
+        private void RunCheckESightChanges()
+        {
+            var eSightList  =ESightDal.Instance.GetList();
+            HWLogger.Service.Debug($"RunCheckESightChanges:{string.Join("|", eSightList.Select(x => x.Summary()))}");
+            foreach (var eSight in eSightList)
+            {
+                var existESight = this.SyncInstances.FirstOrDefault(y => y.ESightIp == eSight.HostIP)?.Session.ESight;
+                //不存在则新增
+                if (existESight == null)
+                {
+                    OnLog($"check: new eSight was added.{eSight.HostIP}");
+                    this.RunNewESight(eSight);
+                }
+                else
+                {
+                    //账号密码有变化则立即触发轮询
+                    if (eSight.LoginAccount != existESight.LoginAccount || eSight.LoginPd != existESight.LoginPd)
+                    {
+                        OnLog($"check:eSight was changed.{eSight.HostIP}");
+                        this.RunUpdateESight(eSight);
+                    }
+                }
+            }
+
+            foreach (var existESight in this.SyncInstances.Select(x => x.Session.ESight))
+            {
+                if (eSightList.All(x => x.HostIP != existESight.HostIP))
+                {
+                    OnLog($"check:eSight was deleted.{existESight.HostIP}");
+                    this.RunDeleteESight(existESight.HostIP);
+                }
+            }
+        }
 
         #region Public Methods
 
@@ -241,6 +297,8 @@ namespace Huawei.SCOM.ESightPlugin.Service
             this.CheckAndInstallMp();
 
             this.TcpServerTask = Task.Run(() => this.CreateTcpServer());
+
+            this.StartCheckESightChanges();
 #if !DEBUG
             this.RunPolling();
 #endif
@@ -265,9 +323,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 MGroup.Instance.InstallMpb(path);
             }
 
-            // if (!MGroup.Instance.CheckIsInstallMp("eSight.BladeServer.Library"))
+            // if (!MGroup.Instance.CheckIsInstallMp("eSight.Chassis.Library"))
             // {
-            // string path = $"{InstallPath}\\MPFiles\\eSight.BladeServer.Library.mpb";
+            // string path = $"{InstallPath}\\MPFiles\\eSight.Chassis.Library.mpb";
             // MGroup.Instance.InstallMp(path);
             // }
             // if (!MGroup.Instance.CheckIsInstallMp("eSight.HighDensityServer.Library"))
@@ -291,9 +349,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 string path = $"{this.InstallPath}\\MPFiles\\eSight.View.Library.mpb";
                 MGroup.Instance.InstallMpb(path);
             }
-            if (!MGroup.Instance.CheckIsInstallMp("eSight.BladeServer.Library"))
+            if (!MGroup.Instance.CheckIsInstallMp("eSight.Chassis.Library"))
             {
-                string path = $"{this.InstallPath}\\MPFiles\\eSight.BladeServer.Library.mpb";
+                string path = $"{this.InstallPath}\\MPFiles\\eSight.Chassis.Library.mpb";
                 MGroup.Instance.InstallMpb(path);
             }
             if (!MGroup.Instance.CheckIsInstallMp("eSight.HighDensityServer.Library"))
@@ -309,6 +367,11 @@ namespace Huawei.SCOM.ESightPlugin.Service
             if (!MGroup.Instance.CheckIsInstallMp("eSight.KunLunServer.Library"))
             {
                 string path = $"{this.InstallPath}\\MPFiles\\eSight.KunLunServer.Library.mpb";
+                MGroup.Instance.InstallMpb(path);
+            }
+            if (!MGroup.Instance.CheckIsInstallMp("eSight.Dashboard.Library"))
+            {
+                string path = $"{this.InstallPath}\\MPFiles\\eSight.Dashboard.Library.mpb";
                 MGroup.Instance.InstallMpb(path);
             }
 #endif
@@ -476,30 +539,26 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public void AnalysisTcpMsg(string json)
         {
-            var tcpMessage = JsonUtil.DeserializeObject<TcpMessage<object>>(json);
             try
             {
+                var tcpMessage = JsonUtil.DeserializeObject<TcpMessage<object>>(json);
+                var eSightList = ESightDal.Instance.GetList();
+                var eSight = eSightList.FirstOrDefault(x=>x.SubscribeID==tcpMessage.SubscribeId);
+                if (eSight == null)
+                {
+                    throw new Exception("can not find eSight:" + tcpMessage.SubscribeId);
+                }
                 if (tcpMessage.MsgType != TcpMessageType.KeepAlive)
                 {
-                    HWLogger.GetESightNotifyLogger(tcpMessage.ESightIp).Info($"RecieveTcpMsg. data:{json}");
+                    HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"RecieveTcpMsg. data:{json}");
                 }
                 else
                 {
-                    HWLogger.GetESightSubscribeLogger(tcpMessage.ESightIp).Info($"RecieveTcpMsg. data:{json}");
+                    HWLogger.GetESightSubscribeLogger(eSight.HostIP).Info($"RecieveTcpMsg. data:{json}");
                 }
-                var eSight = ESightDal.Instance.GetEntityByHostIp(tcpMessage.ESightIp);
-                if (eSight == null && tcpMessage.MsgType != TcpMessageType.DeleteESight)
-                {
-                    throw new Exception("can not find eSight:" + tcpMessage.ESightIp);
-                }
+                
                 switch (tcpMessage.MsgType)
                 {
-                    case TcpMessageType.SyncESight:
-                        this.RunSyncESight(eSight);
-                        break;
-                    case TcpMessageType.DeleteESight:
-                        this.RunDeleteESight(tcpMessage.ESightIp);
-                        break;
                     case TcpMessageType.Alarm:
                         this.AnalysisAlarm(eSight, json);
                         break;
@@ -513,9 +572,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                HWLogger.GetESightSubscribeLogger(tcpMessage.ESightIp).Error(e);
+                this.OnError("AnalysisTcpMsg Error: ", ex);
             }
         }
 
@@ -536,18 +595,33 @@ namespace Huawei.SCOM.ESightPlugin.Service
             var syncInstance = this.SyncInstances.FirstOrDefault(y => y.ESightIp == eSightIp);
             if (syncInstance != null)
             {
+                syncInstance.UnSubscribeKeepAlive();
+                syncInstance.UnSubscribeAlarm();
+                syncInstance.UnSubscribeNeDevice();
                 syncInstance.Close();
                 this.SyncInstances.Remove(syncInstance);
             }
         }
+        
 
         /// <summary>
-        /// Runs to synchronize eSight.
+        /// Runs when add eSight
         /// </summary>
-        /// <param name="eSight">The e sight.</param>
-        private void RunSyncESight(HWESightHost eSight)
+        /// <param name="fusionDirector">The e sight.</param>
+        private void RunNewESight(HWESightHost eSight)
         {
-            HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"Recieve: Sync this eSight");
+            HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"Recieve: add eSight");
+            var instance = this.FindInstance(eSight);
+            instance.Sync();
+        }
+
+        /// <summary>
+        /// Runs when update feSight.
+        /// </summary>
+        /// <param name="fusionDirector">The fusion director.</param>
+        private void RunUpdateESight(HWESightHost eSight)
+        {
+            HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"Recieve: update eSight");
             var instance = this.FindInstance(eSight);
             instance.Sync();
         }
@@ -571,6 +645,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"[alarmSn:{alarmSn}] AnalysisAlarm.[DN:{dn}][optType:{alarmData.Data.OptType}][alarmName:{alarmData.Data.AlarmName}] ");
 
                     var instance = this.FindInstance(eSight);
+                    instance.UpdateAliveTime(DateTime.Now);//更新保活時間（esight在发生告警后不会发送保活信息）
                     var serverType = instance.GetServerTypeByDn(dn);
                     if (serverType == ServerTypeEnum.ChildBlade)
                     {
@@ -595,7 +670,8 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         return;
                     }
                     instance.StartUpdateTask(alarmData.Data.NeDN, serverType, alarmSn);
-                    instance.InsertEvent(alarmData.Data, serverType); // 插入事件
+                    instance.DealNewAlarm(alarmData.Data); 
+                    //instance.InsertEvent(alarmData.Data, serverType); // 插入事件
                 }
             }
             catch (Exception e)
@@ -624,6 +700,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 var dn = nedeviceData.Data.DeviceId;
                 HWLogger.GetESightNotifyLogger(eSight.HostIP).Info($"AnalysisNeDevice [MsgType:{nedeviceData.MsgType}] [DN:{dn}][deviceName:{nedeviceData.Data.DeviceName}][desc:{nedeviceData.Data.Description}] ");
                 var instance = this.FindInstance(eSight);
+                instance.UpdateAliveTime(DateTime.Now);//更新保活時間（esight在发生告警后不会发送保活信息）
                 switch (nedeviceData.MsgType)
                 {
                     case 1: // 新增
@@ -797,6 +874,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
             }
         }
+
 
         #endregion
 

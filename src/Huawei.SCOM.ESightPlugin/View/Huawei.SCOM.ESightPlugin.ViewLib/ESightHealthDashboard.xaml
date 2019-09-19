@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="Huawei.SCOM.ESightPlugin.ViewLib.ESightHealthDashboard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Huawei.SCOM.ESightPlugin.ViewLib"
+             mc:Ignorable="d" 
+             d:DesignHeight="260" d:DesignWidth="960">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Canvas Width="960" Height="260" Background="#FFF0F0F0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <local:ServerHealthPieChart x:Name="BladePieChart" Title="Blade Server" Grid.Row="0" Grid.Column="0" Height="240" Width="240" />
+                <local:ServerHealthPieChart x:Name="HighDensityPieChart" Title="High Density Server" Grid.Row="0" Grid.Column="1" Height="240" Width="240" />
+                <local:ServerHealthPieChart x:Name="KunLunPieChart" Title="KunLun Server" Grid.Row="0" Grid.Column="2" Height="240" Width="240" />
+                <local:ServerHealthPieChart x:Name="RackPieChart" Title="Rack Server" Grid.Row="0" Grid.Column="3" Height="240" Width="240" />
+            </Grid>
+        </Canvas>
+    </ScrollViewer>
+</UserControl>

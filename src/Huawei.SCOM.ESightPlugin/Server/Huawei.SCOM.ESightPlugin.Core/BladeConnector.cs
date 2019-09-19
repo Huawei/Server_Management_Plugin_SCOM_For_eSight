@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Core
 // Author           : yayun
@@ -616,7 +626,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 oldBlade[propertys["eSight"]].Value = model.ESight;
                 if (model.Status != "-3")
                 {
-                    oldBlade[propertys["Status"]].Value = model.Status;
+                    oldBlade[propertys["Status"]].Value = model.StatusTxt;
                 }
                 oldBlade[propertys["IPAddress"]].Value = model.IpAddress;
                 oldBlade[propertys["Location"]].Value = model.Location;
@@ -924,7 +934,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
                 if (model.Status != "-3")
                 {
-                    oldObject[propertys["Status"]].Value = model.Status;
+                    oldObject[propertys["Status"]].Value = model.StatusTxt;
                 }
                 oldObject[propertys["PresentState"]].Value = "Present";
                 oldObject[propertys["BmcIP"]].Value = model.IpAddress;
@@ -1275,28 +1285,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         }
 
         /// <summary>
-        /// Inserts the history event.
-        /// </summary>
-        /// <param name="eventDatas">The event datas.</param>
-        /// <param name="serverType">Type of the server.</param>
-        /// <param name="eSightIp">The e sight ip.</param>
-        public void InsertHistoryEvent(List<EventData> eventDatas, ServerTypeEnum serverType, string eSightIp)
-        {
-            switch (serverType)
-            {
-                case ServerTypeEnum.Blade:
-                    this.InsertHistoryEvent(this.BladeClass, eventDatas, eSightIp);
-                    break;
-                case ServerTypeEnum.ChildBlade:
-                    this.InsertHistoryEvent(this.ChildBladeClass, eventDatas, eSightIp);
-                    break;
-                case ServerTypeEnum.Switch:
-                    this.InsertHistoryEvent(this.SwitchClass, eventDatas, eSightIp);
-                    break;
-            }
-        }
-
-        /// <summary>
         /// Inserts the device change event.
         /// </summary>
         /// <param name="eventData">The event data.</param>
@@ -1414,7 +1402,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
 
             obj[propertys["eSight"]].Value = model.ESight;
-            obj[propertys["Status"]].Value = model.Status == "-3" ? "0" : model.Status;
+            obj[propertys["Status"]].Value = model.StatusTxt;
             obj[propertys["IPAddress"]].Value = model.IpAddress;
             obj[propertys["Location"]].Value = model.Location;
             obj[propertys["Vendor"]].Value = "HUAWEI";
@@ -1441,7 +1429,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             obj[propertys["UUID"]].Value = model.UUID;
             obj[propertys["eSight"]].Value = model.ESight;
 
-            obj[propertys["Status"]].Value = model.Status == "-3" ? "0" : model.Status;
+            obj[propertys["Status"]].Value = model.StatusTxt;
             obj[propertys["PresentState"]].Value = "Present";
             obj[propertys["BmcIP"]].Value = model.IpAddress;
             obj[propertys["BmcMask"]].Value = string.Empty;
@@ -1473,7 +1461,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.CpuClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["CPUInfo"]].Value = model.Model;
 
@@ -1496,7 +1484,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.DiskClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["DiskLocation"]].Value = model.Location;
             obj[propertys["DiskSerialNumber"]].Value = string.Empty;
@@ -1523,7 +1511,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.FanClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["ControlModel"]].Value = model.ControlModel;
             obj[propertys["RotatePercent"]].Value = model.RotatePercent;
@@ -1547,7 +1535,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var propertys = this.HmmClass.PropertyCollection; // 获取到class的属性
             var obj = new MPObject(MGroup.Instance, this.HmmClass); // 实例化一个class
 
-            obj[propertys["Status"]].Value = model.Status == "-3" ? "0" : model.Status;
+            obj[propertys["Status"]].Value = model.StatusTxt;
             obj[propertys["UUID"]].Value = model.UUID;
 
             obj[propertys["ProductName"]].Value = model.Type;
@@ -1582,7 +1570,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.MemoryClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
 
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["Manufacturer"]].Value = model.Manufacturer;
@@ -1608,7 +1596,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.MezzClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.MezzHealthStatus == "-3" ? "0" : model.MezzHealthStatus;
+            obj[propertys["Status"]].Value = model.MezzHealthStatusTxt;
 
             obj[propertys["MezzInfo"]].Value = model.MezzInfo;
             obj[propertys["PresentState"]].Value = model.PresentState;
@@ -1635,7 +1623,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             obj[propertys["UUID"]].Value = model.UUID;
 
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[propertys["PresentState"]].Value = model.PresentState;
             obj[propertys["PowerMode"]].Value = model.InputMode;
             obj[propertys["PowerRating"]].Value = model.RatePower;
@@ -1660,7 +1648,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, this.RaidClass); // 实例化一个class
 
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
 
             obj[propertys["Type"]].Value = model.RaidType;
             obj[propertys["DeviceInterface"]].Value = model.InterfaceType;
@@ -1695,7 +1683,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             obj[propertys["AssertTag"]].Value = model.AssertTag;
             obj[propertys["MoId"]].Value = model.MoId;
             obj[propertys["UUID"]].Value = model.UUID;
-            obj[propertys["Status"]].Value = model.HealthState == "-3" ? "0" : model.HealthState;
+            obj[propertys["Status"]].Value = model.HealthStateTxt;
             obj[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
             return obj;
         }
@@ -1716,7 +1704,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["CPUInfo"]].Value = model.Model;
@@ -1737,7 +1725,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // obj[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
 
             oldObject[propertys["PresentState"]].Value = model.PresentState;
@@ -1763,7 +1751,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // oldObject[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
 
             oldObject[propertys["PresentState"]].Value = model.PresentState;
@@ -1786,7 +1774,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             if (model.Status != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.Status;
+                oldObject[propertys["Status"]].Value = model.StatusTxt;
             }
 
             // oldObject[propertys["UUID"]].Value = model.UUID;
@@ -1820,7 +1808,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // oldObject[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
 
             oldObject[propertys["PresentState"]].Value = model.PresentState;
@@ -1844,7 +1832,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // oldObject[propertys["UUID"]].Value = model.UUID;
             if (model.MezzHealthStatus != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.MezzHealthStatus;
+                oldObject[propertys["Status"]].Value = model.MezzHealthStatusTxt;
             }
 
             oldObject[propertys["MezzInfo"]].Value = model.MezzInfo;
@@ -1867,7 +1855,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
             oldObject[propertys["PresentState"]].Value = model.PresentState;
             oldObject[propertys["PowerMode"]].Value = model.InputMode;
@@ -1890,7 +1878,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             // obj[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
 
             oldObject[propertys["Type"]].Value = model.RaidType;
@@ -1925,12 +1913,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
-                oldObject[propertys["Status"]].Value = model.HealthState;
+                oldObject[propertys["Status"]].Value = model.HealthStateTxt;
             }
 
             oldObject[this.DisplayNameField].Value = $"{parentName}-{model.Name}";
         }
 
         #endregion
+
     }
 }

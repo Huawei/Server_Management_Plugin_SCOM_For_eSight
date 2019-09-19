@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿using Huawei.SCOM.ESightPlugin.WebServer.Helper;
 using System;
 using System.Collections.Generic;
@@ -11,18 +21,14 @@ using Huawei.SCOM.ESightPlugin.LogUtil;
 
 namespace Huawei.SCOM.ESightPlugin.WebServer
 {
-    using Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper;
-
+ 
     public class Global : System.Web.HttpApplication
     {
-
-
         protected void Application_Start(object sender, EventArgs e)
         {
             NotifyClient.Instance.Init();
         }
-
-
+        
         protected void Session_Start(object sender, EventArgs e)
         {
 

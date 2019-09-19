@@ -8,7 +8,7 @@
         <Visible>true</Visible>
         <Accessibility>Internal</Accessibility>
         <Id>StateView</Id>
-        <DisplayName>BladeServer State</DisplayName>
+        <DisplayName>Chassis State</DisplayName>
         <Description>Description for the new view</Description>
         <Target>ESight.BladeServer</Target>
         <Category>Operations</Category>

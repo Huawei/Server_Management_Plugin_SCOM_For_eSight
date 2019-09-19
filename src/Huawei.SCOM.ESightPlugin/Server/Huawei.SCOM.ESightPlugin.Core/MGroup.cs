@@ -1,3 +1,13 @@
+//**************************************************************************  
+//Copyright (C) 2019 Huawei Technologies Co., Ltd. All rights reserved.
+//This program is free software; you can redistribute it and/or modify
+//it under the terms of the MIT license.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//MIT license for more detail.
+//*************************************************************************  
 ﻿// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Core
 // Author           : yayun
@@ -73,11 +83,11 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 if (instance == null)
                 {
 #if DEBUG
-                    var settings = new ManagementGroupConnectionSettings("192.168" + ".8.236")
+                    var settings = new ManagementGroupConnectionSettings("192.168" + ".8.12")
                     {
                         UserName = "scom",
                         Domain = "MOSAI",//"MOSAI",
-                        Password = ConvertToSecureString("Mosai@520"),//Mosai@520
+                        Password = ConvertToSecureString("Mosai520"),//Mosai@520
                     };
                     instance = new MGroup(settings);
 #else
@@ -89,6 +99,21 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 return instance;
             }
         }
+
+        public DateTime MpInstallTime
+        {
+            get
+            {
+                if (mpInstallTime == null)
+                {
+                    mpInstallTime = GetMpIntallTime();
+                }
+                return mpInstallTime.Value;
+            }
+            set { mpInstallTime = value; }
+        }
+
+        private DateTime? mpInstallTime;
 
         /// <summary>
         /// 检查MP文件是否已安装
@@ -305,7 +330,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         public void UnInstallConnector(Guid connectorGuid)
         {
             var montioringConnector = this.GetConnector(connectorGuid);
-            Console.WriteLine($"Start Uninstall connector: {connectorGuid}");
             HWLogger.Service.Info($"Start Uninstall connector {connectorGuid}");
             try
             {
@@ -327,7 +351,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
                     catch (Exception ex)
                     {
                         HWLogger.Service.Error($"Error on {connectorName} Uninitialize.", ex);
-                        Console.WriteLine($" Error on {connectorName} Uninitialize", ex);
                     }
 
                     icfm.Cleanup(montioringConnector);
@@ -335,17 +358,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 else
                 {
                     HWLogger.Service.Info($"Error uninstalling : Can not find connector: {connectorGuid}");
-                    Console.WriteLine($"Error uninstalling :Can not find connector: {connectorGuid} ");
                 }
             }
             catch (Exception ex)
             {
                 HWLogger.Service.Error("Error uninstalling connector...", ex);
-                Console.WriteLine($" Error uninstalling {connectorGuid} ", ex);
                 throw;
             }
-
-            Console.WriteLine($"{connectorGuid} UnInstall finish");
         }
 
         /// <summary>
@@ -358,14 +377,9 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var criteria = new ManagementPackCriteria($"Name = '{name}'");
             var mp = this.ManagementPacks.GetManagementPacks(criteria).FirstOrDefault();
-            if (mp == null)
-            {
-                Console.WriteLine($"ManagementPack {name} is not installed.");
-            }
-            else
+            if (mp != null)
             {
                 this.ManagementPacks.UninstallManagementPack(mp);
-                Console.WriteLine($"Uninstall {name} Finish.");
             }
         }
 
@@ -402,5 +416,10 @@ namespace Huawei.SCOM.ESightPlugin.Core
             return securePd;
         }
 #endif
+        public DateTime GetMpIntallTime()
+        {
+            var mp = GetManagementPack("ESight.View.Library");
+            return mp.TimeCreated;
+        }
     }
 }
