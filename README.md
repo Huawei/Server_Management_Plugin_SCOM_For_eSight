@@ -8,7 +8,7 @@ I. General Information
 
     Name:     SCOM Plugin for eSight
     Category: Monitoring
-    Version:  1.1.0
+    Version:  1.1.200
   
 II. Description
 
@@ -21,15 +21,18 @@ III.Supported software versions
     
 IV.Software Requirements
 
-    eSight V300R009C00SPC201
+    eSight V300R010C00SPC300
 
 V. Supported Device
  
-    Rack server        : RH2288H V2,RH1288 V3,RH2288 V3,RH2288H V3,RH5885 V3,RH8100 V3,1288H V5,2288H V5,2488 V5
-    Blade server       : E9000
-    High-density server: XH321 V3,XH620 V3,XH622 V3,XH628 V3
-    KunLun server      : 9008L,9016,9032L
+    Rack server        : RH2288H V3,1288H V5,2288H V5,2488 V5,2488H V5
+    Blade server       : E9000(MM910),CH121 V3,CH242 V3
+    High-density server: XH622 V3
     
 VI. Additional Resources
 
     For more information consult User Guide. https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs
+
+VII. Open Source Software Notice
+    
+    https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs/Open_Source_Software_Notice.doc
