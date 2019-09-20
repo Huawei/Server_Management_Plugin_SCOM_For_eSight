@@ -28,6 +28,7 @@ V. Supported Device
     Rack server        : RH2288H V3,1288H V5,2288H V5,2488 V5,2488H V5
     Blade server       : E9000(MM910),CH121 V3,CH242 V3
     High-density server: XH622 V3
+    KunLun server      : 9008L,9016,9032L          
     
 VI. Additional Resources
 
