@@ -96,7 +96,7 @@ namespace ESightPlugin.TestClient
 
         public DeviceChangeEventData DeviceChangeEventData { get; set; }
 
-        public string ESightIp => "112.93.129.237";
+        public string ESightIp => "192.168.0.1";
         #endregion
 
         #region Methods
