@@ -36,5 +36,7 @@ namespace Huawei.SCOM.ESightPlugin.LogUtil
 
         public Logger Sdk => LogManager.GetLogger($"{this.ESightIp}.Sdk");
 
+        public Logger Alarm => LogManager.GetLogger($"{this.ESightIp}.alarm");
+
     }
 }

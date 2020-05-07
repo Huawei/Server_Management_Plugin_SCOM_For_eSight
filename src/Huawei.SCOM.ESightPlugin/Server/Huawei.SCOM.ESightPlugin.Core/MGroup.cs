@@ -83,17 +83,22 @@ namespace Huawei.SCOM.ESightPlugin.Core
                 if (instance == null)
                 {
 #if DEBUG
-                    var settings = new ManagementGroupConnectionSettings("192.168" + ".8.12")
+                    var settings = new ManagementGroupConnectionSettings("192.168" + ".0.61")
                     {
-                        UserName = "scom",
-                        Domain = "MOSAI",//"MOSAI",
-                        Password = ConvertToSecureString("Mosai520"),//Mosai@520
+                        UserName = "Administrator",
+                        Domain = "turnbig",//"MOSAI",
+                        Password = ConvertToSecureString("AsdQwe!23"),
                     };
                     instance = new MGroup(settings);
 #else
 
                     instance = new MGroup("localhost");
 #endif
+                }
+
+                if (!instance.IsConnected)
+                {
+                    instance.Reconnect();
                 }
 
                 return instance;

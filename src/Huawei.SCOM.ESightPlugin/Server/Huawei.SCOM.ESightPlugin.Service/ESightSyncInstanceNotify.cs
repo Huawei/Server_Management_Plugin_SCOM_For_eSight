@@ -30,6 +30,7 @@ using Huawei.SCOM.ESightPlugin.Core.Models;
 using Huawei.SCOM.ESightPlugin.Models;
 using Huawei.SCOM.ESightPlugin.Models.Devices;
 using Huawei.SCOM.ESightPlugin.Models.Server;
+using Microsoft.EnterpriseManagement.Monitoring;
 
 namespace Huawei.SCOM.ESightPlugin.Service
 {
@@ -71,7 +72,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
                 catch (Exception ex)
                 {
-                    logger.NotifyProcess.Error("InsertEvent Error: ", ex);
+                    logger.NotifyProcess.Error(ex, "InsertEvent Error: ");
                 }
             });
         }
@@ -112,7 +113,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
                 catch (Exception ex)
                 {
-                    logger.NotifyProcess.Error("InsertEvent Error: ", ex);
+                    logger.NotifyProcess.Error(ex, "InsertEvent Error: ");
                 }
             });
         }
@@ -208,7 +209,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception e)
             {
-                logger.NotifyProcess.Debug($"[alarmSn:{alarmSn}]-[Dn:{dn}] [serverType:{serverType}] StartUpdateTask Error.", e);
+                logger.NotifyProcess.Debug(e, $"[alarmSn:{alarmSn}]-[Dn:{dn}] [serverType:{serverType}] StartUpdateTask Error.");
             }
         }
 
@@ -252,7 +253,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 }
                 catch (Exception ex)
                 {
-                    logger.NotifyProcess.Error($"DeleteServer {dn} Error: ", ex);
+                    logger.NotifyProcess.Error(ex, $"DeleteServer {dn} Error: ");
                 }
             });
         }
@@ -316,6 +317,69 @@ namespace Huawei.SCOM.ESightPlugin.Service
         }
 
         /// <summary>
+        /// Get device by "DN"
+        /// </summary>
+        /// <param name="dn">DN</param>
+        /// <returns></returns>
+        private MonitoringDeviceObject GetDeviceByDN(string dn)
+        {
+            var deviceId = $"{this.ESightIp}-{dn}";
+            return this.GetDeviceByDeveceId(deviceId);
+        }
+
+        /// <summary>
+        /// Get device by "SCOM deviceId"
+        /// </summary>
+        /// <param name="deviceId">SCOM DN</param>
+        /// <returns></returns>
+        private MonitoringDeviceObject GetDeviceByDeveceId(string deviceId)
+        {
+            var server = BladeConnector.Instance.GetBladeServer(deviceId);
+            if (server != null)
+            {
+                return new MonitoringDeviceObject(deviceId, server, ServerTypeEnum.Blade, BladeConnector.Instance.GetBladeServer);
+            }
+
+            server = BladeConnector.Instance.GetChildBladeServer(deviceId);
+            if (server != null)
+            {
+                return new MonitoringDeviceObject(deviceId, server, ServerTypeEnum.ChildBlade, BladeConnector.Instance.GetChildBladeServer);
+            }
+
+            server = HighdensityConnector.Instance.GetHighdensityServer(deviceId);
+            if (server != null)
+            {
+                return new MonitoringDeviceObject(deviceId, server, ServerTypeEnum.Highdensity, HighdensityConnector.Instance.GetHighdensityServer);
+            }
+
+            server = HighdensityConnector.Instance.GetChildHighdensityServer(deviceId);
+            if (server != null)
+            {
+                return new MonitoringDeviceObject(deviceId, server, ServerTypeEnum.ChildHighdensity, HighdensityConnector.Instance.GetChildHighdensityServer);
+            }
+
+            server = RackConnector.Instance.GetRackServer(deviceId);
+            if (server != null)
+            {
+                return new MonitoringDeviceObject(deviceId, server, ServerTypeEnum.Rack, RackConnector.Instance.GetRackServer);
+            }
+
+            server = KunLunConnector.Instance.GetKunLunServer(deviceId);
+            if (server != null)
+            {
+                return new MonitoringDeviceObject(deviceId, server, ServerTypeEnum.KunLun, KunLunConnector.Instance.GetKunLunServer);
+            }
+
+            server = BladeConnector.Instance.GetSwitchBoard(deviceId);
+            if (server != null)
+            {
+                return new MonitoringDeviceObject(deviceId, server, ServerTypeEnum.Switch, BladeConnector.Instance.GetSwitchBoard);
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// 更新刀片机架
         /// </summary>
         /// <param name="model">The model.</param>
@@ -340,7 +404,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception ex)
             {
-                logger.NotifyProcess.Error($"UpdateBladeServer Error. Dn:{model.DN}.[alarmSn:{alarmSn}]", ex);
+                logger.NotifyProcess.Error(ex, $"UpdateBladeServer Error. Dn:{model.DN}.[alarmSn:{alarmSn}]");
             }
         }
 
@@ -362,7 +426,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception ex)
             {
-                logger.NotifyProcess.Error($"UpdateChildBladeServer Error. Dn:{model.DN} .[alarmSn:{alarmSn}]. ", ex);
+                logger.NotifyProcess.Error(ex, $"UpdateChildBladeServer Error. Dn:{model.DN} .[alarmSn:{alarmSn}]. ");
             }
         }
 
@@ -383,7 +447,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception ex)
             {
-                logger.NotifyProcess.Error($"UpdateChildHighdensityServer Error.Dn:{model.DN} .[alarmSn:{alarmSn}] ", ex);
+                logger.NotifyProcess.Error(ex, $"UpdateChildHighdensityServer Error.Dn:{model.DN} .[alarmSn:{alarmSn}] ");
             }
         }
 
@@ -412,7 +476,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception ex)
             {
-                logger.NotifyProcess.Error($"UpdateHighdensityServer Error.Dn:{model.DN} .[alarmSn:{alarmSn}] ", ex);
+                logger.NotifyProcess.Error(ex, $"UpdateHighdensityServer Error.Dn:{model.DN} .[alarmSn:{alarmSn}] ");
             }
         }
 
@@ -432,7 +496,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception ex)
             {
-                logger.NotifyProcess.Error($"UpdateKunLunServer Error. Dn:{model.DN}.[alarmSn:{alarmSn}] ", ex);
+                logger.NotifyProcess.Error(ex, $"UpdateKunLunServer Error. Dn:{model.DN}.[alarmSn:{alarmSn}] ");
             }
         }
 
@@ -452,7 +516,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception ex)
             {
-                logger.NotifyProcess.Error($"UpdateRackServer Error.Dn:{model.DN}.[alarmSn:{alarmSn}]", ex);
+                logger.NotifyProcess.Error(ex, $"UpdateRackServer Error.Dn:{model.DN}.[alarmSn:{alarmSn}]");
             }
         }
 

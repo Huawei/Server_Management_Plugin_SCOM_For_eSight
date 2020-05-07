@@ -34,7 +34,7 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib.Utils
         /// </summary>
         static LogHelper()
         {
-            var path = Path.Combine(Environment.GetEnvironmentVariable("ESIGHTSCOMPLUGIN") + "Logs");
+            var path = Path.Combine(Environment.GetEnvironmentVariable("ESIGHTSCOMPLUGIN"), "Logs");
             fileName = Path.Combine(path, "Huawei.UI.log");
             if (!Directory.Exists(path))
             {

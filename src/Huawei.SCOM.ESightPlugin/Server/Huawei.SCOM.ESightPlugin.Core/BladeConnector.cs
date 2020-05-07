@@ -382,7 +382,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             }
             else
             {
-                this.InsertDetials(model);
+                this.InsertDetails(model);
             }
         }
 
@@ -390,7 +390,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
         /// The insert detials.
         /// </summary>
         /// <param name="model">The model.</param>
-        private void InsertDetials(BladeServer model)
+        private void InsertDetails(BladeServer model)
         {
             try
             {
@@ -1649,22 +1649,13 @@ namespace Huawei.SCOM.ESightPlugin.Core
 
             obj[propertys["UUID"]].Value = model.UUID;
             obj[propertys["Status"]].Value = model.HealthStateTxt;
-
             obj[propertys["Type"]].Value = model.RaidType;
             obj[propertys["DeviceInterface"]].Value = model.InterfaceType;
             obj[propertys["BBUType"]].Value = model.BbuType;
-            obj[propertys["BBUPresence"]].Value = "Present";
-
             obj[this.DisplayNameField].Value = model.Name;
             return obj;
         }
 
-        /// <summary>
-        /// Creates the raid control.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <param name="parentName">Name of the parent.</param>
-        /// <returns>The <see cref="MPObject" />.</returns>
         private MPObject CreateSwitch(ChildSwithBoard model, string parentName)
         {
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性
@@ -1829,7 +1820,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var propertys = this.MezzClass.PropertyCollection; // 获取到class的属性
 
-            // oldObject[propertys["UUID"]].Value = model.UUID;
             if (model.MezzHealthStatus != "-3")
             {
                 oldObject[propertys["Status"]].Value = model.MezzHealthStatusTxt;
@@ -1875,7 +1865,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
         {
             var propertys = this.RaidClass.PropertyCollection; // 获取到class的属性
 
-            // obj[propertys["UUID"]].Value = model.UUID;
             if (model.HealthState != "-3")
             {
                 oldObject[propertys["Status"]].Value = model.HealthStateTxt;
@@ -1884,18 +1873,9 @@ namespace Huawei.SCOM.ESightPlugin.Core
             oldObject[propertys["Type"]].Value = model.RaidType;
             oldObject[propertys["DeviceInterface"]].Value = model.InterfaceType;
             oldObject[propertys["BBUType"]].Value = model.BbuType;
-            oldObject[propertys["BBUPresence"]].Value = "Present";
-
             oldObject[this.DisplayNameField].Value = model.Name;
         }
 
-        /// <summary>
-        /// Updates the Switch.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <param name="oldObject">The old object.</param>
-        /// <param name="parentName">Name of the parent.</param>
-        /// <returns>MPObject.</returns>
         private void UpdateSwitch(ChildSwithBoard model, MonitoringObject oldObject, string parentName)
         {
             var propertys = this.SwitchClass.PropertyCollection; // 获取到class的属性

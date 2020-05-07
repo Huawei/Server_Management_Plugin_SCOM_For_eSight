@@ -110,8 +110,8 @@ LangString Lan_InvalidPortOccupied_Msg ${LANG_SIMPCHINESE} "端口号被占用，请更换
 LangString Lan_ConfigHeader_Msg ${LANG_ENGLISH} "IP/Port Configuration!"
 LangString Lan_ConfigHeader_Msg ${LANG_SIMPCHINESE} "IP/端口号 配置"
 
-LangString Lan_ConfigTip_Msg ${LANG_ENGLISH} "Please enter the ip address and port(44300-44399) of your computer which will be used to connect by fusion director server."
-LangString Lan_ConfigTip_Msg ${LANG_SIMPCHINESE} "请输入可以被eSight访问的本地IP地址和端口号(44300-44399)。"
+LangString Lan_ConfigTip_Msg ${LANG_ENGLISH} "Please enter the FQDN or IP address and port(44300-44399) of your computer which will be used to connect by eSight server."
+LangString Lan_ConfigTip_Msg ${LANG_SIMPCHINESE} "请输入可以被eSight访问的本地FQDN或IP地址和端口号(44300-44399)。"
 
 LangString Lan_agreeHeader_Msg ${LANG_ENGLISH} "Select features to install"
 LangString Lan_agreeHeader_Msg ${LANG_SIMPCHINESE} "选择功能"

@@ -26,7 +26,7 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib.OM12R2
     {
 
         private static ManagementGroup _huaweiESightMG = null;
-        private static readonly Guid HuaweiESightGuid = new Guid("{11e62afc-aaf9-417c-8125-c31273270968}");
+        public static readonly Guid HuaweiESightGuid = new Guid("{11e62afc-aaf9-417c-8125-c31273270968}");
 
         public static ManagementGroup HuaweiESightMG
         {
@@ -52,14 +52,12 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib.OM12R2
 
         static OM12Connection()
         {
-
-
 #if DEBUG
-            var settings = new ManagementGroupConnectionSettings("192.168" + ".8.12")
+            var settings = new ManagementGroupConnectionSettings("192.168" + ".0.61")
             {
-                UserName = "scom",
-                Domain = "MOSAI",//"MOSAI",
-                Password = ConvertToSecureString("Mosai520"),//Mosai@520
+                UserName = "Administrator",
+                Domain = "turnbig",
+                Password = ConvertToSecureString("AsdQwe!23"),
             };
             OM12Connection.HuaweiESightMG = new ManagementGroup(settings);
             if (!OM12Connection.CreateConnection())
@@ -143,33 +141,36 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib.OM12R2
             IDictionary<String, ManagementPackProperty> keyedProperties = new Dictionary<String, ManagementPackProperty>();
             foreach (var prop in props)
             {
-                keyedProperties.Add(prop.Name, prop);
+                if (!keyedProperties.ContainsKey(prop.Name))
+                {
+                    keyedProperties.Add(prop.Name, prop);
+                }
             }
             return keyedProperties;
         }
 
-        public static IObjectReader<EnterpriseManagementObject> All(string entityClassName)
+        public static IObjectReader<T> All<T>(string entityClassName) where T : EnterpriseManagementObject
         {
             ManagementPackClass clazz = GetManagementPackClass(entityClassName);
-            IObjectReader<EnterpriseManagementObject> items = HuaweiESightMG.EntityObjects
-                .GetObjectReader<EnterpriseManagementObject>(clazz, ObjectQueryOptions.Default);
+            IObjectReader<T> items = HuaweiESightMG.EntityObjects
+                .GetObjectReader<T>(clazz, ObjectQueryOptions.Default);
             return items;
         }
 
-        public static IObjectReader<EnterpriseManagementObject> All(string entityClassName, ObjectQueryOptions queryOption)
+        public static IObjectReader<T> All<T>(string entityClassName, ObjectQueryOptions queryOption) where T : EnterpriseManagementObject
         {
             ManagementPackClass clazz = GetManagementPackClass(entityClassName);
-            IObjectReader<EnterpriseManagementObject> items = HuaweiESightMG.EntityObjects
-                .GetObjectReader<EnterpriseManagementObject>(clazz, queryOption);
+            IObjectReader<T> items = HuaweiESightMG.EntityObjects
+                .GetObjectReader<T>(clazz, queryOption);
             return items;
         }
 
-        public static IObjectReader<EnterpriseManagementObject> Query(string entityClassName, string criteria)
+        public static IObjectReader<T> Query<T>(string entityClassName, string criteria) where T : EnterpriseManagementObject
         {
             ManagementPackClass clazz = GetManagementPackClass(entityClassName);
             EnterpriseManagementObjectCriteria c = new EnterpriseManagementObjectCriteria(criteria, clazz);
-            IObjectReader<EnterpriseManagementObject> items = HuaweiESightMG.EntityObjects
-                .GetObjectReader<EnterpriseManagementObject>(c, ObjectQueryOptions.Default);
+            IObjectReader<T> items = HuaweiESightMG.EntityObjects
+                .GetObjectReader<T>(c, ObjectQueryOptions.Default);
             return items;
         }
 
@@ -193,7 +194,7 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib.OM12R2
         {
             ManagementPackClass mpClass = GetManagementPackClass(entityClassName);
             var c = new EnterpriseManagementObjectCriteria(criteria, mpClass);
-            var reader = HuaweiESightMG.EntityObjects.GetObjectReader<PartialMonitoringObject>(c, ObjectQueryOptions.Default);
+            var reader = HuaweiESightMG.EntityObjects.GetObjectReader<EnterpriseManagementObject>(c, ObjectQueryOptions.Default);
             return reader.Any();
         }
 

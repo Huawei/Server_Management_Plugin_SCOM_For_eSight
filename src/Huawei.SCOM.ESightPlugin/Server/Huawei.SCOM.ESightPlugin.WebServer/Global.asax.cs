@@ -67,6 +67,7 @@ namespace Huawei.SCOM.ESightPlugin.WebServer
             try
             {
                 var requestUrl = System.Web.HttpContext.Current.Request.Url.ToString();
+                HWLogger.NotifyRecv.Info($"Receive New Request: {requestUrl}");
                 if (requestUrl.Contains("AlarmNotification/"))
                 {
                     var newUrl = "/AlarmNotification.ashx?subscribeID=" + requestUrl.Substring(requestUrl.LastIndexOf('/') + 1);

@@ -2,6 +2,7 @@
   <Presentation>
     <StringResources>
       <StringResource ID="ESight.HuaweiServer.AlertMessage" />
+      <StringResource ID="ESight.Alarm.To.SCOM.Alert.Message" />
     </StringResources>
   </Presentation>
   <LanguagePacks>
@@ -11,7 +12,11 @@
           <Name>HuaweiServer Alert Message</Name>
           <Description>The {0}（{3}）occur  a alert ({6}) at {2} ,it caused by {4} and we suggest the repair actions is {5}</Description>
         </DisplayString>
-      </DisplayStrings> 
+        <DisplayString ElementID="ESight.Alarm.To.SCOM.Alert.Message">
+          <Name>Huawei ESight alarm to SCOM alert Message</Name>
+          <Description>An alert "{0}" was reported by {1}({2}) at {3}, it's caused by {4} and the suggest repair action is "{5}".</Description>
+        </DisplayString>
+      </DisplayStrings>
     </LanguagePack>
   </LanguagePacks>
 </ManagementPackFragment>

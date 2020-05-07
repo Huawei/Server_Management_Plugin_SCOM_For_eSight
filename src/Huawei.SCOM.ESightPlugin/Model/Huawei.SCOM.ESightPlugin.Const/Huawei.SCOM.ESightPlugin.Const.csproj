@@ -104,7 +104,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConstMgr.cs" />
+    <Compile Include="AlarmClearType.cs" />
     <Compile Include="ErrorCode.cs" />
+    <Compile Include="ESightEventlogSources.cs" />
     <Compile Include="ESightConnectStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

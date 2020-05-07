@@ -1,1 +1,0 @@
-Please copy to nsis install folder. 

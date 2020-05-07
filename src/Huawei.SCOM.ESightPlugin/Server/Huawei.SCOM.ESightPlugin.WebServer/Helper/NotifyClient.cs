@@ -133,7 +133,6 @@ namespace Huawei.SCOM.ESightPlugin.WebServer.Helper
                         }
                     }
                 }
-                Thread.Sleep(300);
             }
         }
     }

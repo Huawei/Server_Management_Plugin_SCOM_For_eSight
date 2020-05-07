@@ -41,7 +41,7 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib.OM12R2
             {
                 try
                 {
-                    var objects = OM12Connection.All(ESightAppliance.EntityClassName);
+                    var objects = OM12Connection.All<EnterpriseManagementObject>(ESightAppliance.EntityClassName);
                     return Result<List<EnterpriseManagementObject>>.Done(objects.ToList());
                 }
                 catch (Exception e)
@@ -57,7 +57,7 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib.OM12R2
             {
                 try
                 {
-                    var objects = OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{host}'");
+                    var objects = OM12Connection.Query<EnterpriseManagementObject>(ESightAppliance.EntityClassName, $"Host='{host}'");
                     return Result<EnterpriseManagementObject>.Done(objects.FirstOrDefault());
                 }
                 catch (Exception e)

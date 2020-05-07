@@ -108,6 +108,7 @@ namespace Huawei.SCOM.ESightPlugin.Models
             this.ObjectInstance = data.ObjectInstance;
             this.PerceivedSeverity = data.PerceivedSeverity;
             this.ProbableCause = data.ProbableCause ?? 0;
+            this.ProbableCauseStr = data.ProbableCauseStr;
             this.ProposedRepairActions = data.ProposedRepairActions;
         }
 
@@ -273,7 +274,7 @@ namespace Huawei.SCOM.ESightPlugin.Models
         public string ObjectInstance { get; set; }
 
         /// <summary>
-        /// 告警级别。可以是如下值之一：0：不确定1：紧急2：重要3：次要4：提示5：已清除
+        /// 告警级别。可以是如下值之一：0：不确定 1：紧急 2：重要 3：次要 4：提示 5：已清除
         /// </summary>
         [JsonProperty("perceivedSeverity")]
         public int PerceivedSeverity { get; set; }
@@ -283,6 +284,9 @@ namespace Huawei.SCOM.ESightPlugin.Models
         /// </summary>
         [JsonProperty("probableCause")]
         public int ProbableCause { get; set; }
+
+        [JsonProperty("probableCauseStr")]
+        public string ProbableCauseStr { get; set; }
 
         /// <summary>
         ///修复建议。

@@ -81,7 +81,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Server
         /// <param name="eSight">The e sight.</param>
         public ChildBlade(Blade m, string eSight)
         {
-            this.DeviceId = $"{eSight}-{ m.DN}";
+            this.DeviceId = $"{eSight}-{m.DN}";
             this.DN = m.DN;
             this.ESight = eSight;
             this.CPUList = new List<HWCPU>();

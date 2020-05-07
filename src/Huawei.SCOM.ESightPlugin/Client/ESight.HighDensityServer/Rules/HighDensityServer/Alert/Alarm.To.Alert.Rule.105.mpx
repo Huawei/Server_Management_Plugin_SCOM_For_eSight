@@ -1,0 +1,88 @@
+﻿<!-- This file has been automatically generated.
+     Any changes made to this file may be lost the next time it is regenerated. -->
+<ManagementPackFragment SchemaVersion="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Monitoring>
+    <Rules>
+      <Rule ID="ESight.HighdensityServer.Alarm.To.SCOM.Alert.Rule105" Enabled="true" Target="ESight.HighdensityServer" ConfirmDelivery="false" Remotable="true" Priority="Normal" DiscardLevel="100">
+        <Category>Alert</Category>
+        <DataSources>
+          <DataSource ID="DS" TypeID="Windows!Microsoft.Windows.EventProvider">
+            <LogName>HUAWEI ESight Events</LogName>
+            <Expression>
+              <And>
+                <Expression>
+                  <SimpleExpression>
+                    <ValueExpression>
+                      <XPathQuery Type="String">PublisherName</XPathQuery>
+                    </ValueExpression>
+                    <Operator>Equal</Operator>
+                    <ValueExpression>
+                      <Value Type="String">HUAWEI ESight OPEN API</Value>
+                    </ValueExpression>
+                  </SimpleExpression>
+                </Expression>
+                <Expression>
+                  <SimpleExpression>
+                    <ValueExpression>
+                      <XPathQuery Type="String">Params/Param[3]</XPathQuery>
+                    </ValueExpression>
+                    <Operator>Equal</Operator>
+                    <ValueExpression>
+                      <Value Type="String">$Target/Property[Type="EVL!ESight.HuaweiServer"]/DN$</Value>
+                    </ValueExpression>
+                  </SimpleExpression>
+                </Expression>
+                <Expression>
+                  <SimpleExpression>
+                    <ValueExpression>
+                      <XPathQuery>EventDisplayNumber</XPathQuery>
+                    </ValueExpression>
+                    <Operator>Equal</Operator>
+                    <ValueExpression>
+                      <Value Type="UnsignedInteger">105</Value>
+                    </ValueExpression>
+                  </SimpleExpression>
+                </Expression>
+              </And>
+            </Expression>
+          </DataSource>
+        </DataSources>
+        <WriteActions>
+          <WriteAction ID="Alert" TypeID="Health!System.Health.GenerateAlert">
+            <!-- Event Log Params is 1-based -->
+            <Priority>$Data/Params/Param[8]$</Priority>
+            <Severity>$Data/Params/Param[9]$</Severity>
+            <AlertName>$Data/Params/Param[2]$</AlertName>
+            <AlertDescription>$Data[Default='']/EventDescription$</AlertDescription>
+            <AlertOwner />
+            <Suppression>
+              <SuppressionValue>$Data/Params/Param[3]$</SuppressionValue>
+              <SuppressionValue>$Data/Params/Param[6]$</SuppressionValue>
+              <SuppressionValue>$Data/Params/Param[11]$</SuppressionValue>
+            </Suppression>
+            <Custom1>$Data/Params/Param[2]$</Custom1>
+            <Custom2>$Data/Params/Param[3]$</Custom2>
+            <Custom3>$Data/Params/Param[4]$</Custom3>
+            <Custom4>$Data/Params/Param[5]$</Custom4>
+            <Custom5>$Data/Params/Param[6]$</Custom5>
+            <Custom6>$Data/Params/Param[7]$</Custom6>
+            <Custom7>$Data/Params/Param[10]$</Custom7>
+            <Custom8>$Data/Params/Param[11]$</Custom8>
+            <Custom9>$Data/Params/Param[13]$</Custom9>
+            <Custom10>$Data/Params/Param[14]$</Custom10>
+          </WriteAction>
+        </WriteActions>
+      </Rule>
+    </Rules>
+  </Monitoring>
+  <LanguagePacks>
+    <LanguagePack ID="ENU" IsDefault="true">
+      <DisplayStrings>
+        <DisplayString ElementID="ESight.HighdensityServer.Alarm.To.SCOM.Alert.Rule105">
+          <Name>ESight Highdensity-Server alarms to SCOM alerts rule for event 105</Name>
+          <Description>ESight Highdensity-Server alarms to SCOM alerts rule for event 105</Description>
+        </DisplayString>
+      </DisplayStrings>
+    </LanguagePack>
+  </LanguagePacks>
+</ManagementPackFragment>

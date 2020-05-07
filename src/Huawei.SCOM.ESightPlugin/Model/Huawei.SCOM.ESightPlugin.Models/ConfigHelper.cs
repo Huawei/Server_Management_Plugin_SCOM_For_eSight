@@ -49,6 +49,7 @@ namespace Huawei.SCOM.ESightPlugin.Models
             {
                 throw new Exception("can not find config file:");
             }
+
             var config = XmlHelper.Load(typeof(PluginConfig), path) as PluginConfig;
             if (config == null)
             {

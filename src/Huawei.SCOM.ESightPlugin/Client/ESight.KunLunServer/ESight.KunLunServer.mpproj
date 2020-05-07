@@ -31,17 +31,23 @@
     <GenerateSealed>True</GenerateSealed>
   </PropertyGroup>
   <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.DataWarehouse.Library">
+      <HintPath>C:\Program Files (x86)\System Center Visual Studio Authoring Extensions\References\OM2012R2\Microsoft.SystemCenter.DataWarehouse.Library.mp</HintPath>
+      <Alias>MSDL</Alias>
+      <MinVersion>7.1.10226.0</MinVersion>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.SystemCenter.Library">
       <Alias>SC</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.Windows.Library">
       <Alias>Windows</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="System.Health.Library">
       <Alias>Health</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="System.Library">
       <Alias>System</Alias>
@@ -49,7 +55,7 @@
     </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.SystemCenter.Visualization.Library">
       <Alias>Visualization</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +65,9 @@
     <Folder Include="MonitorPartGroup\" />
     <Folder Include="Monitors\" />
     <Folder Include="Rules" />
+    <Folder Include="Rules\KunLun" />
+    <Folder Include="Rules\KunLun\Alert" />
+    <Folder Include="Rules\KunLun\Event" />
     <Folder Include="Views" />
     <Folder Include="Scripts\" />
   </ItemGroup>
@@ -145,45 +154,50 @@
       <SubType>Code</SubType>
       <DependentUpon>Monitors\KunLunServer.PowerSupply.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule105.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.105.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule105.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule116.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.116.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule116.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule127.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.127.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule127.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule138.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.138.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule138.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule149.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.149.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule149.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule205.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.205.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule205.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule216.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.216.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule216.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule227.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.227.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule227.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule238.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.238.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule238.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\KunLunServerAlertRule249.mptg.mpx">
+    <Compile Include="Rules\KunLun\Alert\Alarm.To.Alert.Rule.249.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\KunLunServerAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\KunLun\Event\Event.To.Event.Rule.405.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\KunLun\Event\Event.To.Event.Rule.416.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\KunLun\Event\Event.To.Event.Rule.427.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\KunLun\Event\Event.To.Event.Rule.438.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\KunLun\Event\Event.To.Event.Rule.449.mpx">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Views\KunLunServer.mptg.mpx">
       <SubType>Code</SubType>
@@ -252,46 +266,6 @@
       <Generator>FragmentGenerator</Generator>
     </Content>
     <Content Include="Monitors\KunLunServerGroupMonitor.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule105.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule116.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule127.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule138.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule149.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule205.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule216.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule227.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule238.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\KunLunServerAlertRule249.mptg">
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>

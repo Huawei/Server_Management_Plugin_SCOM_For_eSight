@@ -145,7 +145,7 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib.Client
                 if (result.code == 0)
                 {
                     this.OpenId = result.data;
-                    return Result.Done("eSight authentication passes", null);
+                    return Result.Done("eSight authentication passed", null);
                 }
                 else
                 {

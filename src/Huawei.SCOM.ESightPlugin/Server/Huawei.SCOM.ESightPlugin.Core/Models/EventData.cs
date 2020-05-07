@@ -8,7 +8,7 @@
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //MIT license for more detail.
 //*************************************************************************  
-﻿// ***********************************************************************
+// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Core
 // Author           : yayun
 // Created          : 12-19-2017
@@ -29,12 +29,26 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
     using Huawei.SCOM.ESightPlugin.Models;
     using Microsoft.EnterpriseManagement.Monitoring;
     using ESightPlugin.Models.Server;
+    using System.Diagnostics;
 
     /// <summary>
     /// Class EventModel.
     /// </summary>
     public class EventData
     {
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EventData" /> class.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="eSightIp">The e sight ip.</param>
+        /// <param name="serverType">Type of the server.</param>
+        public EventData(AlarmData data, string eSightIp)
+        {
+            this.AlarmData = data;
+            this.ESightIp = eSightIp;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EventData" /> class.
         /// </summary>
@@ -44,22 +58,35 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         public EventData(AlarmData data, string eSightIp, ServerTypeEnum serverType)
         {
             this.AlarmData = data;
-            this.OptType = data.OptType;
-            this.DeviceId = $"{eSightIp}-{data.MoDN}";
-
             this.ESightIp = eSightIp;
-            this.AlarmSn = data.AlarmSN;
-            this.Channel = data.AlarmName;
-            this.LevelId = this.GetLevel(data.PerceivedSeverity, data.OptType);
-            this.LoggingComputer = eSightIp;
-            this.Message = data.AlarmName;
+            this.ServerType = serverType;
         }
+
+
+        /// <summary>
+        /// EventId used as SCOM event-id
+        /// </summary>
+        public string EventId 
+        {
+            get { return $"{(int)this.GetLevel()}{this.MantissaNumber}"; }
+        }
+
+        /// <summary>
+        /// Event source device type.
+        /// </summary>
+        public ServerTypeEnum ServerType { get; set; }
 
         /// <summary>
         /// Gets or sets the dn.
         /// </summary>
         /// <value>The dn.</value>
-        public string DeviceId { get; set; }
+        public string DeviceId
+        {
+            get
+            {
+                return $"{this.ESightIp}-{this.AlarmData.NeDN}";
+            }
+        }
 
         /// <summary>
         /// Gets or sets the e sight ip.
@@ -71,43 +98,95 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// 1-新增告警 2-清除告警 3-确认告警 4-反确认告警 5-变更告警 6-新增事件
         /// </summary>
         /// <value>The type of the opt.</value>
-        public int OptType { get; set; }
+        public int OptType
+        {
+            get
+            {
+                return AlarmData.OptType;
+            }
+
+            set
+            {
+                OptType = value;
+            }
+        }
 
         /// <summary>
         /// Gets the alarm data.
         /// </summary>
         /// <value>The alarm data.</value>
-        public AlarmData AlarmData { get; }
+        public AlarmData AlarmData 
+        { 
+            get; 
+        }
 
         /// <summary>
         /// Gets or sets the alarm sn.
         /// </summary>
         /// <value>The alarm sn.</value>
-        public int AlarmSn { get; set; }
+        public int AlarmSn
+        {
+            get
+            {
+                return this.AlarmData.AlarmSN;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the channel.
         /// </summary>
         /// <value>The channel.</value>
-        public string Channel { get; set; }
+        public string Channel
+        {
+            get
+            {
+                return this.AlarmData.AlarmName;
+            }
+        }
 
         /// <summary>
         /// 1-Error, 2-Warning, 4-Information, 8-Success Audit, 16-Failure Audit.
         /// </summary>
         /// <value>The level identifier.</value>
-        public int LevelId { get; set; }
+        public EventLogEntryType LevelId
+        {
+            get
+            {
+                return this.GetLevel();
+            }
+        }
 
         /// <summary>
         /// Gets or sets the logging computer.
         /// </summary>
         /// <value>The logging computer.</value>
-        public string LoggingComputer { get; set; }
+        public string LoggingComputer
+        {
+            get
+            {
+                return this.ESightIp;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the message.
         /// </summary>
         /// <value>The message.</value>
-        public string Message { get; set; }
+        public string Message
+        {
+            get
+            {
+                return this.AlarmData.AlarmName;
+            }
+        }
+
+        public bool Cleared
+        {
+            get
+            {
+                return this.AlarmData.Cleared;
+            }
+        }
 
         /// <summary>
         /// 0-information, 1-warning, 2-error
@@ -117,11 +196,11 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         {
             get
             {
-                if (this.LevelId == 1)
+                if (this.LevelId == EventLogEntryType.Error)
                 {
                     return 2;
                 }
-                if (this.LevelId == 2)
+                if (this.LevelId == EventLogEntryType.Warning)
                 {
                     return 1;
                 }
@@ -137,11 +216,11 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         {
             get
             {
-                if (this.LevelId == 1)
+                if (this.LevelId == EventLogEntryType.Error)
                 {
                     return 2;
                 }
-                if (this.LevelId == 2)
+                if (this.LevelId == EventLogEntryType.Warning)
                 {
                     return 1;
                 }
@@ -192,24 +271,26 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
                 }
             }
         }
-        
+
         /// <summary>
         /// To the custom monitoring event.
         /// </summary>
         /// <returns>CustomMonitoringEvent.</returns>
         public CustomMonitoringEvent ToCustomMonitoringEvent()
         {
+
+            // <Description>The {0}（{3}）occur  a alert ({6}) at {2} ,it caused by {4} and we suggest the repair actions is {5}</Description>
             var customMonitoringEvent = new CustomMonitoringEvent(this.DeviceId, this.AlarmSn)
             {
                 LoggingComputer = this.LoggingComputer,
                 Channel = this.Channel,
                 TimeGenerated = DateTime.Now,
-                LevelId = this.LevelId,
+                LevelId = Convert.ToInt32(this.LevelId),
                 EventData = this.ToEventData(),
                 Message = new CustomMonitoringEventMessage(this.Message),
             };
 
-            customMonitoringEvent.Parameters.Add($"{this.Severity}{this.MantissaNumber}");
+            customMonitoringEvent.Parameters.Add(this.EventId);
             customMonitoringEvent.Parameters.Add(this.Priority.ToString());
             customMonitoringEvent.Parameters.Add(this.AlarmData.AdditionalText ?? string.Empty);
             customMonitoringEvent.Parameters.Add(this.AlarmData.AlarmId.ToString());
@@ -222,6 +303,8 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
             return customMonitoringEvent;
         }
 
+
+        /**
         public CustomMonitoringEvent ToCustomMonitoringInitEvent()
         {
             var customMonitoringEvent = new CustomMonitoringEvent(this.DeviceId, this.AlarmSn)
@@ -245,33 +328,35 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
             customMonitoringEvent.Parameters.Add(this.AlarmData.EventType.ToString());
             customMonitoringEvent.Parameters.Add(this.AlarmData.MoName);
             return customMonitoringEvent;
-        }
+        }*/
 
         /// <summary>
         /// Gets the level.
         /// </summary>
-        /// <param name="perceivedSeverity">The perceived severity.</param>
-        /// <param name="optType">Type of the opt.</param>
         /// <returns>System.Int32.</returns>
-        private int GetLevel(int perceivedSeverity, int optType)
+        private EventLogEntryType GetLevel()
         {
-            if (optType == 2 || optType == 6)
+            // When OptType is 2(Clear) or 6(New Event), it's processed BaseConnector#InsertEvent
+            // This kind of Event will not be insert into "EventProvider"
+            if (OptType == 2 || OptType == 6)
             {
-                return 4;
+                return EventLogEntryType.Information;
             }
-            if (perceivedSeverity == 1 || perceivedSeverity == 2)
+
+            switch (this.AlarmData.PerceivedSeverity)
             {
-                return 1;
+                case 1:
+                case 2:
+                    return EventLogEntryType.Error; // 1：紧急 2：重要
+                case 3:
+                    return EventLogEntryType.Warning; // 3：次要
+                case 0:
+                case 4:
+                case 5:
+                    return EventLogEntryType.Information; // 0：不确定 4：提示 5：已清除
+                default:
+                    return EventLogEntryType.Information;
             }
-            if (perceivedSeverity == 3)
-            {
-                return 2;
-            }
-            if (perceivedSeverity == 0 || perceivedSeverity == 4 || perceivedSeverity == 5)
-            {
-                return 4;
-            }
-            return 4;
         }
 
         /// <summary>
@@ -281,6 +366,16 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         private string ToEventData()
         {
             return XmlHelper.SerializeToXmlStr(this.AlarmData, true);
+        }
+
+        public string Description
+        {
+            get
+            {
+                var eventTimeString = TimeHelper.StampToDateTime(AlarmData.EventTime.ToString()).ToString();
+                return $@"Alert ""{AlarmData.AlarmName}"" was reported by ""{AlarmData.ObjectInstance}"" of {DeviceId}({AlarmData.NeType}) at {eventTimeString}.
+It's caused by ""{AlarmData.ProbableCauseStr ?? string.Empty}"" and the suggested repair action is ""{AlarmData.ProposedRepairActions ?? string.Empty}"".";
+            }
         }
     }
 }

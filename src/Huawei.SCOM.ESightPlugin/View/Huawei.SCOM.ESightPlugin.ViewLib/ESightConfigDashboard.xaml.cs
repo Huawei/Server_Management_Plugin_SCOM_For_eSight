@@ -120,13 +120,13 @@ namespace Huawei.SCOM.ESightPlugin.ViewLib
             int selectedIndex = Grid.SelectedIndex;
             if (Grid.SelectedIndex > -1 && selectedIndex < this.ESightApplianceRepo.FilteredItems.Count)
             {
+                ESightAppliance appliance = this.ESightApplianceRepo.FilteredItems[Grid.SelectedIndex];
                 MessageBoxResult confirmResult =
                     MessageBox.Show("Are you sure you want to delete the eSight?",
                                         "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (confirmResult == MessageBoxResult.Yes)
                 {
-                    ESightAppliance appliance = this.ESightApplianceRepo.FilteredItems[Grid.SelectedIndex];
                     this.ActionResult = await this.ESightApplianceRepo.Delete(appliance);
                     if (!this.ActionResult.Success)
                     {

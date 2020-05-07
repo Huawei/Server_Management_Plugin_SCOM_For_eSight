@@ -24,17 +24,20 @@ for /f "tokens=1* delims=." %%a in ("%CurrentVersionFor%") do (
 	 if %i% == 1 ( set mainVersion1=%%a)
 	 if %i% == 2 ( set mainVersion2=%%a)
 	 if %i% == 3 ( set mainVersion3=%%a)
+	 if %i% == 4 ( set /a mainVersion4=%%a)
 	 
 	 set CurrentVersionFor=%%b
 )
 if defined CurrentVersionFor goto :loop
 
 set mainVersion=%mainVersion1%.%mainVersion2%.%mainVersion3%
+set /a buildNumber=%mainVersion4%+1
 echo mainVersion=%mainVersion%
+echo buildNumber=%buildNumber%
 
 rem do package
 set SetupScriptPath=%WORKSPACE%\build\SCOM.nsi
 echo execute %SetupScriptPath%
-"%WORKSPACE%\build\NSIS-Unicode\makensis.exe" /DVERSION=%mainVersion% "%SetupScriptPath%"
+"%WORKSPACE%\build\NSIS-Unicode\makensis.exe" /DVERSION=%mainVersion% /DBUILD_NUMBER=%buildNumber% "%SetupScriptPath%"
 
 Pause

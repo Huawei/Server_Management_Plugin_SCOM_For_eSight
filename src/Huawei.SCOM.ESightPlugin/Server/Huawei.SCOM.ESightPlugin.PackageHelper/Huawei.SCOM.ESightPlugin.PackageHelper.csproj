@@ -70,7 +70,7 @@
       <HintPath>..\..\..\..\third_party\Lib\SCOMSDK\Microsoft.EnterpriseManagement.Packaging.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\third_party\Lib\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\..\..\..\open_source\NLog\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -94,7 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="..\..\..\..\third_party\Lib\IISExpress\iisexpress_amd64_en-US.msi">
+    <None Include="..\..\..\..\vendor\IISExpress\iisexpress_amd64_en-US.msi">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

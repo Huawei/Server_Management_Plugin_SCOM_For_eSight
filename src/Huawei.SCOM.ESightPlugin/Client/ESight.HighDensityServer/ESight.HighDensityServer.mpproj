@@ -31,13 +31,18 @@
     <GenerateSealed>True</GenerateSealed>
   </PropertyGroup>
   <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.DataWarehouse.Library">
+      <HintPath>C:\Program Files (x86)\System Center Visual Studio Authoring Extensions\References\OM2012R2\Microsoft.SystemCenter.DataWarehouse.Library.mp</HintPath>
+      <Alias>MSDL</Alias>
+      <MinVersion>7.1.10226.0</MinVersion>
+    </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.SystemCenter.Library">
       <Alias>SC</Alias>
       <PackageToBundle>false</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.Windows.Library">
       <Alias>Windows</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="System.Health.Library">
       <Alias>Health</Alias>
@@ -58,8 +63,12 @@
     <Folder Include="Discoveries\" />
     <Folder Include="Monitors\" />
     <Folder Include="MonitorPartGroup" />
-    <Folder Include="Rules\Highdensity" />
-    <Folder Include="Rules\ChildBoard" />
+    <Folder Include="Rules\HighDensity" />
+    <Folder Include="Rules\HighDensityServer" />
+    <Folder Include="Rules\HighDensityServer\Alert" />
+    <Folder Include="Rules\HighDensityServer\Event" />
+    <Folder Include="Rules\HighDensity\Alert" />
+    <Folder Include="Rules\HighDensity\Event" />
     <Folder Include="Views" />
     <Folder Include="Rules\" />
     <Folder Include="Scripts\" />
@@ -189,85 +198,95 @@
       <SubType>Code</SubType>
       <DependentUpon>Monitors\HuaweiGroupMonitor.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule105.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.105.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule105.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule116.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.116.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule116.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule127.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.127.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule127.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule138.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.138.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule138.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule149.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.149.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule149.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule205.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.205.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule205.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule216.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.216.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule216.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule227.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.227.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule227.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule238.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.238.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule238.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule249.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Alert\Alarm.To.Alert.Rule.249.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule249.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule105.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Event\Event.To.Event.Rule.405.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule105.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule116.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Event\Event.To.Event.Rule.416.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule116.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule127.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Event\Event.To.Event.Rule.427.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule127.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule138.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Event\Event.To.Event.Rule.438.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule138.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule149.mptg.mpx">
+    <Compile Include="Rules\HighDensityServer\Event\Event.To.Event.Rule.449.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule149.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule205.mptg.mpx">
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.105.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule205.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule216.mptg.mpx">
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.116.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule216.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule227.mptg.mpx">
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.127.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule227.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule238.mptg.mpx">
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.138.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule238.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Highdensity\HighdensityServerAlertRule249.mptg.mpx">
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.149.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Highdensity\HighdensityServerAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.205.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.216.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.227.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.238.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Alert\Alarm.To.Alert.Rule.249.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Event\Event.To.Event.Rule.405.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Event\Event.To.Event.Rule.416.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Event\Event.To.Event.Rule.427.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Event\Event.To.Event.Rule.438.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\HighDensity\Event\Event.To.Event.Rule.449.mpx">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Views\HighdensityServer.mptg.mpx">
       <SubType>Code</SubType>
@@ -360,86 +379,6 @@
       <Generator>FragmentGenerator</Generator>
     </Content>
     <Content Include="Monitors\HuaweiGroupMonitor.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule105.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule116.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule127.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule138.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule149.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule205.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule216.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule227.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule238.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule249.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule105.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule116.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule127.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule138.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule149.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule205.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule216.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule227.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule238.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Highdensity\HighdensityServerAlertRule249.mptg">
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>

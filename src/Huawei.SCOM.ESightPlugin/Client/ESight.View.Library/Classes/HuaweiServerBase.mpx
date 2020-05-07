@@ -2,7 +2,7 @@
   <TypeDefinitions>
     <EntityTypes>
       <ClassTypes>
-        <ClassType ID="ESight.HuaweiServer" Base="System!System.LogicalEntity" Accessibility="Public" Abstract="true" Hosted="false" Singleton="false">
+        <ClassType ID="ESight.HuaweiServer" Base="System!System.PhysicalEntity" Accessibility="Public" Abstract="true" Hosted="false" Singleton="false">
           <Property ID="DN" Key="true" Type="string" CaseSensitive="false" MaxLength="256" MinLength="0" />
         </ClassType>
       </ClassTypes>

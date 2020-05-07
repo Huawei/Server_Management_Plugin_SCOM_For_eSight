@@ -94,7 +94,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
         /// <returns>CustomMonitoringEvent.</returns>
         public CustomMonitoringEvent ToCustomMonitoringEvent()
         {
-            return new CustomMonitoringEvent(this.DeviceId, 0)
+            var monitorEvent = new CustomMonitoringEvent(this.DeviceId, 0)
             {
                 LoggingComputer = this.LoggingComputer,
                 Channel = this.Channel,
@@ -105,6 +105,7 @@ namespace Huawei.SCOM.ESightPlugin.Core.Models
                 EventData = this.ToEventData()
                 // Message = new CustomMonitoringEventMessage(this.Message)
             };
+            return monitorEvent;
         }
 
         /// <summary>

@@ -37,6 +37,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
     using Huawei.SCOM.ESightPlugin.ViewLib.Model;
     using Huawei.SCOM.ESightPlugin.ViewLib.OM12R2;
     using Microsoft.EnterpriseManagement.Common;
+    using Microsoft.EnterpriseManagement.Monitoring;
 
     /// <summary>
     /// Class ESightDal.
@@ -76,7 +77,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         public HWESightHost GetEntityBySubscribeId(string subscribeId)
         {
             IObjectReader<EnterpriseManagementObject> items =
-               OM12Connection.Query(ESightAppliance.EntityClassName, $"SubscribeID='{subscribeId}'");
+               OM12Connection.Query<EnterpriseManagementObject>(ESightAppliance.EntityClassName, $"SubscribeID='{subscribeId}'");
             return items.Select(ConvertMonitoringObjectToESightHost()).FirstOrDefault();
         }
 
@@ -132,7 +133,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         /// </returns>
         public IList<HWESightHost> GetList(string condition = "1=1 ")
         {
-            IObjectReader<EnterpriseManagementObject> monitoringObjects = OM12Connection.All(ESightAppliance.EntityClassName);
+            IObjectReader<EnterpriseManagementObject> monitoringObjects = OM12Connection.All<EnterpriseManagementObject>(ESightAppliance.EntityClassName);
             IEnumerable<HWESightHost> appliances = monitoringObjects.Select(ConvertMonitoringObjectToESightHost());
             return appliances.OrderByDescending(x => x.CreateTime).ToList();
         }
@@ -182,7 +183,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         public HWESightHost GetEntityByHostIp(string hostIp)
         {
             IObjectReader<EnterpriseManagementObject> items =
-                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+                OM12Connection.Query<EnterpriseManagementObject>(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
             return items.Select(ConvertMonitoringObjectToESightHost()).FirstOrDefault();
         }
         #region UpdateESight
@@ -196,7 +197,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         public void UpdateESightKeepAlive(string hostIp, int alarmStatus, string error)
         {
             IObjectReader<EnterpriseManagementObject> items =
-                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+                OM12Connection.Query<EnterpriseManagementObject>(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
             EnterpriseManagementObject managementObject = items.FirstOrDefault();
             if (managementObject == null)
             {
@@ -221,7 +222,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         public void UpdateESightAlarm(string hostIp, int alarmStatus, string error)
         {
             IObjectReader<EnterpriseManagementObject> items =
-                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+                OM12Connection.Query<EnterpriseManagementObject>(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
             EnterpriseManagementObject managementObject = items.FirstOrDefault();
             if (managementObject == null)
             {
@@ -245,7 +246,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         public void UpdateESightNeDevice(string hostIp, int alarmStatus, string error)
         {
             IObjectReader<EnterpriseManagementObject> items =
-                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+                OM12Connection.Query<EnterpriseManagementObject>(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
             EnterpriseManagementObject managementObject = items.FirstOrDefault();
             if (managementObject == null)
             {
@@ -296,7 +297,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper
         public void UpdateESightConnectStatus(string hostIp, string latestStatus, string latestConnectInfo)
         {
             IObjectReader<EnterpriseManagementObject> items =
-                OM12Connection.Query(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
+                OM12Connection.Query<EnterpriseManagementObject>(ESightAppliance.EntityClassName, $"Host='{hostIp}'");
             EnterpriseManagementObject managementObject = items.FirstOrDefault();
             if (managementObject == null)
             {

@@ -123,10 +123,6 @@
       <SubType>Code</SubType>
       <DependentUpon>Views\HuaweiServerDiagramView.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Views\HuaweiServerEventView.mptg.mpx">
-      <SubType>Code</SubType>
-      <DependentUpon>Views\HuaweiServerEventView.mptg</DependentUpon>
-    </Compile>
     <Compile Include="Views\HuweiServerAlertView.mptg.mpx">
       <SubType>Code</SubType>
       <DependentUpon>Views\HuweiServerAlertView.mptg</DependentUpon>
@@ -233,10 +229,6 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Views\HuaweiServerDiagramView.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Views\HuaweiServerEventView.mptg">
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>

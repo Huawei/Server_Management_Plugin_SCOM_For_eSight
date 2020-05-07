@@ -8,7 +8,7 @@
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //MIT license for more detail.
 //*************************************************************************  
-﻿// ***********************************************************************
+// ***********************************************************************
 // Assembly         : Huawei.SCOM.ESightPlugin.Service
 // Author           : suxiaobo
 // Created          : 12-12-2017
@@ -45,6 +45,8 @@ namespace Huawei.SCOM.ESightPlugin.Service
     using Huawei.SCOM.ESightPlugin.RESTeSightLib;
     using Huawei.SCOM.ESightPlugin.RESTeSightLib.Helper;
     using Huawei.SCOM.ESightPlugin.LogUtil;
+
+    using static Huawei.SCOM.ESightPlugin.Const.ConstMgr.ESightEventeLogSource;
 
     using Timer = System.Timers.Timer;
 
@@ -115,7 +117,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
 
         private void RunCheckESightChanges()
         {
-            var eSightList  =ESightDal.Instance.GetList();
+            var eSightList = ESightDal.Instance.GetList();
             HWLogger.Service.Debug($"RunCheckESightChanges:{string.Join("|", eSightList.Select(x => x.Summary()))}");
             foreach (var eSight in eSightList)
             {
@@ -123,15 +125,16 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 //不存在则新增
                 if (existESight == null)
                 {
-                    OnLog($"check: new eSight was added.{eSight.HostIP}");
+                    OnLog($"check: new eSight `{eSight.HostIP}` was added.");
                     this.RunNewESight(eSight);
                 }
                 else
                 {
-                    //账号密码有变化则立即触发轮询
-                    if (eSight.LoginAccount != existESight.LoginAccount || eSight.LoginPd != existESight.LoginPd)
+                    // 账号密码有变化则立即触发轮询
+                    if (eSight.LoginAccount != existESight.LoginAccount || eSight.LoginPd != existESight.LoginPd
+                        || eSight.SubscribeID != existESight.SubscribeID || eSight.HostPort != existESight.HostPort)
                     {
-                        OnLog($"check:eSight was changed.{eSight.HostIP}");
+                        OnLog($"check: eSight `{eSight.HostIP}` was updated.");
                         this.RunUpdateESight(eSight);
                     }
                 }
@@ -141,7 +144,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 if (eSightList.All(x => x.HostIP != existESight.HostIP))
                 {
-                    OnLog($"check:eSight was deleted.{existESight.HostIP}");
+                    OnLog($"check: eSight `{existESight.HostIP}` was deleted.");
                     this.RunDeleteESight(existESight.HostIP);
                 }
             }
@@ -210,6 +213,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         {
             try
             {
+                UnsubscribeESights();
                 if (this.IISProcess != null)
                 {
                     if (!this.IISProcess.HasExited)
@@ -227,6 +231,18 @@ namespace Huawei.SCOM.ESightPlugin.Service
             catch (Exception ex)
             {
                 this.OnLog("Stop Service Error：" + ex);
+            }
+        }
+
+        private void UnsubscribeESights()
+        {
+            this.OnLog("Unsubscribe all esights before service stopped.");
+            var esights = ESightDal.Instance.GetList();
+            foreach (var esgith in esights)
+            {
+                var instance = this.FindInstance(esgith);
+                instance.Unsubscribe();
+                instance.Close();
             }
         }
 
@@ -299,6 +315,8 @@ namespace Huawei.SCOM.ESightPlugin.Service
             this.TcpServerTask = Task.Run(() => this.CreateTcpServer());
 
             this.StartCheckESightChanges();
+
+            this.InitialWindowEventLog();
 #if !DEBUG
             this.RunPolling();
 #endif
@@ -401,6 +419,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
 #endif
         }
 
+
+
+
         /// <summary>
         ///     执行轮询任务
         /// </summary>
@@ -408,28 +429,40 @@ namespace Huawei.SCOM.ESightPlugin.Service
         {
             try
             {
-                this.OnLog("Run Sync Task");
-
-                this.OnLog("Check is need update pd..");
+                this.OnLog("Start sync exists esights.");
                 ESightEngine.Instance.Init();
-                var hwESightHostList = ESightDal.Instance.GetList();
-                if (hwESightHostList != null)
+                var esights = ESightDal.Instance.GetList();
+                if (esights != null)
                 {
-                    this.OnLog($"hwESightHostList Count :{hwESightHostList.Count}");
-                    foreach (var x in hwESightHostList)
+                    this.OnLog($"Exists esight count: {esights.Count}");
+                    foreach (var esgith in esights)
                     {
-                        var instance = this.FindInstance(x);
+                        var instance = this.FindInstance(esgith);
                         instance.Sync();
                     }
                 }
                 else
                 {
-                    this.OnLog("hwESightHostList is null");
+                    this.OnLog("No esight exists.");
                 }
             }
             catch (Exception ex)
             {
-                this.OnError("RunSync Error: ", ex);
+                this.OnError("Failed to sync esights", ex);
+            }
+        }
+
+        private void InitialWindowEventLog()
+        {
+            bool success = WindowEventLogHelper.CreateEventSourceIfNotExists(EVENT_SOURCE, EVENT_LOG_NAME);
+            if (!success)
+            {
+                HWLogger.Service.Error($"Could not create Window EventLog Source {EVENT_SOURCE} with {EVENT_LOG_NAME}");
+                this.OnError($"Failed to create window EventLog {EVENT_LOG_NAME} with Source {EVENT_SOURCE}");
+            }
+            else
+            {
+                HWLogger.Service.Info($"Create Window EventLog Source {EVENT_SOURCE} with {EVENT_LOG_NAME} successfully.");
             }
         }
 
@@ -543,7 +576,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 var tcpMessage = JsonUtil.DeserializeObject<TcpMessage<object>>(json);
                 var eSightList = ESightDal.Instance.GetList();
-                var eSight = eSightList.FirstOrDefault(x=>x.SubscribeID==tcpMessage.SubscribeId);
+                var eSight = eSightList.FirstOrDefault(x => x.SubscribeID == tcpMessage.SubscribeId);
                 if (eSight == null)
                 {
                     throw new Exception("can not find eSight:" + tcpMessage.SubscribeId);
@@ -556,7 +589,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     HWLogger.GetESightSubscribeLogger(eSight.HostIP).Info($"RecieveTcpMsg. data:{json}");
                 }
-                
+
                 switch (tcpMessage.MsgType)
                 {
                     case TcpMessageType.Alarm:
@@ -595,14 +628,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
             var syncInstance = this.SyncInstances.FirstOrDefault(y => y.ESightIp == eSightIp);
             if (syncInstance != null)
             {
-                syncInstance.UnSubscribeKeepAlive();
-                syncInstance.UnSubscribeAlarm();
-                syncInstance.UnSubscribeNeDevice();
+                syncInstance.Unsubscribe();
                 syncInstance.Close();
                 this.SyncInstances.Remove(syncInstance);
             }
         }
-        
+
 
         /// <summary>
         /// Runs when add eSight
@@ -667,16 +698,16 @@ namespace Huawei.SCOM.ESightPlugin.Service
                         var childDeviceId = $"{eSight.HostIP}-{dn}";
                         var parentDn = BladeConnector.Instance.GetSwitchParentDn(childDeviceId);
                         instance.StartUpdateTask(parentDn, ServerTypeEnum.Blade, alarmSn);
+                        instance.SubmitNewAlarm(alarmData.Data);
                         return;
                     }
                     instance.StartUpdateTask(alarmData.Data.NeDN, serverType, alarmSn);
-                    instance.DealNewAlarm(alarmData.Data); 
-                    //instance.InsertEvent(alarmData.Data, serverType); // 插入事件
+                    instance.SubmitNewAlarm(alarmData.Data);
                 }
             }
             catch (Exception e)
             {
-                HWLogger.GetESightNotifyLogger(eSight.HostIP).Error($"AnalysisAlarm Error.", e);
+                HWLogger.GetESightNotifyLogger(eSight.HostIP).Error(e, $"AnalysisAlarm Error.");
             }
         }
 
@@ -721,16 +752,14 @@ namespace Huawei.SCOM.ESightPlugin.Service
                     case 3: // 修改
                         var modifyServerType = instance.GetServerTypeByDn(dn);
                         instance.StartUpdateTask(dn, modifyServerType, 0);
-                        instance.InsertDeviceChangeEvent(nedeviceData.Data, modifyServerType);
                         break;
                     default:
-                        //HWLogger.NOTIFICATION_PROCESS.Error($"UnKnown MsgType :{dn}");
                         break;
                 }
             }
             catch (Exception e)
             {
-                HWLogger.GetESightNotifyLogger(eSight.HostIP).Error($"AnalysisNeDevice Error.", e);
+                HWLogger.GetESightNotifyLogger(eSight.HostIP).Error(e, $"AnalysisNeDevice Error.");
             }
 
         }
@@ -743,7 +772,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
         private void AnalysisAlive(HWESightHost eSight, string json)
         {
             HWLogger.GetESightSubscribeLogger(eSight.HostIP).Info($"Analysis Alive Message. ");
-            //var messge = JsonUtil.DeserializeObject<TcpMessage<NotifyModel<KeepAliveData>>>(json);
             var instance = this.FindInstance(eSight);
             instance.UpdateAliveTime(DateTime.Now);
         }
@@ -845,7 +873,14 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// </param>
         private void OnError(string msg, Exception ex = null)
         {
-            HWLogger.Service.Error(msg, ex);
+            if (ex != null)
+            {
+                HWLogger.Service.Error(ex, msg);
+            }
+            else
+            {
+                HWLogger.Service.Error(msg);
+            }
         }
 
         /// <summary>

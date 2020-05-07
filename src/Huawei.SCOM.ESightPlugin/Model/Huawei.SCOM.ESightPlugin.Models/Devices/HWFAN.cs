@@ -110,7 +110,7 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
         {
             if (serverType == "rack" || serverType == "highdensity")
             {
-                if (this.ControlModel == 0)
+                if (this.ControlModel == "0")
                 {
                     return "--";
                 }
@@ -118,11 +118,26 @@ namespace Huawei.SCOM.ESightPlugin.Models.Devices
             return this.RotatePercent;
         }
 
+        private string _controlModel { get; set; }
         /// <summary>
         /// 风扇模式，含义如下：	“0”：自动	“1”：手动
         /// </summary>
         [JsonProperty(PropertyName = "controlModel")]
-        public int ControlModel { get; set; }
+        public string ControlModel { 
+            get 
+            { 
+                if (this._controlModel == "0")
+                {
+                    return "Auto";
+                }
+                if (this._controlModel == "1")
+                {
+                    return "Manual";
+                }
+                return "";
+            }
+            set { this._controlModel = value; }
+        }
         /// <summary>
         ///索引
         /// </summary>

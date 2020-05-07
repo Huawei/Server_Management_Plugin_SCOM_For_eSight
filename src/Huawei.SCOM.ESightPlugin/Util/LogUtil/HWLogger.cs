@@ -25,9 +25,16 @@ namespace Huawei.SCOM.ESightPlugin.LogUtil
 
         public static Logger Install => LogManager.GetLogger($"Install");
 
+
         public static Logger UI => LogManager.GetLogger($"UI");
 
         public static Logger NotifyRecv => LogManager.GetLogger($"NotifyRecv");
+
+
+        public static Logger GetInstallLogger()
+        {
+            return LogManager.GetLogger($"Install");
+        }
 
         public static Logger GetESightSdkLogger(string eSightIp)
         {

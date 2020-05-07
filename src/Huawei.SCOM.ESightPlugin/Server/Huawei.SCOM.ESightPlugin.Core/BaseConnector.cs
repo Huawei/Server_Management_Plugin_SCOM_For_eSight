@@ -28,6 +28,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading;
@@ -219,7 +220,6 @@ namespace Huawei.SCOM.ESightPlugin.Core
             var obj = new MPObject(MGroup.Instance, mpClass); // 实例化一个class
 
             obj[this.HuaweiServerKey].Value = parentKey;
-
             obj[this.PartGroupKey].Value = parentKey + "-" + mpClass.DisplayName;
             obj[this.DisplayNameField].Value = mpClass.DisplayName;
             return obj;
@@ -402,7 +402,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             }
             catch (Exception ex)
             {
-                HWLogger.GetESightSdkLogger(eSightIp).Error("Insert DeviceChangeEvent Error", ex);
+                HWLogger.GetESightSdkLogger(eSightIp).Error(ex, "Insert DeviceChangeEvent Error");
             }
         }
 
@@ -419,7 +419,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             {
                 var sn = eventData.AlarmSn.ToString();
                 MGroup.Instance.CheckConnection();
-                var logPre = $"[Sn={sn}] [OptType={eventData.OptType}] [LevelId={eventData.LevelId}] ";
+                var logPre = $"[Sn={sn}] [OptType={eventData.OptType}] [LevelId={eventData.LevelId.ToString()}] ";
                 HWLogger.GetESightSdkLogger(eSightIp).Info($"Start Insert Event.[{JsonUtil.SerializeObject(eventData)}]");
                 var obj = GetObjectByDeviceId(mpClass, eventData.DeviceId);
                 if (obj == null)
@@ -446,7 +446,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         {
                             obj.InsertCustomMonitoringEvent(eventData.ToCustomMonitoringEvent());
                             logger.Info($"{logPre}Insert new Event.");
-                            if (eventData.LevelId == 1 || eventData.LevelId == 2)
+                            if (eventData.LevelId == EventLogEntryType.Error || eventData.LevelId == EventLogEntryType.Warning)
                             {
                                 if (eventData.AlarmData.Cleared)//如果告警是清除状态
                                 {
@@ -535,7 +535,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
                         break;
                     case 6:
                         #region 插入事件
-                        if (eventData.LevelId == 4)
+                        if (eventData.LevelId == EventLogEntryType.Information)
                         {
                             var existAlarmDatas = obj.GetMonitoringEvents().Where(x => x.EventData.StartsWith("<AlarmData")).Select(x => x.GetAlarmData()).ToList();
                             //插入事件
@@ -594,7 +594,7 @@ namespace Huawei.SCOM.ESightPlugin.Core
             }
             catch (Exception ex)
             {
-                HWLogger.Service.Error("Install connector error:", ex);
+                HWLogger.Service.Error(ex, "Install connector error:");
                 throw;
             }
         }

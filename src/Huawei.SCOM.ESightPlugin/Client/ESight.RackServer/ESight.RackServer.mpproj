@@ -31,25 +31,31 @@
     <GenerateSealed>True</GenerateSealed>
   </PropertyGroup>
   <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.DataWarehouse.Library">
+      <HintPath>C:\Program Files (x86)\System Center Visual Studio Authoring Extensions\References\OM2012R2\Microsoft.SystemCenter.DataWarehouse.Library.mp</HintPath>
+      <Alias>MSDL</Alias>
+      <MinVersion>7.1.10226.0</MinVersion>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.SystemCenter.Library">
       <Alias>SC</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.Windows.Library">
       <Alias>Windows</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="System.Health.Library">
       <Alias>Health</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="System.Library">
       <Alias>System</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.SystemCenter.Visualization.Library">
       <Alias>Visualization</Alias>
-      <PackageToBundle>false</PackageToBundle>
+      <PackageToBundle>False</PackageToBundle>
     </ManagementPackReference>
   </ItemGroup>
   <ItemGroup>
@@ -57,6 +63,9 @@
     <Folder Include="Discoveries\" />
     <Folder Include="Monitors\" />
     <Folder Include="Rules\" />
+    <Folder Include="Rules\Rack" />
+    <Folder Include="Rules\Rack\Alert" />
+    <Folder Include="Rules\Rack\Event" />
     <Folder Include="Views" />
     <Folder Include="Scripts\" />
   </ItemGroup>
@@ -87,45 +96,50 @@
       <SubType>Code</SubType>
       <DependentUpon>Monitors\RackServer.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule105.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.105.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule105.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule116.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.116.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule116.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule127.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.127.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule127.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule138.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.138.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule138.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule149.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.149.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule149.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule205.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.205.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule205.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule216.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.216.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule216.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule227.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.227.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule227.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule238.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.238.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule238.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\RackServerAlertRule249.mptg.mpx">
+    <Compile Include="Rules\Rack\Alert\Alarm.To.Alert.Rule.249.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\RackServerAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Rack\Event\Event.To.Event.Rule.405.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Rack\Event\Event.To.Event.Rule.416.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Rack\Event\Event.To.Event.Rule.427.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Rack\Event\Event.To.Event.Rule.438.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Rack\Event\Event.To.Event.Rule.449.mpx">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Views\RackServer.mptg.mpx">
       <SubType>Code</SubType>
@@ -162,46 +176,6 @@
       <Generator>FragmentGenerator</Generator>
     </Content>
     <Content Include="Monitors\RackServerGroupMonitor.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule105.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule116.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule127.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule138.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule149.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule205.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule216.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule227.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule238.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\RackServerAlertRule249.mptg">
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>

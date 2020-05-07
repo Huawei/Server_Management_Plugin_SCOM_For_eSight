@@ -56,13 +56,15 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// </summary>
         private readonly List<Task> taskList = new List<Task>();
 
-        private ESightLogger logger;
+        private ESightLogger logger { get; set; }
 
         private readonly TaskFactory taskFactory;
 
         private CancellationTokenSource cts = new CancellationTokenSource();
 
         private PluginConfig pluginConfig;
+
+        private Timer waitSyncTaskFinishedTimer;
 
 
 
@@ -82,8 +84,9 @@ namespace Huawei.SCOM.ESightPlugin.Service
             this.Session = new ESightSession(eSight);
             this.UpdateDnTasks = new List<UpdateDnTask>();
             this.LastAliveTime = DateTime.Now;
-            this.AlarmDatas = new Queue<AlarmData>();
-            this.RunInsertEventTask();
+            this.alarmQueue = new Queue<AlarmData>();
+            this.StartAlarmEventProcessor();
+            this.StartNeDeviceEventProcessor();
             this.StartKeepAliveJob();
             this.pluginConfig = ConfigHelper.GetPluginConfig();
             var scheduler = new LimitedConcurrencyLevelTaskScheduler(pluginConfig.ThreadCount);
@@ -197,44 +200,84 @@ namespace Huawei.SCOM.ESightPlugin.Service
             this.SyncHighdensityList();
             this.SyncRackList();
             this.SyncKunLunList();
-            // 开启一个timer来监听本次轮询任务是否执行完
-            Timer timer = new Timer(1000);
-            timer.Elapsed += (sender, e) =>
+
+            //Timer timer = new Timer(1000);
+            //timer.Elapsed += (sender, e) =>
+            //{
+            //    if (this.IsComplete)
+            //    {
+            //        this.SyncESightOpenAlarms();
+            //        timer.Stop();
+            //    }
+            //};
+            //timer.Start();
+
+            if (waitSyncTaskFinishedTimer == null)
             {
-                if (this.IsComplete)
+                // 开启一个timer来监听本次轮询任务是否执行完
+                waitSyncTaskFinishedTimer = new Timer(3000)
                 {
-                    this.SyncHistoryAlarm();
-                    timer.Stop();
-                }
-            };
-            timer.Start();
+                    AutoReset = false,
+                    Enabled = true,
+                };
+
+                waitSyncTaskFinishedTimer.Elapsed += (sender, e) =>
+                {
+                    try
+                    {
+                        if (IsComplete)
+                        {
+                            logger.Polling.Info("All sync task has finished, sync open alarms now.");
+                            SyncESightOpenAlarms();
+                        }
+                    }
+                    finally
+                    {
+                        if (!IsComplete)
+                        {
+                            waitSyncTaskFinishedTimer.Start(); // Restart timer for next tick's checking
+                        }
+                    }
+                };
+            }
+
+            waitSyncTaskFinishedTimer.Start();
         }
 
 
 
         /// <summary>
-        /// Subscribes the eSight.
+        /// Subscribes messages from eSight.
         /// </summary>
         public void Subscribe()
         {
-            // 如果没有订阅，则订阅
-            Task.Run(async () =>
+            if (this.NeedSubscribeKeepAlive)
             {
-                await Task.Delay(3 * 1000);
-                if (this.NeedSubscribeKeepAlive)
-                {
-                    SubscribeKeepAlive();
-                }
-                if (this.NeedSubscribeAlarm)
-                {
-                    SubscribeAlarm();
-                }
-                if (this.NeedSubscribeDeviceChange)
-                {
-                    SubscribeDeviceChange();
-                }
-            });
+                SubscribeKeepAlive();
+            }
+            if (this.NeedSubscribeAlarm)
+            {
+                SubscribeAlarm();
+            }
+            if (this.NeedSubscribeDeviceChange)
+            {
+                SubscribeDeviceChange();
+            }
         }
+
+
+        /// <summary>
+        /// UNsubscribes messages from eSight.
+        /// </summary>
+        public void Unsubscribe()
+        {
+            logger.Subscribe.Info($"Unsubscribe ESight `{this.ESightIp}` now.");
+            UnSubscribeKeepAlive();
+            UnSubscribeAlarm();
+            UnSubscribeNeDevice();
+        }
+
+
 
         /// <summary>
         /// 订阅设备变更
@@ -263,7 +306,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception e)
             {
-                logger.Subscribe.Error($"Subscription DeviceChange error: {this.ESightIp}", e);
+                logger.Subscribe.Error(e, $"Subscription DeviceChange error: {this.ESightIp}");
             }
         }
 
@@ -295,7 +338,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception e)
             {
-                logger.Subscribe.Error($"Subscription Alarm error: {this.ESightIp}", e);
+                logger.Subscribe.Error(e, $"Subscription Alarm error: {this.ESightIp}");
             }
         }
 
@@ -309,7 +352,6 @@ namespace Huawei.SCOM.ESightPlugin.Service
             {
                 logger.Subscribe.Debug($"Start Subscribe KeepAlive On Polling");
                 var result = this.Session.SubscribeKeepAlive();
-                this.IsNeedKeepAlive = true;
                 var status = 0;
                 if (result.Code != 0)
                 {
@@ -330,7 +372,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             }
             catch (Exception e)
             {
-                logger.Subscribe.Error($"SubscribeKeepAlive error: {this.ESightIp}", e);
+                logger.Subscribe.Error(e, $"SubscribeKeepAlive error: {this.ESightIp}");
             }
 
             #endregion
@@ -344,11 +386,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
             try
             {
                 var resut = this.Session.UnSubscribeKeepAlive(this.Session.ESight.SystemID);
-                logger.Subscribe.Info($"UnSubscribeKeepAlive.eSight:{this.Session.ESight.HostIP} result:{JsonUtil.SerializeObject(resut)}");
+                ESightDal.Instance.UpdateESightKeepAlive(this.ESightIp, 0, string.Empty);
+                logger.Subscribe.Info($"Unsubscribe keepalive messages from eSight `{this.ESightIp}`.");
             }
             catch (Exception e)
             {
-                logger.Subscribe.Error($"Subscription UnSubscribeKeepAlive error: {this.ESightIp}", e);
+                logger.Subscribe.Error(e, $"Unsubscribe keepalive messages from eSight `{this.ESightIp}` failed.");
             }
 
         }
@@ -361,12 +404,13 @@ namespace Huawei.SCOM.ESightPlugin.Service
             try
             {
                 var resut = this.Session.UnSubscribeAlarm(this.Session.ESight.SystemID);
-                logger.Subscribe.Info($"UnSubscribeAlarm.eSight:{this.Session.ESight.HostIP} result:{JsonUtil.SerializeObject(resut)}");
-
+                // 订阅后更新实体
+                ESightDal.Instance.UpdateESightAlarm(this.ESightIp, 0, string.Empty);
+                logger.Subscribe.Info($"Unsubscribe alarm messages from eSight `{this.ESightIp}`.");
             }
             catch (Exception e)
             {
-                logger.Subscribe.Error($"Subscription UnSubscribeAlarm error: {this.ESightIp}", e);
+                logger.Subscribe.Error(e, $"Unsubscribe alarm messages from eSight `{this.ESightIp}` failed.");
             }
 
         }
@@ -379,11 +423,12 @@ namespace Huawei.SCOM.ESightPlugin.Service
             try
             {
                 var resut = this.Session.UnSubscribeNeDevice(this.Session.ESight.SystemID);
-                logger.Subscribe.Info($"UnSubscribeNeDevice.eSight:{this.Session.ESight.HostIP} result:{JsonUtil.SerializeObject(resut)}");
+                ESightDal.Instance.UpdateESightNeDevice(this.ESightIp, 0, string.Empty);
+                logger.Subscribe.Info($"Unsubscribe NE Device messages from eSight `{this.ESightIp}`.");
             }
             catch (Exception e)
             {
-                logger.Subscribe.Error($"Subscription UnSubscribeNeDevice error: {this.ESightIp}", e);
+                logger.Subscribe.Error(e, $"Unsubscribe NE Device messages from eSight `{this.ESightIp}` failed.");
             }
 
         }
@@ -659,22 +704,28 @@ namespace Huawei.SCOM.ESightPlugin.Service
                 {
                     if (IsNeedKeepAlive)
                     {
+                        this.IsNeedKeepAlive = false;
                         #region Check
                         try
                         {
                             if ((DateTime.Now - this.LastAliveTime).TotalMinutes > 10)
                             {
                                 logger.Subscribe.Error($"[{this.ESightIp}]-keep Alive TimeOut.Will subcribe again.LastAliveTime:{this.LastAliveTime:yyyy-MM-dd HH:mm:ss}");
-                                this.IsNeedKeepAlive = false;
-                                this.SubscribeKeepAlive();
+                                
+                                // TODO(turnbig) what if failed here ...
                                 this.SubscribeAlarm();
                                 this.SubscribeDeviceChange();
+                                this.SubscribeKeepAlive();
                             }
                         }
                         catch (Exception e)
                         {
                             logger.Subscribe.Error(e);
                             throw;
+                        } 
+                        finally
+                        {
+                            this.IsNeedKeepAlive = true;
                         }
                         #endregion
                     }
@@ -701,7 +752,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
             logger.Subscribe.Info("Delete ESight SyncInstance");
             this.IsRunning = false;
             this.IsNeedKeepAlive = false;
-            this.AlarmDatas.Clear();
+            this.alarmQueue.Clear();
             this.cts.Cancel(false);
         }
         #endregion
@@ -722,7 +773,7 @@ namespace Huawei.SCOM.ESightPlugin.Service
         /// <param name="ex">The ex.</param>
         private void OnPollingError(string msg, Exception ex = null)
         {
-            logger.Polling.Error(msg, ex);
+            logger.Polling.Error(ex, msg);
         }
     }
 }

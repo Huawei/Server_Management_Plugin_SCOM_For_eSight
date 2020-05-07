@@ -31,6 +31,12 @@
     <GenerateSealed>True</GenerateSealed>
   </PropertyGroup>
   <ItemGroup>
+    <ManagementPackReference Include="Microsoft.SystemCenter.DataWarehouse.Library">
+      <HintPath>C:\Program Files (x86)\System Center Visual Studio Authoring Extensions\References\OM2012R2\Microsoft.SystemCenter.DataWarehouse.Library.mp</HintPath>
+      <Alias>MSDL</Alias>
+      <MinVersion>7.1.10226.0</MinVersion>
+      <PackageToBundle>False</PackageToBundle>
+    </ManagementPackReference>
     <ManagementPackReference Include="Microsoft.SystemCenter.Library">
       <Alias>SC</Alias>
       <PackageToBundle>False</PackageToBundle>
@@ -59,9 +65,15 @@
     <Folder Include="Monitors" />
     <Folder Include="Discoveries" />
     <Folder Include="Rules" />
-    <Folder Include="Rules\Blade" />
+    <Folder Include="Rules\Blade\Alert" />
+    <Folder Include="Rules\Blade\Event" />
     <Folder Include="Rules\ChildBlade" />
-    <Folder Include="Rules\ChildBoard" />
+    <Folder Include="Rules\Blade" />
+    <Folder Include="Rules\ChildBlade\Alert" />
+    <Folder Include="Rules\ChildBlade\Event" />
+    <Folder Include="Rules\Switch" />
+    <Folder Include="Rules\Switch\Alert" />
+    <Folder Include="Rules\Switch\Event" />
     <Folder Include="Scripts" />
     <Folder Include="Views" />
   </ItemGroup>
@@ -232,125 +244,140 @@
       <SubType>Code</SubType>
       <DependentUpon>Monitors\HuaweiGroupMonitor.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule105.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.105.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule105.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule116.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.116.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule116.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule127.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.127.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule127.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule138.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.138.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule138.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule149.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.149.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule149.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule205.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.205.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule205.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule216.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.216.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule216.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule227.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.227.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule227.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule238.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.238.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule238.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\Blade\BladeServerAlertRule249.mptg.mpx">
+    <Compile Include="Rules\Blade\Alert\Alarm.To.Alert.Rule.249.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\Blade\BladeServerAlertRule249.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule105.mptg.mpx">
+    <Compile Include="Rules\Blade\Event\Event.To.Event.Rule.405.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule105.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule116.mptg.mpx">
+    <Compile Include="Rules\Blade\Event\Event.To.Event.Rule.416.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule116.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule127.mptg.mpx">
+    <Compile Include="Rules\Blade\Event\Event.To.Event.Rule.427.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule127.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule138.mptg.mpx">
+    <Compile Include="Rules\Blade\Event\Event.To.Event.Rule.438.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule138.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule149.mptg.mpx">
+    <Compile Include="Rules\Blade\Event\Event.To.Event.Rule.449.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule149.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule205.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.105.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule205.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule216.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.116.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule216.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule227.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.127.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule227.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule238.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.138.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule238.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBlade\ChildBladeAlertRule249.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.149.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBlade\ChildBladeAlertRule249.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule105.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.205.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule105.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule116.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.216.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule116.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule127.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.227.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule127.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule138.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.238.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule138.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule149.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Alert\ChildBlade.Alarm.To.Alert.Rule.249.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule149.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule205.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Event\Event.To.Event.Rule.405.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule205.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule216.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Event\Event.To.Event.Rule.416.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule216.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule227.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Event\Event.To.Event.Rule.427.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule227.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule238.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Event\Event.To.Event.Rule.438.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule238.mptg</DependentUpon>
     </Compile>
-    <Compile Include="Rules\ChildBoard\ChildBoardAlertRule249.mptg.mpx">
+    <Compile Include="Rules\ChildBlade\Event\Event.To.Event.Rule.449.mpx">
       <SubType>Code</SubType>
-      <DependentUpon>Rules\ChildBoard\ChildBoardAlertRule249.mptg</DependentUpon>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.105.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.116.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.127.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.138.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.149.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.205.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.216.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.227.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.238.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Alert\Alarm.To.Alert.Rule.249.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Event\Event.To.Event.Rule.405.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Event\Event.To.Event.Rule.416.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Event\Event.To.Event.Rule.427.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Event\Event.To.Event.Rule.438.mpx">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rules\Switch\Event\Event.To.Event.Rule.449.mpx">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="Views\BladeServerDiagramView.mptg.mpx">
       <SubType>Code</SubType>
@@ -467,126 +494,6 @@
       <Generator>FragmentGenerator</Generator>
     </Content>
     <Content Include="Monitors\HuaweiGroupMonitor.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule105.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule116.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule127.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule138.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule149.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule205.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule216.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule227.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule238.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\Blade\BladeServerAlertRule249.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule105.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule116.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule127.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule138.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule149.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule205.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule216.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule227.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule238.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBlade\ChildBladeAlertRule249.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule105.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule116.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule127.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule138.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule149.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule205.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule216.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule227.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule238.mptg">
-      <SubType>Content</SubType>
-      <Generator>FragmentGenerator</Generator>
-    </Content>
-    <Content Include="Rules\ChildBoard\ChildBoardAlertRule249.mptg">
       <SubType>Content</SubType>
       <Generator>FragmentGenerator</Generator>
     </Content>

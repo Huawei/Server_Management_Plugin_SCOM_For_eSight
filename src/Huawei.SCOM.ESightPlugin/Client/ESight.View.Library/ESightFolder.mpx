@@ -6,7 +6,6 @@
       <Folder ID="ESight.Performance.Folder" Accessibility="Public" ParentFolder="ESight.Folder" />
       <Folder ID="ESight.Diagram.Folder" Accessibility="Public" ParentFolder="ESight.Folder" />
       <Folder ID="ESight.Alert.Folder" Accessibility="Public" ParentFolder="ESight.Folder" />
-      <Folder ID="ESight.Event.Folder" Accessibility="Public" ParentFolder="ESight.Folder" />
       <Folder ID="ESight.Performance.Power.Folder" Accessibility="Public" ParentFolder="ESight.Performance.Folder" />
       <Folder ID="ESight.Performance.Temperature.Folder" Accessibility="Public" ParentFolder="ESight.Performance.Folder" />
       <Folder ID="ESight.Performance.Usage.Folder" Accessibility="Public" ParentFolder="ESight.Performance.Folder" />
@@ -35,10 +34,6 @@
         <DisplayString ElementID="ESight.Alert.Folder">
           <Name>Alerts Views</Name>
           <Description>eSight Server Alert Folder</Description>
-        </DisplayString>
-        <DisplayString ElementID="ESight.Event.Folder">
-          <Name>Events Views</Name>
-          <Description>eSight Server Event Folder</Description>
         </DisplayString>
         <DisplayString ElementID="ESight.Performance.Power.Folder">
           <Name>Power</Name>

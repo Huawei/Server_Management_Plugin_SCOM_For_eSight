@@ -497,7 +497,7 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
             catch (Exception ex)
             {
                 result.Description = ex.Message;
-                logger.Api.Error("SubscribeAlarm Error: ", ex);
+                logger.Api.Error(ex, "SubscribeAlarm Error: ");
             }
             return result;
         }
@@ -651,39 +651,41 @@ namespace Huawei.SCOM.ESightPlugin.RESTeSightLib
         /// <summary>
         /// Gets the alarm history.
         /// </summary>
-        /// <param name="startPage">The start page.</param>
+        /// <param name="page">The page of the pagination.</param>
         /// <returns>QueryPageResult&lt;AlarmHistory&gt;.</returns>
         /// <exception cref="ESSessionExpceion">e</exception>
-        public AlarmHistoryList GetAlarmHistory(int startPage)
+        public AlarmHistoryList GetOpenAlarms(int page)
         {
             var result = new AlarmHistoryList();
             string url = string.Empty;
             try
             {
-                StringBuilder sb = new StringBuilder($"rest/openapi/alarm?clearStatus=0&ackStatus=0&pageNo={startPage}&pageSize=100");
+                StringBuilder sb = new StringBuilder($"rest/openapi/alarm?clearStatus=0&ackStatus=0&pageNo={page}&pageSize=100");
                 url = this.GetFullUrl(sb.ToString());
-                logger.Api.Info($"GetAlarmHistory start.Url:{url}");
+                logger.Api.Info($"Get open alarms from esight, request URL: {url}");
 
                 this.CheckAndReLogin();
                 this.TrustCertificate();
 
                 var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Add("openid", this.OpenId);
-                var res = httpClient.GetAsync(url).Result;
-                var resultStr = res.Content.ReadAsStringAsync().Result;
-                logger.Api.Debug($"GetAlarmHistory success.Url:{url} \r\n result:{resultStr}");
-                resultStr = resultStr.Replace("\"data\":\"null\"", "\"data\":[]");
-                result = JsonUtil.DeserializeObject<AlarmHistoryList>(resultStr);
+                var resp = httpClient.GetAsync(url).Result;
+                var respContent = resp.Content.ReadAsStringAsync().Result;
+
+                logger.Api.Debug($"Get open alarms from esight successfully. Response content:{respContent}");
+
+                respContent = respContent.Replace("\"data\":\"null\"", "\"data\":[]");
+                result = JsonUtil.DeserializeObject<AlarmHistoryList>(respContent);
                 if (result.Code != 0)
                 {
-                    throw new ESSessionExpceion(result.Code.ToString(), this, resultStr);
+                    throw new ESSessionExpceion(result.Code.ToString(), this, respContent);
                 }
             }
             catch (Exception ex)
             {
                 result.Code = -1;
                 result.Description = ex.Message;
-                logger.Api.Error($"GetAlarmHistory Error.Url:{url} : ", ex);
+                logger.Api.Error(ex, $"Get open alarms from esight failed, request URL: {url}.");
                 throw;
             }
             return result;

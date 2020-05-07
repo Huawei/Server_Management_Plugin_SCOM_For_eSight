@@ -85,11 +85,12 @@
   <ItemGroup>
     <Reference Include="Microsoft.EnterpriseManagement.Core, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.EnterpriseManagement.OperationsManager, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.EnterpriseManagement.Runtime, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\third_party\Lib\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\..\open_source\Newtonsoft.Json\newtonsoft.json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\third_party\Lib\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\..\..\..\open_source\NLog\NLog.4.5.11\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -116,9 +117,10 @@
       <DependentUpon>ESightPluginService.cs</DependentUpon>
     </Compile>
     <Compile Include="ESightSyncInstance.cs" />
-    <Compile Include="ESightSyncInstanceEvent.cs" />
+    <Compile Include="ESightAlarmEventProcessor.cs" />
     <Compile Include="ESightSyncInstanceNotify.cs" />
     <Compile Include="LimitedConcurrencyLevelTaskScheduler.cs" />
+    <Compile Include="ESightDeviceEventProcessor.cs" />
     <Compile Include="UpdateDnTask.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectInstaller.cs">
