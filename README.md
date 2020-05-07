@@ -8,7 +8,7 @@ I. General Information
 
     Name:     SCOM Plugin for eSight
     Category: Monitoring
-    Version:  1.1.200
+    Version:  2.0.3
   
 II. Description
 
@@ -18,6 +18,7 @@ III.Supported software versions
 
     SCOM 2012R2 
     SCOM 2016 
+    SCOM 2019
     
 IV.Software Requirements
 
@@ -36,4 +37,4 @@ VI. Additional Resources
 
 VII. Open Source Software Notice
     
-    https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs/Open_Source_Software_Notice.doc
+    https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs/Open Source Software Notice.doc
