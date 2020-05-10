@@ -23,6 +23,7 @@ III.Supported software versions
 IV.Software Requirements
 
     eSight V300R010C00SPC300
+    eSight V300R010C00SPC600
 
 V. Supported Device
  
@@ -31,10 +32,6 @@ V. Supported Device
     High-density server: XH622 V3
     KunLun server      : 9008L,9016,9032L          
     
-VI. Additional Resources
-
-    For more information consult User Guide. https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs
-
-VII. Open Source Software Notice
+VI. Open Source Software Notice
     
-    https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs/Open Source Software Notice.doc
+    https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs
