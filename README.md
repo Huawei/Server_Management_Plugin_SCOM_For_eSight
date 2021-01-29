@@ -22,9 +22,9 @@ III. Function Description
     3. View the alarm information of servers managed by eSight.
     4. View the topologies of servers managed by eSight.        
     
-IV. Open Source Software Notice
+IV. Additional Resources
     
-    https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs
+    For more information consult User Guide: https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs
     
 V. Open Source Software Notice
 
