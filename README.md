@@ -7,20 +7,23 @@ Microsoft System Center Operations Manager Plugin for Huawei Server
 I. General Information
 
     Name:     SCOM Plugin for eSight
-    Category: Monitoring
-    Version:  2.0.3
+    Category: Monitoring、Alarm
+    Version:  2.0.3
   
-II. Description
+II. Function Description
 
     The Huawei SCOM plug-in is a plug-in integrated in the System Center Operations Manager software and used for Huawei server management.
     By adding eSight, it can monitor the health status and alarm information of Huawei servers.
-    
-III. Function Description
-
     1. View the information of servers and components managed by eSight.
     2. View the health status of servers and components managed by eSight.
     3. View the alarm information of servers managed by eSight.
-    4. View the topologies of servers managed by eSight.        
+    4. View the topologies of servers managed by eSight.
+
+III. Version notice
+    
+    1. Compatible with SCOM 2019.
+    2. Interconnected with FD 1.6.1.SPC2/1.6.0.SPC1.
+    3. Security rectification.
     
 IV. Additional Resources
     
