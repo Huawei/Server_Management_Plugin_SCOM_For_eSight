@@ -19,16 +19,28 @@ II. Function Description
     3. View the alarm information of servers managed by eSight.
     4. View the topologies of servers managed by eSight.
 
-III. Version notice
+III. Supported software versions
     
-    1. Compatible with SCOM 2019.
-    2. Interconnected with FD 1.6.1.SPC2/1.6.0.SPC1.
-    3. Security rectification.
+    SCOM 2012R2 
+    SCOM 2016 
+    SCOM 2019
     
-IV. Additional Resources
-    
-    For more information consult User Guide: https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/tree/master/docs
-    
-V. Open Source Software Notice
+IV.Software Requirements
 
+    eSight V300R010C00SPC300
+    eSight V300R010C00SPC600
+
+V. Supported Device
+ 
+    Rack server        : RH2288H V3,1288H V5,2288H V5,2488 V5,2488H V5
+    Blade server       : E9000(MM910),CH121 V3,CH242 V3
+    High-density server: XH622 V3
+    KunLun server      : 9008,9016,9032          
+    
+VI. Additional Resources
+
+    For more information consult User Guide: https://github.com/Huawei/Huawei_FusionDirector_For_SCOM/tree/master/docs
+
+VII. Open Source Software Notice
+    
     https://github.com/Huawei/Server_Management_Plugin_SCOM_For_eSight/blob/master/docs/Open%20Source%20Software%20Notice.doc
